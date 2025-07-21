@@ -11,7 +11,7 @@ if ('serviceWorker' in navigator) {
 
 // 2. 地図の初期化
 // 箕面大滝の座標 (緯度, 経度)
-const minohFall = [34.86325, 135.46941];
+const minohFall = [34.853667, 135.472041];
 const map = L.map('map').setView(minohFall, 15);
 
 // 3. 国土地理院の標準地図タイルレイヤーを追加
