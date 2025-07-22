@@ -4,13 +4,9 @@
     right: 10px;
     z-index: 1000;
     display: flex;
+    flex-direction: column-reverse; /* 要素を下から上に積む */
     align-items: flex-end;
-}
-.image-overlay-controls > .leaflet-control {
-    margin-left: 10px;
-}
-.image-overlay-controls > .leaflet-control:first-child {
-    margin-left: 0;
+    gap: 10px; /* 要素間の隙間 */
 }
 #scaleInputContainer {
     display: flex;
@@ -22,6 +18,18 @@
     white-space: nowrap;
 }
 #scaleInput {
+    width: 4em;
+}
+#opacityInputContainer {
+    display: flex;
+    align-items: center;
+    padding: 5px 8px;
+}
+#opacityInputContainer label {
+    margin-right: 8px;
+    white-space: nowrap;
+}
+#opacityInputContainer input {
     width: 4em;
 }
 #loadImageBtn {

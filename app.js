@@ -33,6 +33,7 @@ L.marker(minohFall).addTo(map)
     const imageInput = document.getElementById('imageInput');
     const loadImageBtn = document.getElementById('loadImageBtn');
     const scaleInput = document.getElementById('scaleInput');
+    const opacityInput = document.getElementById('opacityInput');
 
     /**
      * 現在の画像と設定値に基づいて、地図上の画像オーバーレイを更新する
@@ -51,6 +52,9 @@ L.marker(minohFall).addTo(map)
         const scale = parseFloat(scaleInput.value);
         const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // 不正な値なら0.3を適用
 
+        const opacityValue = parseInt(opacityInput.value, 10);
+        const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
+
         const mapSize = map.getSize();
         const mapCenterLatLng = map.getCenter();
         const imageAspectRatio = currentImage.height / currentImage.width;
@@ -62,7 +66,7 @@ L.marker(minohFall).addTo(map)
         const imageBounds = L.latLngBounds(map.layerPointToLatLng(topLeftPoint), map.layerPointToLatLng(bottomRightPoint));
         
         imageOverlay = L.imageOverlay(currentImage.src, imageBounds, {
-            opacity: 0.5 // 50%の透過度
+            opacity: displayOpacity
         }).addTo(map);
     }
 
@@ -71,6 +75,9 @@ L.marker(minohFall).addTo(map)
 
     // 表示倍率のテキストボックスの値が変更されたら、画像の表示を更新
     scaleInput.addEventListener('input', updateImageDisplay);
+
+    // 透過度のテキストボックスの値が変更されたら、画像の表示を更新
+    opacityInput.addEventListener('input', updateImageDisplay);
 
     // ファイルが選択されたときの処理
     imageInput.addEventListener('change', (event) => {
