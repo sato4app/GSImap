@@ -3,12 +3,12 @@
   "name": "国土地理院 地形図ビューア",
   "icons": [
     {
-      "src": "/icons/MapIcon-192.png",
+      "src": "icons/MapIcon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/icons/MapIcon-512.png",
+      "src": "icons/MapIcon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
