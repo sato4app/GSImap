@@ -57,7 +57,12 @@ L.marker(minohFall).addTo(map)
 
         const mapSize = map.getSize();
         const mapCenterLatLng = map.getCenter();
-        const imageAspectRatio = currentImage.height / currentImage.width;
+        // 画像の本来のサイズを使用し、0除算を避ける
+        if (currentImage.naturalWidth === 0 || currentImage.naturalHeight === 0) {
+            console.error("画像のサイズが不正です。");
+            return;
+        }
+        const imageAspectRatio = currentImage.naturalHeight / currentImage.naturalWidth;
         const displayWidthPx = mapSize.x * displayScale;
         const displayHeightPx = displayWidthPx * imageAspectRatio; // 縦横比を維持
         const centerPoint = map.latLngToLayerPoint(mapCenterLatLng);
@@ -105,21 +110,27 @@ L.marker(minohFall).addTo(map)
         if (!file) return; // ファイル選択がキャンセルされた場合は何もしない
 
         const reader = new FileReader();
-        reader.onload = (e) => {
-            // 画像の読み込みが完了したときに一度だけ実行されるハンドラを設定
-            currentImage.onload = () => {
-                updateImageDisplay();
-                // 意図しない二重実行を防ぐため、ハンドラをクリアする
-                currentImage.onload = null;
-            };
-            currentImage.src = e.target.result;
 
-            // 画像がキャッシュされていて即座に読み込み完了した場合(onloadが発火しないことがある)、
-            // 手動でハンドラを呼び出す。ハンドラが存在する場合のみ実行する。
-            if (currentImage.complete && currentImage.onload) {
-                currentImage.onload();
-            }
+        // FileReaderで読み込みが完了したときの処理
+        reader.onload = (e) => {
+            // 画像データの読み込みが成功したときの処理
+            currentImage.onload = () => {
+                // 画像のサイズが正常に取得できているか確認
+                if (currentImage.naturalWidth === 0 || currentImage.naturalHeight === 0) {
+                    alert("有効な画像ファイルではありません。別のファイルを選択してください。");
+                    return;
+                }
+                updateImageDisplay();
+            };
+            // 画像データの読み込みに失敗したときの処理
+            currentImage.onerror = () => {
+                alert("画像の読み込みに失敗しました。ファイルが破損している可能性があります。");
+            };
+            // Imageオブジェクトに、FileReaderで読み込んだデータURLを設定
+            currentImage.src = e.target.result;
         };
+
+        // FileReaderでファイルの読み込みを開始
         reader.readAsDataURL(file);
         event.target.value = ''; // 同じファイルを連続で選択できるようにリセット
     });
