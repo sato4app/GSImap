@@ -28,47 +28,6 @@ L.marker(minohFall).addTo(map)
 (function() {
     let imageOverlay = null; // 表示中の画像レイヤーを保持する変数
 
-    // --- UI要素とスタイルの定義 ---
-
-    const STYLES_CSS = `
-        .image-overlay-controls {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            z-index: 1000;
-            display: flex;
-            align-items: flex-end;
-        }
-        .image-overlay-controls > .leaflet-control {
-            margin-left: 10px;
-        }
-        .image-overlay-controls > .leaflet-control:first-child {
-            margin-left: 0;
-        }
-        #scaleInputContainer {
-            display: flex;
-            align-items: center;
-            padding: 5px 8px;
-        }
-        #scaleInputContainer label {
-            margin-right: 8px;
-            white-space: nowrap;
-        }
-        #scaleInput {
-            width: 4em;
-        }
-        #loadImageBtn {
-            padding: 8px;
-            cursor: pointer;
-        }
-    `;
-
-    // --- UIとスタイルをページに動的に追加 ---
-    const styleSheet = document.createElement("style");
-    styleSheet.type = "text/css";
-    styleSheet.innerText = STYLES_CSS;
-    document.head.appendChild(styleSheet);
-
     // --- DOM要素の取得とイベントリスナーの設定 ---
     const imageInput = document.getElementById('imageInput');
     const loadImageBtn = document.getElementById('loadImageBtn');

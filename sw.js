@@ -3,8 +3,9 @@ const CACHE_NAME = 'gsimap-cache-v1';
 const urlsToCache = [
   '/',
   '/index.html',
+  '/styles.css',
   '/manifest.json',
-  '/app.js'
+  '/app.js',
   // アイコンもキャッシュする場合はリストに追加します
   // '/icons/MapIcon-192.png',
   // '/icons/MapIcon-512.png'
