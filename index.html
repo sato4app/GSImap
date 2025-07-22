@@ -27,10 +27,27 @@
             height: 100%;
             width: 100vw;
         }
+        /* 現在地取得ボタンのスタイル */
+        #getLocationBtn {
+            position: absolute;
+            bottom: 20px; /* 画面下からの位置 */
+            right: 20px;  /* 画面右からの位置 */
+            z-index: 1000; /* Leafletの地図(z-index:400)より手前に表示 */
+            padding: 10px 15px;
+            background-color: white;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* ボタンに影を付ける */
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
+
+    <!-- app.jsで処理するための現在地取得ボタン -->
+    <button id="getLocationBtn">現在地を取得</button>
 
     <!-- 分離したJavaScriptファイルを読み込む -->
     <!-- defer属性により、HTMLの解析後にスクリプトが実行される -->
