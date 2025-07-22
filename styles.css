@@ -8,28 +8,22 @@
     align-items: flex-end;
     gap: 10px; /* 要素間の隙間 */
 }
-#scaleInputContainer {
-    display: flex;
-    align-items: center;
-    padding: 5px 8px;
-}
-#scaleInputContainer label {
-    margin-right: 8px;
-    white-space: nowrap;
-}
-#scaleInput {
-    width: 4em;
-}
+
+#scaleInputContainer,
 #opacityInputContainer {
     display: flex;
     align-items: center;
     padding: 5px 8px;
 }
+
+#scaleInputContainer label,
 #opacityInputContainer label {
     margin-right: 8px;
     white-space: nowrap;
 }
-#opacityInputContainer input {
+
+#scaleInput,
+#opacityInput {
     width: 4em;
 }
 #loadImageBtn {
