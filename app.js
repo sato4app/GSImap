@@ -31,6 +31,10 @@ L.marker(minohFall).addTo(map)
     // --- UI要素とスタイルの定義 ---
     const CONTROLS_HTML = `
         <div class="image-overlay-controls">
+            <div id="scaleInputContainer" class="leaflet-bar leaflet-control">
+                <label for="scaleInput">表示倍率</label>
+                <input type="number" id="scaleInput" value="0.3" step="0.1" min="0.1">
+            </div>
             <input type="file" id="imageInput" accept="image/png" style="display: none;">
             <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">画像読込</button>
         </div>
@@ -42,6 +46,26 @@ L.marker(minohFall).addTo(map)
             bottom: 10px;
             right: 10px;
             z-index: 1000;
+            display: flex;
+            align-items: flex-end;
+        }
+        .image-overlay-controls > .leaflet-control {
+            margin-left: 10px;
+        }
+        .image-overlay-controls > .leaflet-control:first-child {
+            margin-left: 0;
+        }
+        #scaleInputContainer {
+            display: flex;
+            align-items: center;
+            padding: 5px 8px;
+        }
+        #scaleInputContainer label {
+            margin-right: 8px;
+            white-space: nowrap;
+        }
+        #scaleInput {
+            width: 4em;
         }
         #loadImageBtn {
             padding: 8px;
@@ -60,6 +84,7 @@ L.marker(minohFall).addTo(map)
     // --- DOM要素の取得とイベントリスナーの設定 ---
     const imageInput = document.getElementById('imageInput');
     const loadImageBtn = document.getElementById('loadImageBtn');
+    const scaleInput = document.getElementById('scaleInput');
 
     // 「画像読込」ボタンがクリックされたら、隠れているファイル選択ダイアログを開く
     loadImageBtn.addEventListener('click', () => imageInput.click());
@@ -76,10 +101,13 @@ L.marker(minohFall).addTo(map)
             img.onload = () => {
                 if (imageOverlay) map.removeLayer(imageOverlay); // 既存の画像を削除
 
+                const scale = parseFloat(scaleInput.value);
+                const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // 不正な値なら0.3を適用
+
                 const mapSize = map.getSize();
                 const mapCenterLatLng = map.getCenter();
                 const imageAspectRatio = img.height / img.width;
-                const displayWidthPx = mapSize.x * 0.3; // 横幅を画面の0.3倍に
+                const displayWidthPx = mapSize.x * displayScale;
                 const displayHeightPx = displayWidthPx * imageAspectRatio; // 縦横比を維持
                 const centerPoint = map.latLngToLayerPoint(mapCenterLatLng);
                 const topLeftPoint = L.point(centerPoint.x - displayWidthPx / 2, centerPoint.y - displayHeightPx / 2);
