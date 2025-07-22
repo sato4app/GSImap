@@ -26,7 +26,7 @@ L.marker(minohFall).addTo(map)
 
 // 5. 画像読み込み機能の追加
 (function() {
-    let imageOverlay = null; // 表示中の画像レイヤーを保持する変数
+    let distortableImage = null; // 表示中の画像レイヤーを保持する変数
     const currentImage = new Image(); // 表示中の画像のImageオブジェクトを保持
 
     // --- DOM要素の取得とイベントリスナーの設定 ---
@@ -45,8 +45,8 @@ L.marker(minohFall).addTo(map)
         }
 
         // 既存の画像を削除
-        if (imageOverlay) {
-            map.removeLayer(imageOverlay);
+        if (distortableImage) {
+            map.removeLayer(distortableImage);
         }
 
         const scale = parseFloat(scaleInput.value);
@@ -63,11 +63,31 @@ L.marker(minohFall).addTo(map)
         const centerPoint = map.latLngToLayerPoint(mapCenterLatLng);
         const topLeftPoint = L.point(centerPoint.x - displayWidthPx / 2, centerPoint.y - displayHeightPx / 2);
         const bottomRightPoint = L.point(centerPoint.x + displayWidthPx / 2, centerPoint.y + displayHeightPx / 2);
-        const imageBounds = L.latLngBounds(map.layerPointToLatLng(topLeftPoint), map.layerPointToLatLng(bottomRightPoint));
         
-        imageOverlay = L.imageOverlay(currentImage.src, imageBounds, {
-            opacity: displayOpacity
+        // L.distortableImageOverlayは4隅の座標(LatLng)で初期化する
+        const topLeft = map.layerPointToLatLng(topLeftPoint);
+        const topRight = map.layerPointToLatLng(L.point(bottomRightPoint.x, topLeftPoint.y));
+        const bottomLeft = map.layerPointToLatLng(L.point(topLeftPoint.x, bottomRightPoint.y));
+        const bottomRight = map.layerPointToLatLng(bottomRightPoint);
+
+        distortableImage = L.distortableImageOverlay(currentImage.src, {
+            corners: [topLeft, topRight, bottomLeft, bottomRight],
+            // 利用可能なアクション（ドラッグ、リサイズ、変形、回転、ロック）
+            actions: [L.DragAction, L.ScaleAction, L.DistortAction, L.RotateAction, L.LockAction],
         }).addTo(map);
+
+        // 初期透過度を設定
+        distortableImage.setOpacity(displayOpacity);
+    }
+
+    /**
+     * 画像の透過度のみを更新する
+     */
+    function updateOpacity() {
+        if (!distortableImage) return;
+        const opacityValue = parseInt(opacityInput.value, 10);
+        const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
+        distortableImage.setOpacity(displayOpacity);
     }
 
     // 「画像読込」ボタンがクリックされたら、隠れているファイル選択ダイアログを開く
@@ -77,7 +97,7 @@ L.marker(minohFall).addTo(map)
     scaleInput.addEventListener('input', updateImageDisplay);
 
     // 透過度のテキストボックスの値が変更されたら、画像の表示を更新
-    opacityInput.addEventListener('input', updateImageDisplay);
+    opacityInput.addEventListener('input', updateOpacity);
 
     // ファイルが選択されたときの処理
     imageInput.addEventListener('change', (event) => {
