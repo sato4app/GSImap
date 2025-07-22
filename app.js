@@ -29,16 +29,6 @@ L.marker(minohFall).addTo(map)
     let imageOverlay = null; // 表示中の画像レイヤーを保持する変数
 
     // --- UI要素とスタイルの定義 ---
-    const CONTROLS_HTML = `
-        <div class="image-overlay-controls">
-            <div id="scaleInputContainer" class="leaflet-bar leaflet-control">
-                <label for="scaleInput">表示倍率</label>
-                <input type="number" id="scaleInput" value="0.3" step="0.1" min="0.1">
-            </div>
-            <input type="file" id="imageInput" accept="image/png" style="display: none;">
-            <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">画像読込</button>
-        </div>
-    `;
 
     const STYLES_CSS = `
         .image-overlay-controls {
@@ -78,8 +68,6 @@ L.marker(minohFall).addTo(map)
     styleSheet.type = "text/css";
     styleSheet.innerText = STYLES_CSS;
     document.head.appendChild(styleSheet);
-
-    document.body.insertAdjacentHTML('beforeend', CONTROLS_HTML);
 
     // --- DOM要素の取得とイベントリスナーの設定 ---
     const imageInput = document.getElementById('imageInput');
