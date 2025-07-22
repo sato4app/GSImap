@@ -23,33 +23,3 @@ L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
 L.marker(minohFall).addTo(map)
     .bindPopup('箕面大滝')
     .openPopup();
-
-// 5. 現在地取得機能
-const getLocationBtn = document.getElementById('getLocationBtn');
-
-if (getLocationBtn) {
-    getLocationBtn.addEventListener('click', () => {
-        // Geolocation APIが利用可能かチェック
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    const userLocation = [lat, lng];
-
-                    // 地図の中心を現在地に移動
-                    map.setView(userLocation, 15);
-
-                    // 現在地にマーカーを立てる
-                    L.marker(userLocation).addTo(map).bindPopup('あなたの現在地').openPopup();
-                },
-                (error) => {
-                    console.error('Error getting location:', error);
-                    alert(`現在地の取得に失敗しました。エラーコード: ${error.code}`);
-                }
-            );
-        } else {
-            alert('このブラウザは位置情報取得に対応していません。');
-        }
-    });
-}
