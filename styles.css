@@ -20,6 +20,7 @@
 #opacityInputContainer label {
     margin-right: 8px;
     white-space: nowrap;
+    font-weight: bold;
 }
 
 #scaleInput,
