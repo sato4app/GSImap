@@ -79,7 +79,7 @@ L.marker(minohFall).addTo(map)
                 const mapSize = map.getSize();
                 const mapCenterLatLng = map.getCenter();
                 const imageAspectRatio = img.height / img.width;
-                const displayWidthPx = mapSize.x / 4; // 横幅を画面の1/4に
+                const displayWidthPx = mapSize.x * 0.3; // 横幅を画面の0.3倍に
                 const displayHeightPx = displayWidthPx * imageAspectRatio; // 縦横比を維持
                 const centerPoint = map.latLngToLayerPoint(mapCenterLatLng);
                 const topLeftPoint = L.point(centerPoint.x - displayWidthPx / 2, centerPoint.y - displayHeightPx / 2);
