@@ -61,7 +61,9 @@ L.marker(minohFall).addTo(map)
         const bottomRightPoint = L.point(centerPoint.x + displayWidthPx / 2, centerPoint.y + displayHeightPx / 2);
         const imageBounds = L.latLngBounds(map.layerPointToLatLng(topLeftPoint), map.layerPointToLatLng(bottomRightPoint));
         
-        imageOverlay = L.imageOverlay(currentImage.src, imageBounds).addTo(map);
+        imageOverlay = L.imageOverlay(currentImage.src, imageBounds, {
+            opacity: 0.5 // 50%の透過度
+        }).addTo(map);
     }
 
     // 「画像読込」ボタンがクリックされたら、隠れているファイル選択ダイアログを開く
