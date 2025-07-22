@@ -106,9 +106,19 @@ L.marker(minohFall).addTo(map)
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            // 新しいImageオブジェクトとして読み込み、完了したら表示を更新
-            currentImage.onload = updateImageDisplay;
+            // 画像の読み込みが完了したときに一度だけ実行されるハンドラを設定
+            currentImage.onload = () => {
+                updateImageDisplay();
+                // 意図しない二重実行を防ぐため、ハンドラをクリアする
+                currentImage.onload = null;
+            };
             currentImage.src = e.target.result;
+
+            // 画像がキャッシュされていて即座に読み込み完了した場合(onloadが発火しないことがある)、
+            // 手動でハンドラを呼び出す。ハンドラが存在する場合のみ実行する。
+            if (currentImage.complete && currentImage.onload) {
+                currentImage.onload();
+            }
         };
         reader.readAsDataURL(file);
         event.target.value = ''; // 同じファイルを連続で選択できるようにリセット
