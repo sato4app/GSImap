@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 初期マーカーの設置 ---
     centerMarker = L.marker(initialCenter).addTo(map);
+    
 
     // --- DOM要素の取得 ---
     const imageInput = document.getElementById('imageInput');
@@ -23,9 +24,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const centerCoordBtn = document.getElementById('centerCoordBtn');
     const scaleInput = document.getElementById('scaleInput');
     const opacityInput = document.getElementById('opacityInput');
+    const latInput = document.getElementById('latInput');
+    const lngInput = document.getElementById('lngInput');
     const mapContainer = document.getElementById('map');
 
     // --- 関数定義 ---
+
+    /**
+     * Updates the latitude and longitude input fields.
+     * @param {L.LatLng} latlng The coordinates to display.
+     */
+    function updateCoordInputs(latlng) {
+        if (latlng) {
+            latInput.value = latlng.lat.toFixed(6);
+            lngInput.value = latlng.lng.toFixed(6);
+        }
+    }
+
+    updateCoordInputs(L.latLng(initialCenter)); // 初期座標を表示
     
         /**
          * Gets the opacity value (0-1 range) from the opacityInput.
@@ -206,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 新しいマーカーを追加して保持
         centerMarker = L.marker(clickedLatLng).addTo(map);
+        updateCoordInputs(clickedLatLng); // 座標表示を更新
 
         // 地図の中心をクリック位置に移動
         map.setView(clickedLatLng);

@@ -34,6 +34,14 @@
             background-color: #ddd;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
         }
+        /* コントロール内のテキストボックスのスタイル調整 */
+        .image-overlay-controls .leaflet-control input[type="text"] {
+            width: 90px; /* 幅を調整 */
+            border: none;
+            background-color: transparent;
+            pointer-events: none; /* クリックイベントを無効化 */
+            color: #333;
+        }
     </style>
 </head>
 <body>
@@ -51,6 +59,14 @@
         </div>
         <input type="file" id="imageInput" accept="image/png" style="display: none;">
         <button id="centerCoordBtn" title="中心座標を設定" class="leaflet-bar leaflet-control">中心座標</button>
+        <div id="latInputContainer" class="leaflet-bar leaflet-control">
+            <label for="latInput">北緯</label>
+            <input type="text" id="latInput" readonly>
+        </div>
+        <div id="lngInputContainer" class="leaflet-bar leaflet-control">
+            <label for="lngInput">東経</label>
+            <input type="text" id="lngInput" readonly>
+        </div>
         <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">画像読込</button>
     </div>
 
