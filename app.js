@@ -1,141 +1,190 @@
-// 2. 地図の初期化
-// 箕面大滝の座標 (緯度, 経度)
+// 2. Initialize the map
+// Coordinates of Minoh Falls (latitude, longitude)
 const minohFall = [34.853667, 135.472041];
 const map = L.map('map').setView(minohFall, 15);
 
-// 3. 国土地理院の標準地図タイルレイヤーを追加
+// 3. Add the GSI standard map tile layer
 L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
     attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
 }).addTo(map);
 
-// 4. マーカーの追加
+// 4. Add a marker
 L.marker(minohFall).addTo(map)
     .bindPopup('箕面大滝')
     .openPopup();
 
 /**
- * 画像オーバーレイ機能を初期化する。
- * この関数は、ページのすべてのリソースが読み込まれた後に呼び出される。
+ * Initializes the image overlay feature.
+ * This function is called after all page resources are loaded.
  */
 function initializeImageOverlayFeature() {
     (function() {
-        let distortableImage = null; // 表示中の画像レイヤーを保持する変数
-        const currentImage = new Image(); // 表示中の画像のImageオブジェクトを保持
-    
-        // --- DOM要素の取得とイベントリスナーの設定 ---
+        let imageOverlay = null; // Variable to hold the current image overlay layer
+        const currentImage = new Image(); // Holds the Image object of the currently displayed image
+
+        // --- Get DOM elements and set up event listeners ---
         const imageInput = document.getElementById('imageInput');
         const loadImageBtn = document.getElementById('loadImageBtn');
         const scaleInput = document.getElementById('scaleInput');
         const opacityInput = document.getElementById('opacityInput');
-    
+
         /**
-         * opacityInputから0-1の範囲の透過度を取得する
-         * @returns {number} 透過度 (0-1)
+         * Gets the opacity value (0-1 range) from the opacityInput.
+         * @returns {number} Opacity (0-1)
          */
         function getDisplayOpacity() {
             const opacityValue = parseInt(opacityInput.value, 10);
-            // 不正な値なら0.5を適用
+            // Apply 0.5 if the value is invalid
             const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
             return displayOpacity;
         }
-    
+
         /**
-         * 現在の画像と設定値に基づいて、地図上の画像オーバーレイを更新する
+         * Updates the image overlay on the map based on the current image and settings.
          */
         function updateImageDisplay() {
-            // 表示すべき画像がない、または画像がまだ読み込まれていない場合は何もしない
+            // Do nothing if there's no image to display or if the image hasn't loaded yet
             if (!currentImage.src || !currentImage.complete) {
                 return;
             }
-    
-            // 既存の画像を削除
-            if (distortableImage) {
-                map.removeLayer(distortableImage);
+
+            // Remove existing image
+            if (imageOverlay) {
+                map.removeLayer(imageOverlay);
             }
-    
+
             const scale = parseFloat(scaleInput.value);
-            const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // 不正な値なら0.3を適用
-    
+            const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // Apply 0.3 if the value is invalid
+
             const displayOpacity = getDisplayOpacity();
             const mapSize = map.getSize();
             const mapCenterLatLng = map.getCenter();
-            // 画像の本来のサイズを使用し、0除算を避ける
+            
+            // Use the image's natural size and avoid division by zero
             if (currentImage.naturalWidth === 0 || currentImage.naturalHeight === 0) {
-                console.error("画像のサイズが不正です。");
+                console.error("Invalid image size.");
                 return;
             }
             const imageAspectRatio = currentImage.naturalHeight / currentImage.naturalWidth;
             const displayWidthPx = mapSize.x * displayScale;
-            const displayHeightPx = displayWidthPx * imageAspectRatio; // 縦横比を維持
+            const displayHeightPx = displayWidthPx * imageAspectRatio; // Maintain aspect ratio
             const centerPoint = map.latLngToLayerPoint(mapCenterLatLng);
             const topLeftPoint = L.point(centerPoint.x - displayWidthPx / 2, centerPoint.y - displayHeightPx / 2);
             const bottomRightPoint = L.point(centerPoint.x + displayWidthPx / 2, centerPoint.y + displayHeightPx / 2);
             
-            // L.distortableImageOverlayは4隅の座標(LatLng)で初期化する
-            const topLeft = map.layerPointToLatLng(topLeftPoint);
-            const topRight = map.layerPointToLatLng(L.point(bottomRightPoint.x, topLeftPoint.y));
-            const bottomLeft = map.layerPointToLatLng(L.point(topLeftPoint.x, bottomRightPoint.y));
-            const bottomRight = map.layerPointToLatLng(bottomRightPoint);
-    
-            distortableImage = L.distortableImageOverlay(currentImage.src, {
-                corners: [topLeft, topRight, bottomLeft, bottomRight],
-                // 利用可能なアクション（ドラッグ、リサイズ、変形、回転、ロック）
-                actions: [L.DragAction, L.ScaleAction, L.DistortAction, L.RotateAction, L.LockAction],
+            // L.imageOverlay requires LatLngBounds
+            const bounds = L.latLngBounds(map.layerPointToLatLng(topLeftPoint), map.layerPointToLatLng(bottomRightPoint));
+
+            imageOverlay = L.imageOverlay(currentImage.src, bounds, {
+                opacity: displayOpacity // Set initial opacity
             }).addTo(map);
-    
-            // 初期透過度を設定
-            distortableImage.setOpacity(displayOpacity);
         }
-    
+
         /**
-         * 画像の透過度のみを更新する
+         * Updates only the opacity of the image.
          */
         function updateOpacity() {
-            if (!distortableImage) return;
-            distortableImage.setOpacity(getDisplayOpacity());
+            if (!imageOverlay) return;
+            imageOverlay.setOpacity(getDisplayOpacity());
         }
-    
-        // 「画像読込」ボタンがクリックされたら、隠れているファイル選択ダイアログを開く
+
+        // When the "Load Image" button is clicked, open the hidden file selection dialog
         loadImageBtn.addEventListener('click', () => imageInput.click());
-    
-        // 表示倍率のテキストボックスの値が変更されたら、画像の表示を更新
+
+        // When the scale input value changes, update the image display
         scaleInput.addEventListener('input', updateImageDisplay);
-    
-        // 透過度のテキストボックスの値が変更されたら、画像の表示を更新
+
+        // When the opacity input value changes, update the image display
         opacityInput.addEventListener('input', updateOpacity);
-    
-        // ファイルが選択されたときの処理
+
+        // Handle file selection
         imageInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            if (!file) return; // ファイル選択がキャンセルされた場合は何もしない
-    
+            if (!file) return; // Do nothing if file selection is cancelled
+
             const reader = new FileReader();
-    
-            // FileReaderで読み込みが完了したときの処理
+
+            // When FileReader finishes loading
             reader.onload = (e) => {
-                // 画像データの読み込みが成功したときの処理
+                // When image data loads successfully
                 currentImage.onload = () => {
-                    // 画像のサイズが正常に取得できているか確認
+                    // Check if image size is obtained correctly
                     if (currentImage.naturalWidth === 0 || currentImage.naturalHeight === 0) {
-                        alert("有効な画像ファイルではありません。別のファイルを選択してください。");
+                        // Use a custom message box instead of alert
+                        const messageBox = document.createElement('div');
+                        messageBox.style.cssText = `
+                            position: fixed;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            background-color: white;
+                            padding: 20px;
+                            border: 1px solid #ccc;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            z-index: 10000;
+                            border-radius: 8px;
+                            font-family: sans-serif;
+                            text-align: center;
+                        `;
+                        messageBox.innerHTML = `
+                            <p>有効な画像ファイルではありません。別のファイルを選択してください。</p>
+                            <button onclick="this.parentNode.remove()" style="
+                                padding: 8px 16px;
+                                margin-top: 10px;
+                                border: none;
+                                background-color: #007bff;
+                                color: white;
+                                border-radius: 4px;
+                                cursor: pointer;
+                            ">OK</button>
+                        `;
+                        document.body.appendChild(messageBox);
                         return;
                     }
                     updateImageDisplay();
                 };
-                // 画像データの読み込みに失敗したときの処理
+                // When image data fails to load
                 currentImage.onerror = () => {
-                    alert("画像の読み込みに失敗しました。ファイルが破損している可能性があります。");
+                    // Use a custom message box instead of alert
+                    const messageBox = document.createElement('div');
+                    messageBox.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background-color: white;
+                        padding: 20px;
+                        border: 1px solid #ccc;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                        z-index: 10000;
+                        border-radius: 8px;
+                        font-family: sans-serif;
+                        text-align: center;
+                    `;
+                    messageBox.innerHTML = `
+                        <p>画像の読み込みに失敗しました。ファイルが破損している可能性があります。</p>
+                        <button onclick="this.parentNode.remove()" style="
+                            padding: 8px 16px;
+                            margin-top: 10px;
+                            border: none;
+                            background-color: #007bff;
+                            color: white;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        ">OK</button>
+                    `;
+                    document.body.appendChild(messageBox);
                 };
-                // Imageオブジェクトに、FileReaderで読み込んだデータURLを設定
+                // Set the data URL read by FileReader to the Image object
                 currentImage.src = e.target.result;
             };
-    
-            // FileReaderでファイルの読み込みを開始
+
+            // Start reading the file with FileReader
             reader.readAsDataURL(file);
-            event.target.value = ''; // 同じファイルを連続で選択できるようにリセット
+            event.target.value = ''; // Reset to allow selecting the same file consecutively
         });
     })();
 }
 
-// ページのすべてのリソースが読み込まれたら、画像オーバーレイ機能を初期化する
+// Initialize the image overlay feature when all page resources are loaded
 window.addEventListener('load', initializeImageOverlayFeature);
