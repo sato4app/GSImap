@@ -76,6 +76,17 @@ L.marker(minohFall).addTo(map)
         const bottomLeft = map.layerPointToLatLng(L.point(topLeftPoint.x, bottomRightPoint.y));
         const bottomRight = map.layerPointToLatLng(bottomRightPoint);
 
+        // --- デバッグ出力 ---
+        console.log("--- 画像表示情報 ---");
+        console.log("表示倍率:", displayScale);
+        console.log("透過度:", displayOpacity);
+        console.log("四隅の座標 (LatLng):");
+        console.log("  - TopLeft:", topLeft);
+        console.log("  - TopRight:", topRight);
+        console.log("  - BottomLeft:", bottomLeft);
+        console.log("  - BottomRight:", bottomRight);
+        console.log("--------------------");
+
         distortableImage = L.distortableImageOverlay(currentImage.src, {
             corners: [topLeft, topRight, bottomLeft, bottomRight],
             // 利用可能なアクション（ドラッグ、リサイズ、変形、回転、ロック）
