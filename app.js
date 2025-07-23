@@ -28,6 +28,17 @@ L.marker(minohFall).addTo(map)
     const opacityInput = document.getElementById('opacityInput');
 
     /**
+     * opacityInputから0-1の範囲の透過度を取得する
+     * @returns {number} 透過度 (0-1)
+     */
+    function getDisplayOpacity() {
+        const opacityValue = parseInt(opacityInput.value, 10);
+        // 不正な値なら0.5を適用
+        const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
+        return displayOpacity;
+    }
+
+    /**
      * 現在の画像と設定値に基づいて、地図上の画像オーバーレイを更新する
      */
     function updateImageDisplay() {
@@ -44,9 +55,7 @@ L.marker(minohFall).addTo(map)
         const scale = parseFloat(scaleInput.value);
         const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // 不正な値なら0.3を適用
 
-        const opacityValue = parseInt(opacityInput.value, 10);
-        const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
-
+        const displayOpacity = getDisplayOpacity();
         const mapSize = map.getSize();
         const mapCenterLatLng = map.getCenter();
         // 画像の本来のサイズを使用し、0除算を避ける
@@ -82,9 +91,7 @@ L.marker(minohFall).addTo(map)
      */
     function updateOpacity() {
         if (!distortableImage) return;
-        const opacityValue = parseInt(opacityInput.value, 10);
-        const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
-        distortableImage.setOpacity(displayOpacity);
+        distortableImage.setOpacity(getDisplayOpacity());
     }
 
     // 「画像読込」ボタンがクリックされたら、隠れているファイル選択ダイアログを開く
