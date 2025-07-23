@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 地図の初期化 (初期マーカーは表示しない)
-    const map = L.map('map').setView([34.853667, 135.472041], 15);
+    const initialCenter = [34.853667, 135.472041];
+    // 地図の初期化
+    const map = L.map('map').setView(initialCenter, 15);
 
     // 国土地理院タイルレイヤー
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
@@ -12,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentImage = new Image(); // 表示中の画像のImageオブジェクトを保持
     let centerMarker = null; // 地図の中心を示すマーカー
     let isCenteringMode = false; // 中心座標設定モードのフラグ
+
+    // --- 初期マーカーの設置 ---
+    centerMarker = L.marker(initialCenter).addTo(map);
 
     // --- DOM要素の取得 ---
     const imageInput = document.getElementById('imageInput');
