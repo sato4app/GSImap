@@ -1,33 +1,28 @@
-// 2. Initialize the map
-// Coordinates of Minoh Falls (latitude, longitude)
-const minohFall = [34.853667, 135.472041];
-const map = L.map('map').setView(minohFall, 15);
+document.addEventListener('DOMContentLoaded', () => {
+    // 地図の初期化 (初期マーカーは表示しない)
+    const map = L.map('map').setView([34.853667, 135.472041], 15);
 
-// 3. Add the GSI standard map tile layer
-L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
-    attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
-}).addTo(map);
+    // 国土地理院タイルレイヤー
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+    }).addTo(map);
 
-// 4. Add a marker
-L.marker(minohFall).addTo(map)
-    .bindPopup('箕面大滝')
-    .openPopup();
+    // --- 変数定義 ---
+    let imageOverlay = null; // 表示中の画像レイヤーを保持する変数
+    const currentImage = new Image(); // 表示中の画像のImageオブジェクトを保持
+    let centerMarker = null; // 地図の中心を示すマーカー
+    let isCenteringMode = false; // 中心座標設定モードのフラグ
 
-/**
- * Initializes the image overlay feature.
- * This function is called after all page resources are loaded.
- */
-function initializeImageOverlayFeature() {
-    (function() {
-        let imageOverlay = null; // Variable to hold the current image overlay layer
-        const currentImage = new Image(); // Holds the Image object of the currently displayed image
+    // --- DOM要素の取得 ---
+    const imageInput = document.getElementById('imageInput');
+    const loadImageBtn = document.getElementById('loadImageBtn');
+    const centerCoordBtn = document.getElementById('centerCoordBtn');
+    const scaleInput = document.getElementById('scaleInput');
+    const opacityInput = document.getElementById('opacityInput');
+    const mapContainer = document.getElementById('map');
 
-        // --- Get DOM elements and set up event listeners ---
-        const imageInput = document.getElementById('imageInput');
-        const loadImageBtn = document.getElementById('loadImageBtn');
-        const scaleInput = document.getElementById('scaleInput');
-        const opacityInput = document.getElementById('opacityInput');
-
+    // --- 関数定義 ---
+    
         /**
          * Gets the opacity value (0-1 range) from the opacityInput.
          * @returns {number} Opacity (0-1)
@@ -88,16 +83,9 @@ function initializeImageOverlayFeature() {
             imageOverlay.setOpacity(getDisplayOpacity());
         }
 
-        // When the "Load Image" button is clicked, open the hidden file selection dialog
-        loadImageBtn.addEventListener('click', () => imageInput.click());
+    // --- イベントリスナー設定 ---
 
-        // When the scale input value changes, update the image display
-        scaleInput.addEventListener('input', updateImageDisplay);
-
-        // When the opacity input value changes, update the image display
-        opacityInput.addEventListener('input', updateOpacity);
-
-        // Handle file selection
+    // 画像ファイル選択イベント
         imageInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (!file) return; // Do nothing if file selection is cancelled
@@ -183,8 +171,44 @@ function initializeImageOverlayFeature() {
             reader.readAsDataURL(file);
             event.target.value = ''; // Reset to allow selecting the same file consecutively
         });
-    })();
-}
 
-// Initialize the image overlay feature when all page resources are loaded
-window.addEventListener('load', initializeImageOverlayFeature);
+    // 「画像読込」ボタンクリックイベント
+    loadImageBtn.addEventListener('click', () => imageInput.click());
+
+    // 表示倍率変更イベント
+    scaleInput.addEventListener('input', updateImageDisplay);
+
+    // 透過度変更イベント
+    opacityInput.addEventListener('input', updateOpacity);
+
+    // 「中心座標」ボタンクリックイベント
+    centerCoordBtn.addEventListener('click', () => {
+        isCenteringMode = !isCenteringMode; // モードをトグル
+        centerCoordBtn.classList.toggle('active', isCenteringMode);
+        // 地図コンテナのカーソルスタイルを変更して、ユーザーにモードを知らせる
+        mapContainer.style.cursor = isCenteringMode ? 'crosshair' : '';
+    });
+
+    // 地図クリックイベント (中心座標設定モード時)
+    map.on('click', (e) => {
+        if (!isCenteringMode) return; // モードがオフなら何もしない
+
+        const clickedLatLng = e.latlng;
+
+        // 既存の中心マーカーがあれば削除
+        if (centerMarker) {
+            map.removeLayer(centerMarker);
+        }
+
+        // 新しいマーカーを追加して保持
+        centerMarker = L.marker(clickedLatLng).addTo(map);
+
+        // 地図の中心をクリック位置に移動
+        map.setView(clickedLatLng);
+
+        // 一度クリックしたらモードを自動的に解除
+        isCenteringMode = false;
+        centerCoordBtn.classList.remove('active');
+        mapContainer.style.cursor = '';
+    });
+});

@@ -29,6 +29,11 @@
             height: 100%;
             width: 100vw;
         }
+        /* アクティブ状態のボタンのスタイル */
+        .image-overlay-controls .leaflet-control.active {
+            background-color: #ddd;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -45,6 +50,7 @@
             <input type="number" id="opacityInput" value="50" min="0" max="100">
         </div>
         <input type="file" id="imageInput" accept="image/png" style="display: none;">
+        <button id="centerCoordBtn" title="中心座標を設定" class="leaflet-bar leaflet-control">中心座標</button>
         <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">画像読込</button>
     </div>
 
