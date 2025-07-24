@@ -245,16 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GPS値読込イベント ---
     loadGpsBtn.addEventListener('click', () => gpsCsvInput.click());
 
-    // 度分秒（例:34502066, 135302066）→度（実数）変換関数
-    function dmsStrToDeg(dmsStr, degDigits) {
-        if (!dmsStr || dmsStr.length < degDigits + 4) return NaN;
-        // 例: 34502066 → 34度50分20.66秒, 135302066 → 135度30分20.66秒
-        const deg = parseInt(dmsStr.slice(0, degDigits), 10);
-        const min = parseInt(dmsStr.slice(degDigits, degDigits + 2), 10);
-        const sec = parseFloat(dmsStr.slice(degDigits + 2));
-        return deg + min / 60 + sec / 3600;
-    }
-
     gpsCsvInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -264,12 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // CSVパース（1行目: name,lat,lng）
             const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
             for (let i = 1; i < lines.length; i++) {
-                const [name, latStr, lngStr] = lines[i].split(',');
-                const lat = dmsStrToDeg(latStr, 2); // 緯度は2桁
-                const lng = dmsStrToDeg(lngStr, 3); // 経度は3桁
+                const cols = lines[i].split(',');
+                const name = cols[0];
+                const lat = parseFloat(cols[3]); // D列（3番目、0始まりで3）
+                const lng = parseFloat(cols[4]); // E列（4番目、0始まりで4）
                 if (!name || isNaN(lat) || isNaN(lng)) continue;
                 if (i === 1) {
-                    console.log('CSV 1件目:', { name, latStr, lngStr, lat, lng });
+                    console.log('CSV 1件目:', { name, lat, lng });
                 }
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
