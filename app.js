@@ -205,8 +205,13 @@ document.addEventListener('DOMContentLoaded', () => {
     centerCoordBtn.addEventListener('click', () => {
         isCenteringMode = !isCenteringMode; // モードをトグル
         centerCoordBtn.classList.toggle('active', isCenteringMode);
-        // 地図コンテナのカーソルスタイルを変更して、ユーザーにモードを知らせる
         mapContainer.style.cursor = isCenteringMode ? 'crosshair' : '';
+
+        // 画像オーバーレイが存在すれば削除
+        if (imageOverlay) {
+            map.removeLayer(imageOverlay);
+            imageOverlay = null;
+        }
     });
 
     // 地図クリックイベント (中心座標設定モード時)
