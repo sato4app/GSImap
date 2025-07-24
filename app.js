@@ -28,6 +28,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const lngInput = document.getElementById('lngInput');
     const mapContainer = document.getElementById('map');
 
+    // GPS値読込用の要素取得
+    const gpsCsvInput = document.getElementById('gpsCsvInput');
+    const loadGpsBtn = document.getElementById('loadGpsBtn');
+
     // --- 関数定義 ---
 
     /**
@@ -236,5 +240,27 @@ document.addEventListener('DOMContentLoaded', () => {
         isCenteringMode = false;
         centerCoordBtn.classList.remove('active');
         mapContainer.style.cursor = '';
+    });
+
+    // --- GPS値読込イベント ---
+    loadGpsBtn.addEventListener('click', () => gpsCsvInput.click());
+
+    gpsCsvInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = e.target.result;
+            // CSVパース（1行目: name,lat,lng）
+            const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+            for (let i = 1; i < lines.length; i++) {
+                const [name, lat, lng] = lines[i].split(',');
+                if (!name || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) continue;
+                const marker = L.marker([parseFloat(lat), parseFloat(lng)]).addTo(map);
+                marker.bindPopup(name);
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = '';
     });
 });
