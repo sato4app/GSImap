@@ -245,13 +245,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GPS値読込イベント ---
     loadGpsBtn.addEventListener('click', () => gpsCsvInput.click());
 
-    // 度分秒（例:34502066）→度（実数）変換関数
-    function dmsStrToDeg(dmsStr) {
-        if (!dmsStr || dmsStr.length < 7) return NaN;
-        // 例: 34502066 → 34度50分20.66秒
-        const deg = parseInt(dmsStr.slice(0, 2), 10);
-        const min = parseInt(dmsStr.slice(2, 4), 10);
-        const sec = parseFloat(dmsStr.slice(4));
+    // 度分秒（例:34502066, 135302066）→度（実数）変換関数
+    function dmsStrToDeg(dmsStr, degDigits) {
+        if (!dmsStr || dmsStr.length < degDigits + 4) return NaN;
+        // 例: 34502066 → 34度50分20.66秒, 135302066 → 135度30分20.66秒
+        const deg = parseInt(dmsStr.slice(0, degDigits), 10);
+        const min = parseInt(dmsStr.slice(degDigits, degDigits + 2), 10);
+        const sec = parseFloat(dmsStr.slice(degDigits + 2));
         return deg + min / 60 + sec / 3600;
     }
 
@@ -265,8 +265,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
             for (let i = 1; i < lines.length; i++) {
                 const [name, latStr, lngStr] = lines[i].split(',');
-                const lat = dmsStrToDeg(latStr);
-                const lng = dmsStrToDeg(lngStr);
+                const lat = dmsStrToDeg(latStr, 2); // 緯度は2桁
+                const lng = dmsStrToDeg(lngStr, 3); // 経度は3桁
                 if (!name || isNaN(lat) || isNaN(lng)) continue;
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
