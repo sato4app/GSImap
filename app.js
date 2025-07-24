@@ -268,6 +268,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lat = dmsStrToDeg(latStr, 2); // 緯度は2桁
                 const lng = dmsStrToDeg(lngStr, 3); // 経度は3桁
                 if (!name || isNaN(lat) || isNaN(lng)) continue;
+                if (i === 1) {
+                    console.log('CSV 1件目:', { name, latStr, lngStr, lat, lng });
+                }
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
             }
