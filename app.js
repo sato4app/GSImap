@@ -245,6 +245,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GPS値読込イベント ---
     loadGpsBtn.addEventListener('click', () => gpsCsvInput.click());
 
+    // 度分秒（例:34502066）→度（実数）変換関数
+    function dmsStrToDeg(dmsStr) {
+        if (!dmsStr || dmsStr.length < 7) return NaN;
+        // 例: 34502066 → 34度50分20.66秒
+        const deg = parseInt(dmsStr.slice(0, 2), 10);
+        const min = parseInt(dmsStr.slice(2, 4), 10);
+        const sec = parseFloat(dmsStr.slice(4));
+        return deg + min / 60 + sec / 3600;
+    }
+
     gpsCsvInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -254,9 +264,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // CSVパース（1行目: name,lat,lng）
             const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
             for (let i = 1; i < lines.length; i++) {
-                const [name, lat, lng] = lines[i].split(',');
-                if (!name || isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) continue;
-                const marker = L.marker([parseFloat(lat), parseFloat(lng)]).addTo(map);
+                const [name, latStr, lngStr] = lines[i].split(',');
+                const lat = dmsStrToDeg(latStr);
+                const lng = dmsStrToDeg(lngStr);
+                if (!name || isNaN(lat) || isNaN(lng)) continue;
+                const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
             }
         };
