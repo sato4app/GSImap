@@ -232,4 +232,27 @@ document.addEventListener('DOMContentLoaded', () => {
         centerCoordBtn.classList.remove('active');
         mapContainer.style.cursor = '';
     });
+
+    // 画像オーバーレイ用の変数（グローバルで管理）
+    let imageOverlay = null;
+
+    // 中心座標ボタンのクリックイベント
+    document.getElementById('center-btn').addEventListener('click', function() {
+        // ...既存の中心座標設定モードの処理...
+
+        // 画像オーバーレイが存在すれば削除
+        if (imageOverlay) {
+            map.removeLayer(imageOverlay);
+            imageOverlay = null;
+        }
+    });
+
+    // 画像読込時の処理例
+    function updateImageDisplay(img, bounds) {
+        // 既存の画像オーバーレイがあれば削除
+        if (imageOverlay) {
+            map.removeLayer(imageOverlay);
+        }
+        imageOverlay = L.imageOverlay(img.src, bounds, { opacity: 0.5 }).addTo(map);
+    }
 });
