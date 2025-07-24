@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 画像オーバーレイ用の変数（グローバルで管理）
-    let imageOverlay = null;
+    //let imageOverlay = null;
 
     // 中心座標ボタンのクリックイベント
     document.getElementById('center-btn').addEventListener('click', function() {
