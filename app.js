@@ -259,6 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const lat = parseFloat(cols[1]); // B列（1番目、0始まりで1）
                 const lng = parseFloat(cols[2]); // C列（2番目、0始まりで2）
                 if (!name || isNaN(lat) || isNaN(lng)) continue;
+                if (lat <= 0 || lng <= 0) continue;
                 if (i === 1) {
                     console.log('CSV 1件目:', { name, lat, lng });
                 }
