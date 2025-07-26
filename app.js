@@ -257,16 +257,20 @@ document.addEventListener('DOMContentLoaded', () => {
         let paddedStr = dmsStr.toString().padEnd(targetLength, '0');
         
         if (isLongitude) {
-            // 経度: 3桁度 + 2桁分 + 2桁秒 + 小数部
+            // 経度: 3桁度 + 2桁分 + 2桁秒整数 + 小数部
             const deg = parseInt(paddedStr.slice(0, 3), 10);
             const min = parseInt(paddedStr.slice(3, 5), 10);
-            const sec = parseFloat(paddedStr.slice(5));
+            const secInt = parseInt(paddedStr.slice(5, 7), 10);
+            const secDecimal = parseFloat('0.' + paddedStr.slice(7));
+            const sec = secInt + secDecimal;
             return deg + min / 60 + sec / 3600;
         } else {
-            // 緯度: 2桁度 + 2桁分 + 2桁秒 + 小数部
+            // 緯度: 2桁度 + 2桁分 + 2桁秒整数 + 小数部
             const deg = parseInt(paddedStr.slice(0, 2), 10);
             const min = parseInt(paddedStr.slice(2, 4), 10);
-            const sec = parseFloat(paddedStr.slice(4));
+            const secInt = parseInt(paddedStr.slice(4, 6), 10);
+            const secDecimal = parseFloat('0.' + paddedStr.slice(6));
+            const sec = secInt + secDecimal;
             return deg + min / 60 + sec / 3600;
         }
     }
