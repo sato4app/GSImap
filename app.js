@@ -248,6 +248,29 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GPS値読込イベント ---
     loadGpsBtn.addEventListener('click', () => gpsCsvInput.click());
 
+    // 度分秒文字列→度（実数）変換関数
+    function dmsStrToDeg(dmsStr, isLongitude = false) {
+        if (!dmsStr) return NaN;
+        
+        // 緯度: 8文字、経度: 9文字に調整
+        const targetLength = isLongitude ? 9 : 8;
+        let paddedStr = dmsStr.toString().padEnd(targetLength, '0');
+        
+        if (isLongitude) {
+            // 経度: 3桁度 + 2桁分 + 2桁秒 + 小数部
+            const deg = parseInt(paddedStr.slice(0, 3), 10);
+            const min = parseInt(paddedStr.slice(3, 5), 10);
+            const sec = parseFloat(paddedStr.slice(5));
+            return deg + min / 60 + sec / 3600;
+        } else {
+            // 緯度: 2桁度 + 2桁分 + 2桁秒 + 小数部
+            const deg = parseInt(paddedStr.slice(0, 2), 10);
+            const min = parseInt(paddedStr.slice(2, 4), 10);
+            const sec = parseFloat(paddedStr.slice(4));
+            return deg + min / 60 + sec / 3600;
+        }
+    }
+
     gpsCsvInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -259,12 +282,12 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 1; i < lines.length; i++) {
                 const cols = lines[i].split(',');
                 const name = cols[0];
-                const lat = parseFloat(cols[1]); // B列（1番目、0始まりで1）
-                const lng = parseFloat(cols[2]); // C列（2番目、0始まりで2）
+                const lat = dmsStrToDeg(cols[1], false); // 緯度
+                const lng = dmsStrToDeg(cols[2], true);  // 経度
                 if (!name || isNaN(lat) || isNaN(lng)) continue;
                 if (lat <= 0 || lng <= 0) continue;
                 if (i === 1) {
-                    console.log('CSV 1件目:', { name, lat, lng });
+                    console.log('CSV 1件目:', { name, latStr: cols[1], lngStr: cols[2], lat, lng });
                 }
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
