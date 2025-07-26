@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const secDecimal = parseFloat('0.' + paddedStr.slice(7));
             const sec = secInt + secDecimal;
             const result = deg + min / 60 + sec / 3600;
-            console.log('経度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
+            // console.log('経度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
             return result;
         } else {
             // 緯度: 2桁度 + 2桁分 + 2桁秒整数 + 小数部
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const secDecimal = parseFloat('0.' + paddedStr.slice(6));
             const sec = secInt + secDecimal;
             const result = deg + min / 60 + sec / 3600;
-            console.log('緯度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
+            // console.log('緯度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
             return result;
         }
     }
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let markerCount = 0; // マーカー作成件数を初期化
             for (let i = 1; i < jsonData.length; i++) {
                 const row = jsonData[i];
-                if (!row || row.length < 8) continue; // 最低8列必要
+                // if (!row || row.length < 8) continue; // 最低8列必要
                 
                 // C列とG列をスペース区切りで結合してname
                 const name = (row[2] || '') + ' ' + (row[6] || '');
