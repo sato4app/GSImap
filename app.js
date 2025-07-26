@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let markerCount = 0; // マーカー作成件数を初期化
             for (let i = 1; i < jsonData.length; i++) {
                 const row = jsonData[i];
-                // if (!row || row.length < 8) continue; // 最低8列必要
+                if (!row || row.length < 5) continue; // 最低5列(E列まで)必要
                 
                 // C列とG列をスペース区切りで結合してname
                 const name = (row[2] || '') + ' ' + (row[6] || '');
