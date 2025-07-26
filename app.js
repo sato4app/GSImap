@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 関数定義 ---
 
     /**
-     * Updates the latitude and longitude input fields.
-     * @param {L.LatLng} latlng The coordinates to display.
+     * 緯度・経度の入力フィールドを更新する
+     * @param {L.LatLng} latlng 表示する座標
      */
     function updateCoordInputs(latlng) {
         if (latlng) {
@@ -51,59 +51,59 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCoordInputs(L.latLng(initialCenter)); // 初期座標を表示
 
     /**
-     * Gets the opacity value (0-1 range) from the opacityInput.
-     * @returns {number} Opacity (0-1)
+     * opacityInputから透過度の値を取得する（0-1の範囲）
+     * @returns {number} 透過度（0-1）
      */
     function getDisplayOpacity() {
         const opacityValue = parseInt(opacityInput.value, 10);
-        // Apply 0.5 if the value is invalid
+        // 値が無効な場合は0.5を適用
         const displayOpacity = !isNaN(opacityValue) && opacityValue >= 0 && opacityValue <= 100 ? opacityValue / 100 : 0.5;
         return displayOpacity;
     }
 
     /**
-     * Updates the image overlay on the map based on the current image and settings.
+     * 現在の画像と設定に基づいて地図上の画像オーバーレイを更新する
      */
     function updateImageDisplay() {
-        // Do nothing if there's no image to display or if the image hasn't loaded yet
+        // 表示する画像がない場合、または画像がまだ読み込まれていない場合は何もしない
         if (!currentImage.src || !currentImage.complete) {
             return;
         }
 
-        // Remove existing image
+        // 既存の画像を削除
         if (imageOverlay) {
             map.removeLayer(imageOverlay);
         }
 
         const scale = parseFloat(scaleInput.value);
-        const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // Apply 0.3 if the value is invalid
+        const displayScale = !isNaN(scale) && scale > 0 ? scale : 0.3; // 値が無効な場合は0.3を適用
 
         const displayOpacity = getDisplayOpacity();
         const mapSize = map.getSize();
         const mapCenterLatLng = map.getCenter();
 
-        // Use the image's natural size and avoid division by zero
+        // 画像の自然なサイズを使用し、ゼロ除算を避ける
         if (currentImage.naturalWidth === 0 || currentImage.naturalHeight === 0) {
-            console.error("Invalid image size.");
+            console.error("無効な画像サイズです。");
             return;
         }
         const imageAspectRatio = currentImage.naturalHeight / currentImage.naturalWidth;
         const displayWidthPx = mapSize.x * displayScale;
-        const displayHeightPx = displayWidthPx * imageAspectRatio; // Maintain aspect ratio
+        const displayHeightPx = displayWidthPx * imageAspectRatio; // アスペクト比を維持
         const centerPoint = map.latLngToLayerPoint(mapCenterLatLng);
         const topLeftPoint = L.point(centerPoint.x - displayWidthPx / 2, centerPoint.y - displayHeightPx / 2);
         const bottomRightPoint = L.point(centerPoint.x + displayWidthPx / 2, centerPoint.y + displayHeightPx / 2);
 
-        // L.imageOverlay requires LatLngBounds
+        // L.imageOverlayにはLatLngBoundsが必要
         const bounds = L.latLngBounds(map.layerPointToLatLng(topLeftPoint), map.layerPointToLatLng(bottomRightPoint));
 
         imageOverlay = L.imageOverlay(currentImage.src, bounds, {
-            opacity: displayOpacity // Set initial opacity
+            opacity: displayOpacity // 初期透過度を設定
         }).addTo(map);
     }
 
     /**
-     * Updates only the opacity of the image.
+     * 画像の透過度のみを更新する
      */
     function updateOpacity() {
         if (!imageOverlay) return;
@@ -115,17 +115,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 画像ファイル選択イベント
     imageInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (!file) return; // Do nothing if file selection is cancelled
+        if (!file) return; // ファイル選択がキャンセルされた場合は何もしない
 
         const reader = new FileReader();
 
-        // When FileReader finishes loading
+        // FileReaderの読み込みが完了した時
         reader.onload = (e) => {
-            // When image data loads successfully
+            // 画像データの読み込みが成功した時
             currentImage.onload = () => {
-                // Check if image size is obtained correctly
+                // 画像サイズが正しく取得されているかチェック
                 if (currentImage.naturalWidth === 0 || currentImage.naturalHeight === 0) {
-                    // Use a custom message box instead of alert
+                    // alertの代わりにカスタムメッセージボックスを使用
                     const messageBox = document.createElement('div');
                     messageBox.style.cssText = `
                             position: fixed;
@@ -158,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 updateImageDisplay();
             };
-            // When image data fails to load
+            // 画像データの読み込みが失敗した時
             currentImage.onerror = () => {
-                // Use a custom message box instead of alert
+                // alertの代わりにカスタムメッセージボックスを使用
                 const messageBox = document.createElement('div');
                 messageBox.style.cssText = `
                         position: fixed;
@@ -190,13 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 document.body.appendChild(messageBox);
             };
-            // Set the data URL read by FileReader to the Image object
+            // FileReaderで読み込んだデータURLをImageオブジェクトに設定
             currentImage.src = e.target.result;
         };
 
-        // Start reading the file with FileReader
+        // FileReaderでファイルの読み込みを開始
         reader.readAsDataURL(file);
-        event.target.value = ''; // Reset to allow selecting the same file consecutively
+        event.target.value = ''; // 同じファイルを連続して選択できるようにリセット
     });
 
     // 「画像読込」ボタンクリックイベント
