@@ -290,7 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
             
-            // 1行目はヘッダーとしてスキップ
+            // ファイルを読み込み。1行目はヘッダーとしてスキップ
+            let markerCount = 0; // マーカー作成件数を初期化
             for (let i = 1; i < jsonData.length; i++) {
                 const row = jsonData[i];
                 if (!row || row.length < 8) continue; // 最低8列必要
@@ -302,13 +303,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (!name.trim() || isNaN(lat) || isNaN(lng)) continue;
                 if (lat <= 0 || lng <= 0) continue;
+                markerCount++; // マーカーのカウントアップ
                 
-                if (i === 1) {
-                    console.log('Excel 1件目:', { name, latStr: row[3], lngStr: row[4], lat, lng });
+                if (markerCount === 1) {
+                    console.log('Marker 1件目:', { name, latStr: row[3], lngStr: row[4], lat, lng });
                 }
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
             }
+            console.log(`GPS値からマーカーを作成しました: ${markerCount}件`);
         };
         reader.readAsArrayBuffer(file);
         event.target.value = '';
