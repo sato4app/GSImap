@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const secDecimal = parseFloat('0.' + paddedStr.slice(7));
             const sec = secInt + secDecimal;
             const result = deg + min / 60 + sec / 3600;
-            console.log('経度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
+            // console.log('経度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
             return result;
         } else {
             // 緯度: 2桁度 + 2桁分 + 2桁秒整数 + 小数部
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const secDecimal = parseFloat('0.' + paddedStr.slice(6));
             const sec = secInt + secDecimal;
             const result = deg + min / 60 + sec / 3600;
-            console.log('緯度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
+            // console.log('緯度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
             return result;
         }
     }
@@ -284,24 +284,33 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
-            const text = e.target.result;
-            // CSVパース（1行目: name,lat,lng）
-            const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(',');
-                const name = cols[0];
-                const lat = dmsStrToDeg(cols[1], false); // 緯度
-                const lng = dmsStrToDeg(cols[2], true);  // 経度
-                if (!name || isNaN(lat) || isNaN(lng)) continue;
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            // 1行目はヘッダーとしてスキップ
+            for (let i = 1; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if (!row || row.length < 8) continue; // 最低8列必要
+                
+                // C列とG列をスペース区切りで結合してname
+                const name = (row[2] || '') + ' ' + (row[6] || '');
+                const lat = dmsStrToDeg(row[3], false); // D列（3番目、0始まりで3）
+                const lng = dmsStrToDeg(row[4], true);  // E列（4番目、0始まりで4）
+                
+                if (!name.trim() || isNaN(lat) || isNaN(lng)) continue;
                 if (lat <= 0 || lng <= 0) continue;
+                
                 if (i === 1) {
-                    console.log('CSV 1件目:', { name, latStr: cols[1], lngStr: cols[2], lat, lng });
+                    console.log('Excel 1件目:', { name, latStr: row[3], lngStr: row[4], lat, lng });
                 }
                 const marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup(name);
             }
         };
-        reader.readAsText(file);
+        reader.readAsArrayBuffer(file);
         event.target.value = '';
     });
 });
