@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map').setView(initialCenter, 15);
 
     // スケールバーを右下に追加
-    L.control.scale({ position: 'bottomright', imperial: false }).addTo(map);
+    L.control.scale({ position: 'bottomright', imperial: false, maxWidth: 150 }).addTo(map);
 
     // 国土地理院タイルレイヤー
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
