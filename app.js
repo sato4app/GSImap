@@ -263,7 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const secInt = parseInt(paddedStr.slice(5, 7), 10);
             const secDecimal = parseFloat('0.' + paddedStr.slice(7));
             const sec = secInt + secDecimal;
-            return deg + min / 60 + sec / 3600;
+            const result = deg + min / 60 + sec / 3600;
+            console.log('経度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
+            return result;
         } else {
             // 緯度: 2桁度 + 2桁分 + 2桁秒整数 + 小数部
             const deg = parseInt(paddedStr.slice(0, 2), 10);
@@ -271,7 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const secInt = parseInt(paddedStr.slice(4, 6), 10);
             const secDecimal = parseFloat('0.' + paddedStr.slice(6));
             const sec = secInt + secDecimal;
-            return deg + min / 60 + sec / 3600;
+            const result = deg + min / 60 + sec / 3600;
+            console.log('緯度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
+            return result;
         }
     }
 
