@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentImage = new Image(); // 表示中の画像のImageオブジェクトを保持
     let centerMarker = null; // 地図の中心を示すマーカー
     let isCenteringMode = false; // 中心座標設定モードのフラグ
-    let isAdjustingImage = false; // 画像位置調整モードのフラグ
     let dragHandles = []; // ドラッグハンドル（角）の配列
     let isDragging = false; // ドラッグ中かどうかのフラグ
     let dragCornerIndex = -1; // ドラッグ中の角のインデックス
@@ -48,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const imageInput = document.getElementById('imageInput');
     const loadImageBtn = document.getElementById('loadImageBtn');
     const centerCoordBtn = document.getElementById('centerCoordBtn');
-    const adjustImageBtn = document.getElementById('adjustImageBtn');
     const scaleInput = document.getElementById('scaleInput');
     const opacityInput = document.getElementById('opacityInput');
     const latInput = document.getElementById('latInput');
@@ -397,10 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
             opacity: displayOpacity // 初期透過度を設定
         }).addTo(map);
         
-        // 位置調整モードの場合のみドラッグハンドルを追加
-        if (isAdjustingImage) {
-            createDragHandles(bounds);
-        }
+        // ドラッグハンドルを追加
+        createDragHandles(bounds);
     }
 
     /**
@@ -514,12 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isCenteringMode = !isCenteringMode; // モードをトグル
         centerCoordBtn.classList.toggle('active', isCenteringMode);
         
-        // 他のモードを無効化
-        if (isCenteringMode && isAdjustingImage) {
-            isAdjustingImage = false;
-            adjustImageBtn.classList.remove('active');
-        }
-        
         // カーソルを設定
         if (isCenteringMode) {
             mapContainer.style.cursor = 'crosshair';
@@ -535,91 +525,6 @@ document.addEventListener('DOMContentLoaded', () => {
             removeDragHandles();
             imageOverlay = null;
         }
-    });
-
-    // 「画像の位置調整」ボタンクリックイベント
-    adjustImageBtn.addEventListener('click', () => {
-        if (!imageOverlay) {
-            // 画像が読み込まれていない場合の警告
-            const messageBox = document.createElement('div');
-            messageBox.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background-color: white;
-                padding: 20px;
-                border: 1px solid #ccc;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                z-index: 10000;
-                border-radius: 8px;
-                font-family: sans-serif;
-                text-align: center;
-            `;
-            messageBox.innerHTML = `
-                <p>まず画像を読み込んでから位置調整を行ってください。</p>
-                <button onclick="this.parentNode.remove()" style="
-                    padding: 8px 16px;
-                    margin-top: 10px;
-                    border: none;
-                    background-color: #007bff;
-                    color: white;
-                    border-radius: 4px;
-                    cursor: pointer;
-                ">OK</button>
-            `;
-            document.body.appendChild(messageBox);
-            return;
-        }
-        
-        isAdjustingImage = !isAdjustingImage; // モードをトグル
-        adjustImageBtn.classList.toggle('active', isAdjustingImage);
-        
-        // 他のモードを無効化
-        if (isAdjustingImage && isCenteringMode) {
-            isCenteringMode = false;
-            centerCoordBtn.classList.remove('active');
-        }
-        
-        if (isAdjustingImage) {
-            // 位置調整モード開始 - ドラッグハンドルを表示
-            if (imageOverlay) {
-                createDragHandles(imageOverlay.getBounds());
-            }
-            
-            // ヒントメッセージを表示
-            const hintMessage = document.createElement('div');
-            hintMessage.id = 'adjustHint';
-            hintMessage.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background-color: rgba(0, 0, 0, 0.8);
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-                z-index: 2000;
-                font-family: sans-serif;
-                font-size: 14px;
-            `;
-            hintMessage.textContent = '赤い点をドラッグして画像のサイズや位置を調整できます';
-            document.body.appendChild(hintMessage);
-            
-            // 3秒後にヒントを消去
-            setTimeout(() => {
-                const hint = document.getElementById('adjustHint');
-                if (hint) hint.remove();
-            }, 3000);
-            
-        } else {
-            // 位置調整モード終了 - ドラッグハンドルを非表示
-            removeDragHandles();
-        }
-        
-        // カーソルをリセット
-        mapContainer.style.cursor = '';
-        document.body.style.cursor = '';
     });
 
     // 地図クリックイベント (中心座標設定モード時)
