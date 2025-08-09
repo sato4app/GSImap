@@ -725,11 +725,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const pointIdStr = pointId.toString().trim();
                 
                 // 緯度・経度を取得
-                const lat = parseFloat(row[columnIndexes.lat]);
-                const lng = parseFloat(row[columnIndexes.lng]);
+                const latValue = row[columnIndexes.lat];
+                const lngValue = row[columnIndexes.lng];
+                
+                // 緯度または経度の値がない場合はスキップ
+                if (latValue === null || latValue === undefined || latValue === '' || 
+                    lngValue === null || lngValue === undefined || lngValue === '') {
+                    continue;
+                }
+                
+                const lat = parseFloat(latValue);
+                const lng = parseFloat(lngValue);
                 
                 if (isNaN(lat) || isNaN(lng)) {
-                    console.warn(`無効な座標: 緯度=${row[columnIndexes.lat]}, 経度=${row[columnIndexes.lng]}`);
+                    console.warn(`無効な座標: 緯度=${latValue}, 経度=${lngValue}`);
                     continue;
                 }
                 
