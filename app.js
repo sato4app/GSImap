@@ -552,6 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.style.cursor = '';
     });
 
+
     // --- ドラッグイベントハンドラー ---
     map.on('mousemove', (e) => {
         if (isDragging && dragCornerIndex >= 0) {
@@ -666,36 +667,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GeoJSON読込イベント ---
     loadGeojsonBtn.addEventListener('click', () => geojsonInput.click());
 
-    // 度分秒文字列→度（実数）変換関数
-    function dmsStrToDeg(dmsStr, isLongitude = false) {
-        if (!dmsStr) return NaN;
-        
-        // 緯度: 8文字、経度: 9文字に調整
-        const targetLength = isLongitude ? 9 : 8;
-        let paddedStr = dmsStr.toString().padEnd(targetLength, '0');
-        
-        if (isLongitude) {
-            // 経度: 3桁度 + 2桁分 + 2桁秒整数 + 小数部
-            const deg = parseInt(paddedStr.slice(0, 3), 10);
-            const min = parseInt(paddedStr.slice(3, 5), 10);
-            const secInt = parseInt(paddedStr.slice(5, 7), 10);
-            const secDecimal = parseFloat('0.' + paddedStr.slice(7));
-            const sec = secInt + secDecimal;
-            const result = deg + min / 60 + sec / 3600;
-            // console.log('経度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
-            return result;
-        } else {
-            // 緯度: 2桁度 + 2桁分 + 2桁秒整数 + 小数部
-            const deg = parseInt(paddedStr.slice(0, 2), 10);
-            const min = parseInt(paddedStr.slice(2, 4), 10);
-            const secInt = parseInt(paddedStr.slice(4, 6), 10);
-            const secDecimal = parseFloat('0.' + paddedStr.slice(6));
-            const sec = secInt + secDecimal;
-            const result = deg + min / 60 + sec / 3600;
-            // console.log('緯度計算:', { dmsStr, paddedStr, deg, min, secInt, secDecimal, sec, result });
-            return result;
-        }
-    }
 
     gpsCsvInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -708,26 +679,88 @@ document.addEventListener('DOMContentLoaded', () => {
             const worksheet = workbook.Sheets[sheetName];
             const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
             
-            // ファイルを読み込み。1行目はヘッダーとしてスキップ
-            let markerCount = 0; // マーカー作成件数を初期化
+            if (jsonData.length < 2) {
+                console.error('Excelファイルにデータが不足しています');
+                return;
+            }
+            
+            // ヘッダー行から列のインデックスを特定
+            const headers = jsonData[0];
+            const columnIndexes = {};
+            
+            for (let i = 0; i < headers.length; i++) {
+                const header = String(headers[i]).trim();
+                if (header === '緊急ポイント') {
+                    columnIndexes.pointId = i;
+                } else if (header === '緯度') {
+                    columnIndexes.lat = i;
+                } else if (header === '経度') {
+                    columnIndexes.lng = i;
+                } else if (header === '地点' || header === '場所') {
+                    columnIndexes.place = i;
+                }
+            }
+            
+            // 必須列の確認
+            if (columnIndexes.pointId === undefined || 
+                columnIndexes.lat === undefined || 
+                columnIndexes.lng === undefined) {
+                console.error('必要な列（緊急ポイント、緯度、経度）が見つかりません');
+                return;
+            }
+            
+            // データ行を処理（2行目以降）
+            let markerCount = 0;
             for (let i = 1; i < jsonData.length; i++) {
                 const row = jsonData[i];
-                if (!row || row.length < 5) continue; // 最低5列(E列まで)必要
+                if (!row || row.length === 0) continue;
                 
-                // C列とG列をスペース区切りで結合してname
-                const name = (row[2] || '') + ' ' + (row[6] || '');
-                const lat = dmsStrToDeg(row[3], false); // D列（3番目、0始まりで3）
-                const lng = dmsStrToDeg(row[4], true);  // E列（4番目、0始まりで4）
+                // 緊急ポイント（ポイントID）を取得
+                const pointId = row[columnIndexes.pointId];
+                if (!pointId || pointId.toString().trim() === '') {
+                    // ブランクの場合はマーカーとしない
+                    continue;
+                }
                 
-                if (!name.trim() || isNaN(lat) || isNaN(lng)) continue;
-                if (lat <= 0 || lng <= 0) continue;
-                markerCount++; // マーカーのカウントアップ
+                // X-nn形式の検証
+                const pointIdStr = pointId.toString().trim();
+                const pointIdPattern = /^[A-Za-z]-\d{2}$/;
+                if (!pointIdPattern.test(pointIdStr)) {
+                    console.warn(`無効なポイントID形式: ${pointIdStr}`);
+                    continue;
+                }
+                
+                // 緯度・経度を取得
+                const lat = parseFloat(row[columnIndexes.lat]);
+                const lng = parseFloat(row[columnIndexes.lng]);
+                
+                if (isNaN(lat) || isNaN(lng)) {
+                    console.warn(`無効な座標: 緯度=${row[columnIndexes.lat]}, 経度=${row[columnIndexes.lng]}`);
+                    continue;
+                }
+                
+                if (lat <= 0 || lng <= 0) {
+                    console.warn(`無効な座標値: 緯度=${lat}, 経度=${lng}`);
+                    continue;
+                }
+                
+                // 地点/場所の取得
+                let markerName = pointIdStr;
+                if (columnIndexes.place !== undefined) {
+                    const place = row[columnIndexes.place];
+                    if (place && place.toString().trim() !== '') {
+                        markerName = pointIdStr + ' ' + place.toString().trim();
+                    }
+                }
+                
+                // マーカーを作成
+                markerCount++;
+                const marker = L.marker([lat, lng]).addTo(map);
+                marker.bindPopup(markerName);
                 
                 if (markerCount === 1) {
-                    console.log('Marker 1件目:', { name, latStr: row[3], lngStr: row[4], lat, lng });
+                    console.log('Marker 1件目:', { pointId: pointIdStr, lat, lng, markerName });
                 }
-                const marker = L.marker([lat, lng]).addTo(map);
-                marker.bindPopup(name);
             }
             console.log(`GPS値からマーカーを作成しました: ${markerCount}件`);
         };
