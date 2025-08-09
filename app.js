@@ -688,18 +688,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const headers = jsonData[0];
             const columnIndexes = {};
             
+            console.log('デバッグ: ヘッダー行:', headers);
+            
             for (let i = 0; i < headers.length; i++) {
                 const header = String(headers[i]).trim();
+                console.log(`デバッグ: 列${i}: "${header}"`);
+                
                 if (header === '緊急ポイント') {
                     columnIndexes.pointId = i;
+                    console.log(`デバッグ: 緊急ポイント列を発見 - インデックス${i}`);
                 } else if (header === '緯度') {
                     columnIndexes.lat = i;
+                    console.log(`デバッグ: 緯度列を発見 - インデックス${i}`);
                 } else if (header === '経度') {
                     columnIndexes.lng = i;
+                    console.log(`デバッグ: 経度列を発見 - インデックス${i}`);
                 } else if (header === '地点' || header === '場所' || header === '位置') {
                     columnIndexes.place = i;
+                    console.log(`デバッグ: 地点/場所/位置列を発見 - インデックス${i}, ヘッダー名="${header}"`);
                 }
             }
+            
+            console.log('デバッグ: 最終的な列マッピング:', columnIndexes);
             
             // 必須列の確認
             if (columnIndexes.pointId === undefined || 
@@ -746,12 +756,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 地点/場所の取得
                 let markerName = pointIdStr;
+                console.log(`デバッグ: 行${i}, ポイントID=${pointIdStr}`);
+                console.log(`デバッグ: place列インデックス=${columnIndexes.place}`);
+                
                 if (columnIndexes.place !== undefined) {
                     const place = row[columnIndexes.place];
+                    console.log(`デバッグ: place値="${place}" (型: ${typeof place})`);
+                    
                     if (place && place.toString().trim() !== '') {
-                        markerName = pointIdStr + ' ' + place.toString().trim();
+                        const placeTrimmed = place.toString().trim();
+                        markerName = pointIdStr + ' ' + placeTrimmed;
+                        console.log(`デバッグ: 地点情報あり - markerName="${markerName}"`);
+                    } else {
+                        console.log(`デバッグ: 地点情報なし - place値が空またはnull/undefined`);
                     }
+                } else {
+                    console.log(`デバッグ: place列が見つからない`);
                 }
+                console.log(`デバッグ: 最終マーカー名="${markerName}"`);
+                console.log('---');
                 
                 // マーカーを作成
                 markerCount++;
