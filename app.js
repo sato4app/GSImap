@@ -756,26 +756,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                // カスタム三角形アイコンを作成（念のため、シンプルな円形も試す）
-                const triangleIcon = L.divIcon({
-                    className: 'gps-triangle-icon',
-                    html: '<div style="width: 20px; height: 20px; background-color: #4444FF; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>',
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 12]
+                // カスタム円形アイコンを作成
+                const circleIcon = L.divIcon({
+                    className: 'gps-circle-icon',
+                    html: '<div style="width: 12px; height: 12px; background-color: #4444FF; border: 1px solid white; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.5);"></div>',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
                 });
                 
                 // マーカーを作成
                 markerCount++;
-                console.log(`マーカー作成中: ${markerCount}件目 - 座標[${lat}, ${lng}], 名前: ${markerName}`);
-                const marker = L.marker([lat, lng], { icon: triangleIcon }).addTo(map);
+                const marker = L.marker([lat, lng], { icon: circleIcon }).addTo(map);
                 marker.bindPopup(markerName);
-                console.log('マーカー作成完了:', marker.getLatLng());
-                
-                if (markerCount === 1) {
-                    console.log('Marker 1件目詳細:', { pointId: pointIdStr, lat, lng, markerName });
-                    // 地図の現在の表示範囲を確認
-                    console.log('地図の表示範囲:', map.getBounds());
-                }
             }
             console.log(`GPS値からマーカーを作成しました: ${markerCount}件`);
         };
