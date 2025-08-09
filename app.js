@@ -759,9 +759,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 // カスタム三角形アイコンを作成
                 const triangleIcon = L.divIcon({
                     className: 'gps-triangle-icon',
-                    html: '<div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid #4444FF; border: 1px solid white; filter: drop-shadow(0 0 1px white);"></div>',
-                    iconSize: [10, 8],
-                    iconAnchor: [5, 8]
+                    html: '<div style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #4444FF; filter: drop-shadow(0 0 2px white) drop-shadow(0 0 1px #000);"></div>',
+                    iconSize: [24, 20],
+                    iconAnchor: [12, 20]
                 });
                 
                 // マーカーを作成
