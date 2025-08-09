@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     columnIndexes.lat = i;
                 } else if (header === '経度') {
                     columnIndexes.lng = i;
-                } else if (header === '地点' || header === '場所') {
+                } else if (header === '地点' || header === '場所' || header === '位置') {
                     columnIndexes.place = i;
                 }
             }
