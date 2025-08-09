@@ -722,13 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     continue;
                 }
                 
-                // X-nn形式の検証
                 const pointIdStr = pointId.toString().trim();
-                const pointIdPattern = /^[A-Za-z]-\d{2}$/;
-                if (!pointIdPattern.test(pointIdStr)) {
-                    console.warn(`無効なポイントID形式: ${pointIdStr}`);
-                    continue;
-                }
                 
                 // 緯度・経度を取得
                 const lat = parseFloat(row[columnIndexes.lat]);
