@@ -159,7 +159,7 @@ export class GPSData {
             }).addTo(this.map);
             
             // ポップアップ内容を作成（指定された順序で表示）
-            let popupContent = `<div><strong>ポイントID名:</strong> ${point.pointId}<br>`;
+            let popupContent = `<div><strong>${point.pointId}</strong><br>`;
             popupContent += `<strong>緯度:</strong> ${point.lat.toFixed(6)}<br>`;
             popupContent += `<strong>経度:</strong> ${point.lng.toFixed(6)}<br>`;
             
