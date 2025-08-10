@@ -761,7 +761,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     className: 'gps-triangle-icon',
                     html: '<div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 16px solid #4444FF; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));"></div>',
                     iconSize: [12, 18],
-                    iconAnchor: [6, 2]
+                    iconAnchor: [6, 16]
                 });
                 
                 // マーカーを作成
