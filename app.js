@@ -756,12 +756,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                // カスタム逆三角形アイコンを作成
+                // カスタム逆三角形アイコンを作成（とがった2等辺三角形）
                 const triangleIcon = L.divIcon({
                     className: 'gps-triangle-icon',
-                    html: '<div style="width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 12px solid #4444FF; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));"></div>',
-                    iconSize: [14, 14],
-                    iconAnchor: [7, 2]
+                    html: '<div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 16px solid #4444FF; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));"></div>',
+                    iconSize: [12, 18],
+                    iconAnchor: [6, 2]
                 });
                 
                 // マーカーを作成
