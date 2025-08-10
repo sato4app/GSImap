@@ -69,3 +69,19 @@
     width: 100%;
     text-align: center;
 }
+
+/* GPS逆三角形マーカーのスタイル */
+.gps-triangle-marker {
+    background: transparent;
+    border: none;
+}
+
+.gps-triangle-marker div {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: all 0.2s ease;
+}
+
+.gps-triangle-marker:hover div {
+    transform: scale(1.1);
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+}

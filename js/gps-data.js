@@ -147,15 +147,33 @@ export class GPSData {
         return decimalValue;
     }
 
-    addGPSMarkersToMap(gpsData) {
+    // 色を明るく/暗くするヘルパー関数
+    adjustColor(color, amount) {
+        const hex = color.replace('#', '');
+        const num = parseInt(hex, 16);
+        let r = (num >> 16) + amount * 255;
+        let g = (num >> 8 & 0x00FF) + amount * 255;
+        let b = (num & 0x0000FF) + amount * 255;
+        
+        r = Math.max(0, Math.min(255, Math.round(r)));
+        g = Math.max(0, Math.min(255, Math.round(g)));
+        b = Math.max(0, Math.min(255, Math.round(b)));
+        
+        return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
+    }
+
+    addGPSMarkersToMap(gpsData, markerColor = '#00ff00') {
         gpsData.forEach((point, index) => {
-            const marker = L.circleMarker([point.lat, point.lng], {
-                radius: 5,
-                fillColor: '#00ff00',
-                color: '#008000',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.8
+            // 逆三角形アイコンを作成（GPS座標の正確な位置に合わせる）
+            const triangleIcon = L.divIcon({
+                className: 'gps-triangle-marker',
+                html: `<div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 18px solid ${markerColor}; position: relative; outline: 1px solid ${this.adjustColor(markerColor, -0.3)};"></div>`,
+                iconSize: [20, 18],
+                iconAnchor: [10, 18] // 下の頂点（三角形の底辺中央）をGPS座標に正確に合わせる
+            });
+
+            const marker = L.marker([point.lat, point.lng], {
+                icon: triangleIcon
             }).addTo(this.map);
             
             // ポップアップ内容を作成（指定された順序で表示）
@@ -176,13 +194,18 @@ export class GPSData {
             popupContent += `</div>`;
             
             marker.bindPopup(popupContent);
+            
+            // マーカーにクリックイベントを追加
+            marker.on('click', () => {
+                // マーカーがクリックされたときの処理
+                console.log(`GPSポイント ${point.pointId} がクリックされました:`, point);
+            });
         });
         
         if (gpsData.length > 0) {
-            const group = new L.featureGroup(gpsData.map(point => 
-                L.marker([point.lat, point.lng])
-            ));
-            this.map.fitBounds(group.getBounds().pad(0.1));
+            // すべてのGPSポイントを含む範囲を計算
+            const bounds = L.latLngBounds(gpsData.map(point => [point.lat, point.lng]));
+            this.map.fitBounds(bounds.pad(0.1));
         }
     }
 }
