@@ -756,17 +756,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 
-                // カスタム円形アイコンを作成
-                const circleIcon = L.divIcon({
-                    className: 'gps-circle-icon',
-                    html: '<div style="width: 12px; height: 12px; background-color: #4444FF; border: 1px solid white; border-radius: 50%; box-shadow: 0 0 3px rgba(0,0,0,0.5);"></div>',
+                // カスタム逆三角形アイコンを作成
+                const triangleIcon = L.divIcon({
+                    className: 'gps-triangle-icon',
+                    html: '<div style="width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 12px solid #4444FF; filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));"></div>',
                     iconSize: [14, 14],
-                    iconAnchor: [7, 7]
+                    iconAnchor: [7, 2]
                 });
                 
                 // マーカーを作成
                 markerCount++;
-                const marker = L.marker([lat, lng], { icon: circleIcon }).addTo(map);
+                const marker = L.marker([lat, lng], { icon: triangleIcon }).addTo(map);
                 marker.bindPopup(markerName);
             }
             console.log(`GPS値からマーカーを作成しました: ${markerCount}件`);
