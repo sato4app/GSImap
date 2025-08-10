@@ -34,6 +34,9 @@ export class GPSData {
     processGPSData(jsonData) {
         const processedData = [];
         
+        console.log('=== GPS データ処理開始 ===');
+        console.log('総行数:', jsonData.length);
+        
         for (let i = 1; i < jsonData.length; i++) {
             const row = jsonData[i];
             if (!row || row.length < 3) continue;
@@ -42,15 +45,37 @@ export class GPSData {
                 const latStr = String(row[1]).trim();
                 const lngStr = String(row[2]).trim();
                 
+                // デバッグ出力（最初の5件のみ）
+                if (processedData.length < 5) {
+                    console.log(`--- 行 ${i + 1} ---`);
+                    console.log('元データ:', {
+                        ID: row[0],
+                        緯度文字列: `"${latStr}"`,
+                        経度文字列: `"${lngStr}"`,
+                        行全体: row
+                    });
+                }
+                
                 if (!latStr || !lngStr || latStr === 'undefined' || lngStr === 'undefined') {
+                    if (processedData.length < 5) {
+                        console.log('→ スキップ: 空の座標データ');
+                    }
                     continue;
                 }
                 
                 const lat = this.parseCoordinate(latStr, 'lat');
                 const lng = this.parseCoordinate(lngStr, 'lng');
                 
+                // デバッグ出力（最初の5件のみ）
+                if (processedData.length < 5) {
+                    console.log('変換結果:', {
+                        緯度: lat,
+                        経度: lng
+                    });
+                }
+                
                 if (lat !== null && lng !== null) {
-                    processedData.push({
+                    const pointData = {
                         id: row[0] || i,
                         lat: lat,
                         lng: lng,
@@ -58,12 +83,27 @@ export class GPSData {
                             lat: latStr,
                             lng: lngStr
                         }
-                    });
+                    };
+                    
+                    processedData.push(pointData);
+                    
+                    // デバッグ出力（最初の5件のみ）
+                    if (processedData.length <= 5) {
+                        console.log('追加されたポイント:', pointData);
+                        console.log('地図座標:', `[${lat}, ${lng}]`);
+                    }
                 }
             } catch (error) {
                 console.warn(`行 ${i + 1} の処理をスキップしました:`, error.message);
+                if (processedData.length < 5) {
+                    console.log('エラー詳細:', error);
+                }
             }
         }
+        
+        console.log(`=== GPS データ処理完了 ===`);
+        console.log('処理成功件数:', processedData.length);
+        console.log('最初の3件の座標:', processedData.slice(0, 3).map(p => `[${p.lat}, ${p.lng}]`));
         
         return processedData;
     }
@@ -91,7 +131,18 @@ export class GPSData {
     }
 
     addGPSMarkersToMap(gpsData) {
+        console.log('=== GPS マーカー配置開始 ===');
+        console.log('配置予定マーカー数:', gpsData.length);
+        
         gpsData.forEach((point, index) => {
+            // 最初の5件のデバッグ情報
+            if (index < 5) {
+                console.log(`--- マーカー ${index + 1} ---`);
+                console.log('ポイントデータ:', point);
+                console.log(`Leaflet座標: [${point.lat}, ${point.lng}]`);
+                console.log('元データ:', point.original);
+            }
+            
             const marker = L.circleMarker([point.lat, point.lng], {
                 radius: 5,
                 fillColor: '#00ff00',
@@ -109,13 +160,27 @@ export class GPSData {
                     <small>元データ: ${point.original.lat}, ${point.original.lng}</small>
                 </div>
             `);
+            
+            if (index < 5) {
+                console.log('→ マーカー配置完了');
+            }
         });
         
         if (gpsData.length > 0) {
             const group = new L.featureGroup(gpsData.map(point => 
                 L.marker([point.lat, point.lng])
             ));
-            this.map.fitBounds(group.getBounds().pad(0.1));
+            const bounds = group.getBounds();
+            
+            console.log('地図範囲調整:', {
+                北東: bounds.getNorthEast(),
+                南西: bounds.getSouthWest(),
+                中心: bounds.getCenter()
+            });
+            
+            this.map.fitBounds(bounds.pad(0.1));
         }
+        
+        console.log('=== GPS マーカー配置完了 ===');
     }
 }
