@@ -162,7 +162,7 @@ export class GPSData {
         return `#${(r << 16 | g << 8 | b).toString(16).padStart(6, '0')}`;
     }
 
-    addGPSMarkersToMap(gpsData, markerColor = '#006400') {
+    addGPSMarkersToMap(gpsData, markerColor = '#00ff00') {
         gpsData.forEach((point, index) => {
             // 逆三角形アイコンを作成（GPS座標の正確な位置に合わせる）
             const triangleIcon = L.divIcon({
