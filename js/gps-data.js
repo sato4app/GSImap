@@ -46,8 +46,8 @@ export class GPSData {
                     continue;
                 }
                 
-                const lat = this.parseCoordinate(latStr, 8);
-                const lng = this.parseCoordinate(lngStr, 9);
+                const lat = this.parseCoordinate(latStr, 'lat');
+                const lng = this.parseCoordinate(lngStr, 'lng');
                 
                 if (lat !== null && lng !== null) {
                     processedData.push({
@@ -68,36 +68,26 @@ export class GPSData {
         return processedData;
     }
 
-    parseCoordinate(coordStr, expectedLength) {
-        if (!coordStr || coordStr.length !== expectedLength) {
-            throw new Error(`座標の長さが正しくありません（期待値: ${expectedLength}, 実際: ${coordStr.length}）`);
+    parseCoordinate(coordStr, coordType) {
+        if (!coordStr) {
+            throw new Error('座標データが空です');
         }
         
-        let degrees, minutes, seconds;
+        // 文字列から数値のみを抽出（マイナス符号と小数点も含める）
+        const cleanedStr = coordStr.toString().replace(/[^\d.-]/g, '');
         
-        if (expectedLength === 8) {
-            // 緯度: 12345678 -> 12度34分56.78秒
-            degrees = parseInt(coordStr.substring(0, 2));
-            minutes = parseInt(coordStr.substring(2, 4));
-            seconds = parseFloat(coordStr.substring(4, 6) + '.' + coordStr.substring(6, 8));
-        } else if (expectedLength === 9) {
-            // 経度: 123456789 -> 123度45分67.89秒
-            degrees = parseInt(coordStr.substring(0, 3));
-            minutes = parseInt(coordStr.substring(3, 5));
-            seconds = parseFloat(coordStr.substring(5, 7) + '.' + coordStr.substring(7, 9));
-        } else {
-            throw new Error('サポートされていない座標長です');
+        if (!cleanedStr) {
+            throw new Error('有効な数値データがありません');
         }
         
-        if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) {
-            throw new Error('座標の解析に失敗しました');
+        // 10進数形式として解析
+        const decimalValue = parseFloat(cleanedStr);
+        
+        if (isNaN(decimalValue)) {
+            throw new Error(`座標の解析に失敗しました: ${coordStr}`);
         }
         
-        if (minutes >= 60 || seconds >= 60) {
-            throw new Error('分または秒の値が無効です');
-        }
-        
-        return degrees + (minutes / 60) + (seconds / 3600);
+        return decimalValue;
     }
 
     addGPSMarkersToMap(gpsData) {
