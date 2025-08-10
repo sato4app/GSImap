@@ -182,25 +182,27 @@ export class ImageOverlay {
         if (!this.imageOverlay) return;
         
         const currentBounds = this.imageOverlay.getBounds();
-        const currentCenter = this.centerMarker.getLatLng();
-        
-        const corners = [
-            currentBounds.getNorthWest(),
-            currentBounds.getNorthEast(),
-            currentBounds.getSouthEast(),
-            currentBounds.getSouthWest()
-        ];
-        
-        corners[cornerIndex] = newCornerPos;
-        
         const oppositeIndex = (cornerIndex + 2) % 4;
-        const oppositeCorner = corners[oppositeIndex];
+        
+        // 対角コーナーの位置を取得
+        let oppositeCorner;
+        if (cornerIndex === 0) { // 左上
+            oppositeCorner = currentBounds.getSouthEast();
+        } else if (cornerIndex === 1) { // 右上
+            oppositeCorner = currentBounds.getSouthWest();
+        } else if (cornerIndex === 2) { // 右下
+            oppositeCorner = currentBounds.getNorthWest();
+        } else { // 左下
+            oppositeCorner = currentBounds.getNorthEast();
+        }
         
         const aspectRatio = this.currentImage.width / this.currentImage.height;
         
+        // 新しいコーナー位置と対角コーナー間の距離を計算
         let deltaLat = Math.abs(newCornerPos.lat - oppositeCorner.lat);
         let deltaLng = Math.abs(newCornerPos.lng - oppositeCorner.lng);
         
+        // アスペクト比を維持するために調整
         const currentAspectRatio = deltaLng / deltaLat;
         
         if (currentAspectRatio > aspectRatio) {
@@ -209,38 +211,46 @@ export class ImageOverlay {
             deltaLat = deltaLng / aspectRatio;
         }
         
+        // 各コーナーに応じて新しい境界を計算
         let newBounds;
-        if (cornerIndex === 0) {
-            newBounds = L.latLngBounds(
-                [oppositeCorner.lat - deltaLat, oppositeCorner.lng - deltaLng],
-                [oppositeCorner.lat, oppositeCorner.lng]
-            );
-        } else if (cornerIndex === 1) {
-            newBounds = L.latLngBounds(
-                [oppositeCorner.lat - deltaLat, oppositeCorner.lng],
-                [oppositeCorner.lat, oppositeCorner.lng + deltaLng]
-            );
-        } else if (cornerIndex === 2) {
-            newBounds = L.latLngBounds(
-                [oppositeCorner.lat, oppositeCorner.lng],
-                [oppositeCorner.lat + deltaLat, oppositeCorner.lng + deltaLng]
-            );
-        } else {
-            newBounds = L.latLngBounds(
-                [oppositeCorner.lat, oppositeCorner.lng - deltaLng],
-                [oppositeCorner.lat + deltaLat, oppositeCorner.lng]
-            );
+        if (cornerIndex === 0) { // 左上ハンドル
+            const south = oppositeCorner.lat;
+            const east = oppositeCorner.lng;
+            const north = south + deltaLat;
+            const west = east - deltaLng;
+            newBounds = L.latLngBounds([south, west], [north, east]);
+        } else if (cornerIndex === 1) { // 右上ハンドル
+            const south = oppositeCorner.lat;
+            const west = oppositeCorner.lng;
+            const north = south + deltaLat;
+            const east = west + deltaLng;
+            newBounds = L.latLngBounds([south, west], [north, east]);
+        } else if (cornerIndex === 2) { // 右下ハンドル
+            const north = oppositeCorner.lat;
+            const west = oppositeCorner.lng;
+            const south = north - deltaLat;
+            const east = west + deltaLng;
+            newBounds = L.latLngBounds([south, west], [north, east]);
+        } else { // 左下ハンドル
+            const north = oppositeCorner.lat;
+            const east = oppositeCorner.lng;
+            const south = north - deltaLat;
+            const west = east - deltaLng;
+            newBounds = L.latLngBounds([south, west], [north, east]);
         }
         
-        this.imageOverlay.setBounds(newBounds);
-        
-        const newCenter = newBounds.getCenter();
-        this.centerMarker.setLatLng(newCenter);
-        this.updateCoordInputs(newCenter);
-        
-        this.createDragHandles(newBounds);
-        this.updateScaleFromBounds(newBounds);
-        this.showResizeInfo(newBounds, newCenter);
+        // 境界が有効であることを確認
+        if (newBounds.isValid()) {
+            this.imageOverlay.setBounds(newBounds);
+            
+            const newCenter = newBounds.getCenter();
+            this.centerMarker.setLatLng(newCenter);
+            this.updateCoordInputs(newCenter);
+            
+            this.createDragHandles(newBounds);
+            this.updateScaleFromBounds(newBounds);
+            this.showResizeInfo(newBounds, newCenter);
+        }
     }
 
     showResizeInfo(bounds, center) {
