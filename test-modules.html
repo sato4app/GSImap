@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module Test</title>
+</head>
+<body>
+    <div id="test-output"></div>
+    
+    <script type="module">
+        try {
+            const { MapCore } = await import('./js/map-core.js');
+            const { ImageOverlay } = await import('./js/image-overlay.js');
+            const { GPSData } = await import('./js/gps-data.js');
+            const { GeoJSONLoader } = await import('./js/geojson-loader.js');
+            const { PointRouteEditor } = await import('./js/point-route-editor.js');
+            const { ModeSwitcher } = await import('./js/mode-switcher.js');
+            
+            document.getElementById('test-output').innerHTML = `
+                <h2>モジュールテスト結果</h2>
+                <p>✅ MapCore: ${typeof MapCore === 'function' ? '正常' : 'エラー'}</p>
+                <p>✅ ImageOverlay: ${typeof ImageOverlay === 'function' ? '正常' : 'エラー'}</p>
+                <p>✅ GPSData: ${typeof GPSData === 'function' ? '正常' : 'エラー'}</p>
+                <p>✅ GeoJSONLoader: ${typeof GeoJSONLoader === 'function' ? '正常' : 'エラー'}</p>
+                <p>✅ PointRouteEditor: ${typeof PointRouteEditor === 'function' ? '正常' : 'エラー'}</p>
+                <p>✅ ModeSwitcher: ${typeof ModeSwitcher === 'function' ? '正常' : 'エラー'}</p>
+                <p><strong>すべてのモジュールが正常に読み込まれました！</strong></p>
+            `;
+            
+            console.log('All modules loaded successfully');
+        } catch (error) {
+            document.getElementById('test-output').innerHTML = `
+                <h2>モジュールテスト結果</h2>
+                <p style="color: red;">❌ エラーが発生しました: ${error.message}</p>
+            `;
+            console.error('Module loading error:', error);
+        }
+    </script>
+</body>
+</html>

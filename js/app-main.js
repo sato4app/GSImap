@@ -1,0 +1,134 @@
+// メインアプリケーションファイル - 全モジュールを統合
+import { MapCore } from './map-core.js';
+import { ImageOverlay } from './image-overlay.js';
+import { GPSData } from './gps-data.js';
+import { GeoJSONLoader } from './geojson-loader.js';
+import { PointRouteEditor } from './point-route-editor.js';
+import { ModeSwitcher } from './mode-switcher.js';
+
+class GSIMapApp {
+    constructor() {
+        this.mapCore = null;
+        this.imageOverlay = null;
+        this.gpsData = null;
+        this.geojsonLoader = null;
+        this.pointRouteEditor = null;
+        this.modeSwitcher = null;
+    }
+
+    init() {
+        // コアモジュール初期化
+        this.mapCore = new MapCore();
+        
+        // 各機能モジュール初期化
+        this.imageOverlay = new ImageOverlay(this.mapCore);
+        this.gpsData = new GPSData(this.mapCore.getMap());
+        this.geojsonLoader = new GeoJSONLoader(this.mapCore.getMap());
+        this.pointRouteEditor = new PointRouteEditor(this.mapCore.getMap());
+        this.modeSwitcher = new ModeSwitcher();
+        
+        // イベントハンドラー設定
+        this.setupEventHandlers();
+        
+        console.log('GSIMap アプリケーションが初期化されました');
+    }
+
+    setupEventHandlers() {
+        // 画像読み込みボタンのイベントハンドラー
+        const loadImageBtn = document.getElementById('loadImageBtn');
+        const imageInput = document.getElementById('imageInput');
+        
+        if (loadImageBtn && imageInput) {
+            loadImageBtn.addEventListener('click', () => {
+                imageInput.click();
+            });
+            
+            imageInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type === 'image/png') {
+                    this.imageOverlay.loadImage(file).catch(error => {
+                        this.showErrorMessage('画像読み込みエラー', error.message);
+                    });
+                } else if (file) {
+                    this.showErrorMessage('ファイル形式エラー', 'PNG形式の画像ファイルを選択してください。');
+                }
+            });
+        }
+
+        // GPS読み込みボタンのイベントハンドラー
+        const loadGpsBtn = document.getElementById('loadGpsBtn');
+        const gpsCsvInput = document.getElementById('gpsCsvInput');
+        
+        if (loadGpsBtn && gpsCsvInput) {
+            loadGpsBtn.addEventListener('click', () => {
+                gpsCsvInput.click();
+            });
+            
+            gpsCsvInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.gpsData.loadGPSData(file).catch(error => {
+                        this.showErrorMessage('GPS データ読み込みエラー', error.message);
+                    });
+                }
+            });
+        }
+
+        // GeoJSON読み込みボタンのイベントハンドラー
+        const loadGeojsonBtn = document.getElementById('loadGeojsonBtn');
+        const geojsonInput = document.getElementById('geojsonInput');
+        
+        if (loadGeojsonBtn && geojsonInput) {
+            loadGeojsonBtn.addEventListener('click', () => {
+                geojsonInput.click();
+            });
+            
+            geojsonInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.geojsonLoader.loadGeoJSON(file).catch(error => {
+                        this.showErrorMessage('GeoJSON 読み込みエラー', error.message);
+                    });
+                }
+            });
+        }
+    }
+
+    showErrorMessage(title, message) {
+        const messageBox = document.createElement('div');
+        messageBox.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10000;
+            border-radius: 8px;
+            font-family: sans-serif;
+            text-align: center;
+        `;
+        messageBox.innerHTML = `
+            <h3>${title}</h3>
+            <p>${message}</p>
+            <button onclick="this.parentNode.remove()" style="
+                padding: 8px 16px;
+                margin-top: 10px;
+                border: none;
+                background-color: #007bff;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+            ">OK</button>
+        `;
+        document.body.appendChild(messageBox);
+    }
+}
+
+// アプリケーション開始
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new GSIMapApp();
+    app.init();
+});

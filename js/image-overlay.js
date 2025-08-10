@@ -1,0 +1,422 @@
+// 画像オーバーレイ機能を管理するモジュール
+export class ImageOverlay {
+    constructor(mapCore) {
+        this.map = mapCore.getMap();
+        this.imageOverlay = null;
+        this.currentImage = new Image();
+        this.centerMarker = null;
+        this.dragHandles = [];
+        this.isDragging = false;
+        this.dragCornerIndex = -1;
+        this.resizeTooltip = null;
+        this.isMovingImage = false;
+        this.moveStartPoint = null;
+        this.isCenteringMode = false;
+        
+        this.initializeCenterMarker(mapCore.getInitialCenter());
+        this.setupEventHandlers();
+    }
+
+    initializeCenterMarker(position) {
+        const centerIcon = L.divIcon({
+            className: 'center-marker-icon',
+            html: '<div style="width: 12px; height: 12px; background-color: #ff0000; border: 2px solid #ffffff; border-radius: 50%;"></div>',
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+        
+        this.centerMarker = this.createCenterMarker(position, centerIcon);
+    }
+
+    createCenterMarker(position, icon) {
+        const marker = L.marker(position, { 
+            icon: icon,
+            draggable: false,
+            pane: 'centerMarker'
+        }).addTo(this.map);
+        
+        marker.bindTooltip('ドラッグして画像移動', {
+            permanent: false,
+            direction: 'top',
+            offset: [0, -10],
+            className: 'center-marker-tooltip'
+        });
+        
+        marker.on('mouseover', () => {
+            if (!this.isMovingImage) {
+                this.map.getContainer().style.cursor = 'move';
+            }
+        });
+        
+        marker.on('mouseout', () => {
+            if (!this.isMovingImage) {
+                this.map.getContainer().style.cursor = '';
+                document.body.style.cursor = '';
+            }
+        });
+        
+        marker.on('mousedown', (e) => {
+            if (!this.imageOverlay) return;
+            
+            this.isMovingImage = true;
+            this.moveStartPoint = e.latlng;
+            this.map.dragging.disable();
+            this.map.getContainer().style.cursor = 'grabbing';
+            
+            const moveHandler = (moveEvent) => {
+                if (!this.isMovingImage) return;
+                
+                const deltaLat = moveEvent.latlng.lat - this.moveStartPoint.lat;
+                const deltaLng = moveEvent.latlng.lng - this.moveStartPoint.lng;
+                
+                this.moveImageToPosition([
+                    this.centerMarker.getLatLng().lat + deltaLat,
+                    this.centerMarker.getLatLng().lng + deltaLng
+                ]);
+                
+                this.moveStartPoint = moveEvent.latlng;
+            };
+            
+            const stopHandler = () => {
+                this.isMovingImage = false;
+                this.map.dragging.enable();
+                this.map.getContainer().style.cursor = '';
+                this.map.off('mousemove', moveHandler);
+                this.map.off('mouseup', stopHandler);
+            };
+            
+            this.map.on('mousemove', moveHandler);
+            this.map.on('mouseup', stopHandler);
+        });
+        
+        return marker;
+    }
+
+    moveImageToPosition(newPosition) {
+        if (!this.imageOverlay) return;
+        
+        this.centerMarker.setLatLng(newPosition);
+        this.updateImageDisplay();
+        this.updateCoordInputs(this.centerMarker.getLatLng());
+    }
+
+    removeDragHandles() {
+        this.dragHandles.forEach(handle => {
+            this.map.removeLayer(handle);
+        });
+        this.dragHandles = [];
+    }
+
+    createDragHandles(bounds) {
+        this.removeDragHandles();
+        
+        const corners = [
+            { pos: bounds.getNorthWest(), cursor: 'nw-resize', tooltip: '左上角をドラッグしてリサイズ' },
+            { pos: bounds.getNorthEast(), cursor: 'ne-resize', tooltip: '右上角をドラッグしてリサイズ' },
+            { pos: bounds.getSouthEast(), cursor: 'se-resize', tooltip: '右下角をドラッグしてリサイズ' },
+            { pos: bounds.getSouthWest(), cursor: 'sw-resize', tooltip: '左下角をドラッグしてリサイズ' }
+        ];
+        
+        corners.forEach((corner, index) => {
+            const handleIcon = L.divIcon({
+                className: 'drag-handle-icon',
+                html: '<div class="drag-handle-pulse" style="width: 8px; height: 8px; background-color: #ff0000; border: 1.5px solid #ffffff; border-radius: 50%;"></div>',
+                iconSize: [12, 12],
+                iconAnchor: [6, 6]
+            });
+            
+            const handle = L.marker(corner.pos, { 
+                icon: handleIcon,
+                draggable: false,
+                pane: 'dragHandles'
+            }).addTo(this.map);
+            
+            handle.bindTooltip(corner.tooltip, {
+                permanent: false,
+                direction: 'top',
+                offset: [0, -15],
+                className: 'drag-handle-tooltip'
+            });
+            
+            handle.on('mouseover', () => {
+                this.map.getContainer().style.cursor = corner.cursor;
+            });
+            
+            handle.on('mouseout', () => {
+                if (!this.isDragging) {
+                    this.map.getContainer().style.cursor = '';
+                }
+            });
+            
+            handle.on('mousedown', (e) => {
+                this.isDragging = true;
+                this.dragCornerIndex = index;
+                this.map.dragging.disable();
+                this.map.getContainer().style.cursor = corner.cursor;
+                
+                const moveHandler = (moveEvent) => {
+                    if (this.isDragging && this.dragCornerIndex === index) {
+                        this.updateImageBounds(moveEvent.latlng, index);
+                    }
+                };
+                
+                const stopHandler = () => {
+                    this.isDragging = false;
+                    this.dragCornerIndex = -1;
+                    this.map.dragging.enable();
+                    this.map.getContainer().style.cursor = '';
+                    this.hideResizeInfo();
+                    this.map.off('mousemove', moveHandler);
+                    this.map.off('mouseup', stopHandler);
+                };
+                
+                this.map.on('mousemove', moveHandler);
+                this.map.on('mouseup', stopHandler);
+            });
+            
+            this.dragHandles.push(handle);
+        });
+    }
+
+    updateImageBounds(newCornerPos, cornerIndex) {
+        if (!this.imageOverlay) return;
+        
+        const currentBounds = this.imageOverlay.getBounds();
+        const currentCenter = this.centerMarker.getLatLng();
+        
+        const corners = [
+            currentBounds.getNorthWest(),
+            currentBounds.getNorthEast(),
+            currentBounds.getSouthEast(),
+            currentBounds.getSouthWest()
+        ];
+        
+        corners[cornerIndex] = newCornerPos;
+        
+        const oppositeIndex = (cornerIndex + 2) % 4;
+        const oppositeCorner = corners[oppositeIndex];
+        
+        const aspectRatio = this.currentImage.width / this.currentImage.height;
+        
+        let deltaLat = Math.abs(newCornerPos.lat - oppositeCorner.lat);
+        let deltaLng = Math.abs(newCornerPos.lng - oppositeCorner.lng);
+        
+        const currentAspectRatio = deltaLng / deltaLat;
+        
+        if (currentAspectRatio > aspectRatio) {
+            deltaLng = deltaLat * aspectRatio;
+        } else {
+            deltaLat = deltaLng / aspectRatio;
+        }
+        
+        let newBounds;
+        if (cornerIndex === 0) {
+            newBounds = L.latLngBounds(
+                [oppositeCorner.lat - deltaLat, oppositeCorner.lng - deltaLng],
+                [oppositeCorner.lat, oppositeCorner.lng]
+            );
+        } else if (cornerIndex === 1) {
+            newBounds = L.latLngBounds(
+                [oppositeCorner.lat - deltaLat, oppositeCorner.lng],
+                [oppositeCorner.lat, oppositeCorner.lng + deltaLng]
+            );
+        } else if (cornerIndex === 2) {
+            newBounds = L.latLngBounds(
+                [oppositeCorner.lat, oppositeCorner.lng],
+                [oppositeCorner.lat + deltaLat, oppositeCorner.lng + deltaLng]
+            );
+        } else {
+            newBounds = L.latLngBounds(
+                [oppositeCorner.lat, oppositeCorner.lng - deltaLng],
+                [oppositeCorner.lat + deltaLat, oppositeCorner.lng]
+            );
+        }
+        
+        this.imageOverlay.setBounds(newBounds);
+        
+        const newCenter = newBounds.getCenter();
+        this.centerMarker.setLatLng(newCenter);
+        this.updateCoordInputs(newCenter);
+        
+        this.createDragHandles(newBounds);
+        this.updateScaleFromBounds(newBounds);
+        this.showResizeInfo(newBounds, newCenter);
+    }
+
+    showResizeInfo(bounds, center) {
+        this.hideResizeInfo();
+        
+        const ne = bounds.getNorthEast();
+        const sw = bounds.getSouthWest();
+        
+        const widthKm = this.map.distance(
+            [center.lat, sw.lng],
+            [center.lat, ne.lng]
+        ) / 1000;
+        const heightKm = this.map.distance(
+            [sw.lat, center.lng],
+            [ne.lat, center.lng]
+        ) / 1000;
+        
+        this.resizeTooltip = L.tooltip({
+            permanent: true,
+            direction: 'center',
+            className: 'resize-info-tooltip'
+        })
+        .setContent(`幅: ${widthKm.toFixed(2)}km<br>高さ: ${heightKm.toFixed(2)}km`)
+        .setLatLng(center)
+        .addTo(this.map);
+    }
+
+    hideResizeInfo() {
+        if (this.resizeTooltip) {
+            this.map.removeLayer(this.resizeTooltip);
+            this.resizeTooltip = null;
+        }
+    }
+
+    updateScaleFromBounds(bounds) {
+        const scaleInput = document.getElementById('scaleInput');
+        if (!scaleInput || !this.currentImage.width) return;
+        
+        const latLngBounds = bounds;
+        const pixelBounds = this.map.latLngToLayerPoint(latLngBounds.getNorthEast())
+            .distanceTo(this.map.latLngToLayerPoint(latLngBounds.getSouthWest()));
+        
+        const imagePixels = Math.sqrt(this.currentImage.width * this.currentImage.width + 
+                                     this.currentImage.height * this.currentImage.height);
+        
+        const currentScale = pixelBounds / imagePixels;
+        scaleInput.value = currentScale.toFixed(2);
+    }
+
+    updateCoordInputs(latlng) {
+        const latInput = document.getElementById('latInput');
+        const lngInput = document.getElementById('lngInput');
+        
+        if (latInput && lngInput) {
+            latInput.value = latlng.lat.toFixed(6);
+            lngInput.value = latlng.lng.toFixed(6);
+        }
+    }
+
+    getDisplayOpacity() {
+        const opacityInput = document.getElementById('opacityInput');
+        return opacityInput ? parseInt(opacityInput.value) / 100 : 0.5;
+    }
+
+    updateImageDisplay() {
+        if (!this.imageOverlay || !this.currentImage.src) return;
+        
+        const scaleInput = document.getElementById('scaleInput');
+        const scale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
+        
+        const centerPos = this.centerMarker.getLatLng();
+        
+        const imageWidth = this.currentImage.width;
+        const imageHeight = this.currentImage.height;
+        
+        const metersPerPixel = 156543.03392 * Math.cos(centerPos.lat * Math.PI / 180) / Math.pow(2, this.map.getZoom());
+        
+        const scaledImageWidthMeters = imageWidth * scale * metersPerPixel;
+        const scaledImageHeightMeters = imageHeight * scale * metersPerPixel;
+        
+        const earthRadius = 6378137;
+        const latOffset = (scaledImageHeightMeters / 2) / earthRadius * (180 / Math.PI);
+        const lngOffset = (scaledImageWidthMeters / 2) / (earthRadius * Math.cos(centerPos.lat * Math.PI / 180)) * (180 / Math.PI);
+        
+        const bounds = L.latLngBounds(
+            [centerPos.lat - latOffset, centerPos.lng - lngOffset],
+            [centerPos.lat + latOffset, centerPos.lng + lngOffset]
+        );
+        
+        this.imageOverlay.setBounds(bounds);
+        this.createDragHandles(bounds);
+        this.updateCoordInputs(centerPos);
+    }
+
+    updateOpacity() {
+        if (this.imageOverlay) {
+            this.imageOverlay.setOpacity(this.getDisplayOpacity());
+        }
+    }
+
+    setupEventHandlers() {
+        const scaleInput = document.getElementById('scaleInput');
+        const opacityInput = document.getElementById('opacityInput');
+        const centerCoordBtn = document.getElementById('centerCoordBtn');
+        
+        if (scaleInput) {
+            scaleInput.addEventListener('input', () => this.updateImageDisplay());
+        }
+        
+        if (opacityInput) {
+            opacityInput.addEventListener('input', () => this.updateOpacity());
+        }
+        
+        if (centerCoordBtn) {
+            centerCoordBtn.addEventListener('click', () => {
+                this.isCenteringMode = !this.isCenteringMode;
+                centerCoordBtn.classList.toggle('active', this.isCenteringMode);
+                
+                if (this.isCenteringMode) {
+                    this.map.getContainer().style.cursor = 'crosshair';
+                } else {
+                    this.map.getContainer().style.cursor = '';
+                }
+            });
+        }
+
+        this.map.on('click', (e) => {
+            if (this.isCenteringMode) {
+                this.centerMarker.setLatLng(e.latlng);
+                this.updateCoordInputs(e.latlng);
+                if (this.imageOverlay) {
+                    this.updateImageDisplay();
+                }
+                
+                this.isCenteringMode = false;
+                centerCoordBtn.classList.remove('active');
+                this.map.getContainer().style.cursor = '';
+            }
+        });
+    }
+
+    loadImage(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                this.currentImage.onload = () => {
+                    if (this.imageOverlay) {
+                        this.map.removeLayer(this.imageOverlay);
+                        this.removeDragHandles();
+                    }
+                    
+                    this.imageOverlay = L.imageOverlay(e.target.result, this.getInitialBounds(), {
+                        opacity: this.getDisplayOpacity(),
+                        interactive: false
+                    }).addTo(this.map);
+                    
+                    this.updateImageDisplay();
+                    resolve();
+                };
+                
+                this.currentImage.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+                this.currentImage.src = e.target.result;
+            };
+            
+            reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    getInitialBounds() {
+        const center = this.centerMarker.getLatLng();
+        const offset = 0.001;
+        return L.latLngBounds(
+            [center.lat - offset, center.lng - offset],
+            [center.lat + offset, center.lng + offset]
+        );
+    }
+}
