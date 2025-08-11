@@ -128,32 +128,50 @@
 /* 座標フィールド（緯度・経度）のスタイル */
 .coordinate-fields {
     display: flex;
-    gap: 8px;
+    gap: 6px;
 }
 
-.coordinate-fields input {
-    flex: 1;
+.coordinate-fields input[size="8"] {
+    width: 70px;
+    flex: none;
+}
+
+.coordinate-fields input[size="12"] {
+    width: 100px;
+    flex: none;
 }
 
 /* 標高フィールドのスタイル */
 .elevation-field {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
-.elevation-field input {
-    flex: 1;
-}
-
-.gsi-elevation {
-    font-size: 12px;
-    color: #666;
-    font-style: italic;
+.elevation-field input[size="5"] {
+    width: 60px;
+    flex: none;
 }
 
 .unit-label {
     font-size: 12px;
     color: #666;
     font-weight: bold;
+}
+
+.gsi-elevation {
+    font-size: 11px;
+    color: #888;
+    font-style: normal;
+    margin-left: 4px;
+}
+
+/* ポイントIDフィールドのスタイル */
+#pointIdField {
+    width: 80px;
+}
+
+/* 場所フィールドのスタイル */
+#locationField {
+    width: 120px;
 }

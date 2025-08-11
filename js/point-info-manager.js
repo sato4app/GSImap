@@ -46,11 +46,11 @@ export class PointInfoManager {
 
     // ポイント情報フィールドを表示
     showPointInfo(pointData = {}) {
-        this.container.style.display = 'block';
+        // コンテナは常に表示済み（デフォルト表示）
         this.currentPoint = pointData;
 
         // フィールドに値を設定
-        document.getElementById('pointIdField').value = pointData.id || '未登録ポイント';
+        document.getElementById('pointIdField').value = pointData.id || '';
         
         const latDecimal = pointData.lat || '';
         const lngDecimal = pointData.lng || '';
@@ -79,9 +79,17 @@ export class PointInfoManager {
         document.getElementById('locationField').value = pointData.location || '';
     }
 
-    // ポイント情報フィールドを隠す
-    hidePointInfo() {
-        this.container.style.display = 'none';
+    // ポイント情報フィールドをクリア
+    clearPointInfo() {
+        // フィールドをクリアするが、コンテナは表示したまま
+        document.getElementById('pointIdField').value = '';
+        document.getElementById('latDecimalField').value = '';
+        document.getElementById('lngDecimalField').value = '';
+        document.getElementById('latDmsField').value = '';
+        document.getElementById('lngDmsField').value = '';
+        document.getElementById('elevationField').value = '';
+        document.getElementById('locationField').value = '';
+        document.getElementById('gsiElevationField').textContent = '---';
         this.currentPoint = null;
     }
 
