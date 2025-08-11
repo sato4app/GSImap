@@ -96,82 +96,72 @@
     background: rgba(255, 255, 255, 0.95);
 }
 
-.info-field-container {
+.info-field-row {
     display: flex;
-    flex-direction: column;
-    margin-bottom: 8px;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
 }
 
-.info-field-container:last-child {
+.info-field-row:last-child {
     margin-bottom: 0;
 }
 
-.info-field-container label {
+.info-field-row label {
     font-size: 12px;
     font-weight: bold;
-    margin-bottom: 3px;
     color: #333;
+    width: 50px;
+    flex-shrink: 0;
 }
 
-.info-field-container input {
-    padding: 4px 8px;
+.info-field-row input {
+    padding: 3px 6px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 13px;
+    border-radius: 3px;
+    font-size: 12px;
 }
 
-.info-field-container input:read-only {
+.info-field-row input:read-only {
     background-color: #f5f5f5;
     color: #666;
 }
 
-/* 座標フィールド（緯度・経度）のスタイル */
-.coordinate-fields {
-    display: flex;
-    gap: 6px;
-}
-
-.coordinate-fields input[size="8"] {
+/* フィールド幅の調整 */
+#pointIdField {
     width: 70px;
-    flex: none;
 }
 
-.coordinate-fields input[size="12"] {
-    width: 100px;
-    flex: none;
+#latDecimalField, #lngDecimalField {
+    width: 90px;
 }
 
-/* 標高フィールドのスタイル */
-.elevation-field {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+#latDmsField {
+    width: 110px;
 }
 
-.elevation-field input[size="5"] {
+#lngDmsField {
+    width: 120px;
+}
+
+#elevationField {
     width: 60px;
-    flex: none;
+}
+
+#locationField {
+    width: 100px;
 }
 
 .unit-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #666;
     font-weight: bold;
+    margin-left: 2px;
 }
 
 .gsi-elevation {
-    font-size: 11px;
+    font-size: 10px;
     color: #888;
     font-style: normal;
     margin-left: 4px;
-}
-
-/* ポイントIDフィールドのスタイル */
-#pointIdField {
-    width: 80px;
-}
-
-/* 場所フィールドのスタイル */
-#locationField {
-    width: 120px;
 }

@@ -150,41 +150,35 @@
             <!-- ポイント情報表示エリア -->
             <div id="pointInfoContainer" class="point-info-container">
                 <!-- ポイントID -->
-                <div class="info-field-container">
+                <div class="info-field-row">
                     <label for="pointIdField">ポイントID</label>
                     <input type="text" id="pointIdField" readonly maxlength="5">
                 </div>
                 
                 <!-- 緯度 -->
-                <div class="info-field-container">
+                <div class="info-field-row">
                     <label for="latDecimalField">緯度</label>
-                    <div class="coordinate-fields">
-                        <input type="text" id="latDecimalField" placeholder="10進数形式" maxlength="10" size="8">
-                        <input type="text" id="latDmsField" readonly placeholder="DMS形式" maxlength="15" size="12">
-                    </div>
+                    <input type="text" id="latDecimalField" placeholder="10進数形式" maxlength="12" size="10">
+                    <input type="text" id="latDmsField" readonly placeholder="DMS形式" maxlength="13" size="11">
                 </div>
                 
                 <!-- 経度 -->
-                <div class="info-field-container">
+                <div class="info-field-row">
                     <label for="lngDecimalField">経度</label>
-                    <div class="coordinate-fields">
-                        <input type="text" id="lngDecimalField" placeholder="10進数形式" maxlength="10" size="8">
-                        <input type="text" id="lngDmsField" readonly placeholder="DMS形式" maxlength="15" size="12">
-                    </div>
+                    <input type="text" id="lngDecimalField" placeholder="10進数形式" maxlength="13" size="11">
+                    <input type="text" id="lngDmsField" readonly placeholder="DMS形式" maxlength="14" size="12">
                 </div>
                 
                 <!-- 標高 -->
-                <div class="info-field-container">
+                <div class="info-field-row">
                     <label for="elevationField">標高</label>
-                    <div class="elevation-field">
-                        <input type="text" id="elevationField" readonly maxlength="6" size="5">
-                        <span class="unit-label">m</span>
-                        <span class="gsi-elevation">地理院: <span id="gsiElevationField">---</span></span>
-                    </div>
+                    <input type="text" id="elevationField" readonly maxlength="6" size="5">
+                    <span class="unit-label">m</span>
+                    <span class="gsi-elevation">(<span id="gsiElevationField">---</span>)</span>
                 </div>
                 
                 <!-- 場所 -->
-                <div class="info-field-container">
+                <div class="info-field-row">
                     <label for="locationField">場所</label>
                     <input type="text" id="locationField" placeholder="場所を入力" maxlength="10">
                 </div>
