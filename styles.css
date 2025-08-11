@@ -16,6 +16,7 @@
 /* 編集モード選択 */
 .editing-mode-selector {
     display: flex;
+    flex-direction: column;
     gap: 10px;
     margin-bottom: 15px;
     padding-bottom: 10px;
