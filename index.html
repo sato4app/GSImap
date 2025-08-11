@@ -146,6 +146,50 @@
         <div id="imageGpsEditor" class="editor-panel">
             <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
             <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
+            
+            <!-- ポイント情報表示エリア -->
+            <div id="pointInfoContainer" class="point-info-container" style="display: none;">
+                <!-- ポイントID -->
+                <div class="info-field-container">
+                    <label for="pointIdField">ポイントID</label>
+                    <input type="text" id="pointIdField" readonly>
+                </div>
+                
+                <!-- 緯度 -->
+                <div class="info-field-container">
+                    <label for="latDecimalField">緯度</label>
+                    <div class="coordinate-fields">
+                        <input type="text" id="latDecimalField" placeholder="10進数形式">
+                        <input type="text" id="latDmsField" readonly placeholder="DMS形式">
+                    </div>
+                </div>
+                
+                <!-- 経度 -->
+                <div class="info-field-container">
+                    <label for="lngDecimalField">経度</label>
+                    <div class="coordinate-fields">
+                        <input type="text" id="lngDecimalField" placeholder="10進数形式">
+                        <input type="text" id="lngDmsField" readonly placeholder="DMS形式">
+                    </div>
+                </div>
+                
+                <!-- 標高 -->
+                <div class="info-field-container">
+                    <label for="elevationField">標高</label>
+                    <div class="elevation-field">
+                        <input type="text" id="elevationField" readonly>
+                        <span class="gsi-elevation">(<span id="gsiElevationField">---</span>)</span>
+                        <span class="unit-label">m</span>
+                    </div>
+                </div>
+                
+                <!-- 場所 -->
+                <div class="info-field-container">
+                    <label for="locationField">場所</label>
+                    <input type="text" id="locationField" placeholder="場所を入力">
+                </div>
+            </div>
+            
             <input type="file" id="geojsonInput" accept=".geojson,.json" style="display: none;">
             <button id="loadGeojsonBtn" title="GeoJSONファイルを読み込む" class="leaflet-bar leaflet-control">GeoJSON読込</button>
         </div>

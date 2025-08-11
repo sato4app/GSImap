@@ -1,7 +1,8 @@
 // GPS データ処理機能を管理するモジュール
 export class GPSData {
-    constructor(map) {
+    constructor(map, pointInfoManager = null) {
         this.map = map;
+        this.pointInfoManager = pointInfoManager;
     }
 
     // GPS値（Excel）読み込み処理
@@ -196,9 +197,22 @@ export class GPSData {
             marker.bindPopup(popupContent);
             
             // マーカーにクリックイベントを追加
-            marker.on('click', () => {
+            marker.on('click', (e) => {
                 // マーカーがクリックされたときの処理
                 console.log(`GPSポイント ${point.pointId} がクリックされました:`, point);
+                
+                // PointInfoManagerと連携してポイント情報を表示
+                if (this.pointInfoManager) {
+                    this.pointInfoManager.onMapClick(point.lat, point.lng, {
+                        id: point.id,
+                        name: point.pointId,
+                        elevation: point.altitude,
+                        location: point.location
+                    });
+                }
+                
+                // イベントの伝播を停止（地図のクリックイベントと重複を防ぐ）
+                L.DomEvent.stopPropagation(e);
             });
         });
         

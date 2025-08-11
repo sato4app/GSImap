@@ -5,6 +5,7 @@ import { GPSData } from './gps-data.js';
 import { GeoJSONLoader } from './geojson-loader.js';
 import { PointRouteEditor } from './point-route-editor.js';
 import { ModeSwitcher } from './mode-switcher.js';
+import { PointInfoManager } from './point-info-manager.js';
 
 class GSIMapApp {
     constructor() {
@@ -14,15 +15,19 @@ class GSIMapApp {
         this.geojsonLoader = null;
         this.pointRouteEditor = null;
         this.modeSwitcher = null;
+        this.pointInfoManager = null;
     }
 
     init() {
         // コアモジュール初期化
         this.mapCore = new MapCore();
         
-        // 各機能モジュール初期化
+        // PointInfoManagerを先に初期化
+        this.pointInfoManager = new PointInfoManager(this.mapCore.getMap());
+        
+        // 各機能モジュール初期化（PointInfoManager参照を渡す）
         this.imageOverlay = new ImageOverlay(this.mapCore);
-        this.gpsData = new GPSData(this.mapCore.getMap());
+        this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
         this.geojsonLoader = new GeoJSONLoader(this.mapCore.getMap());
         this.pointRouteEditor = new PointRouteEditor(this.mapCore.getMap());
         this.modeSwitcher = new ModeSwitcher();
