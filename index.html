@@ -147,14 +147,14 @@
             <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
             <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
             
+            <!-- ポイントID（GPS値読込の直下） -->
+            <div class="info-field-row">
+                <label for="pointIdField">ポイントID</label>
+                <input type="text" id="pointIdField" readonly maxlength="5">
+            </div>
+            
             <!-- ポイント情報表示エリア -->
-            <div id="pointInfoContainer" class="point-info-container">
-                <!-- ポイントID -->
-                <div class="info-field-row">
-                    <label for="pointIdField">ポイントID</label>
-                    <input type="text" id="pointIdField" readonly maxlength="5">
-                </div>
-                
+            <div id="pointInfoContainer" class="point-info-container">                
                 <!-- 緯度 -->
                 <div class="info-field-row">
                     <label for="latDecimalField">緯度</label>
@@ -180,7 +180,7 @@
                 <!-- 場所 -->
                 <div class="info-field-row">
                     <label for="locationField">場所</label>
-                    <input type="text" id="locationField" placeholder="場所を入力" maxlength="10">
+                    <input type="text" id="locationField" placeholder="場所を入力" maxlength="16">
                 </div>
             </div>
             
