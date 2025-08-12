@@ -152,12 +152,8 @@
     width: 90px;
 }
 
-#latDmsField {
-    width: 110px;
-}
-
-#lngDmsField {
-    width: 120px;
+#dmsField {
+    width: 220px;
 }
 
 #elevationField {
@@ -166,10 +162,6 @@
 
 #locationField {
     width: 160px;
-}
-
-#dmsField {
-    width: 220px;
 }
 
 .unit-label {
