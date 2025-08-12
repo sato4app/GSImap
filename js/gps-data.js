@@ -177,10 +177,10 @@ export class GPSData {
             }).addTo(this.map);
             
             // ポップアップ内容を作成（ポイントID名のみ、最小限サイズ）
-            let popupContent = `<div style="font-size:11px;padding:2px;text-align:center;min-width:35px;">${point.pointId}</div>`;
+            let popupContent = `<div style="font-size:11px;padding:2px;text-align:center;min-width:25px;">${point.pointId}</div>`;
             
             marker.bindPopup(popupContent, {
-                offset: [0, -16], // アイコンの上端より1px上に表示
+                offset: [0, -12], // アイコンの上端より1px上に表示
                 closeButton: false,
                 autoPan: false,
                 className: 'gps-popup-minimal'
