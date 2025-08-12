@@ -77,6 +77,36 @@
     margin-bottom: 15px;
 }
 
+/* ポイント数表示コンテナ */
+.point-count-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    padding: 6px 8px;
+    background: rgba(240, 248, 255, 0.9);
+    border: 1px solid rgba(70, 130, 180, 0.3);
+    border-radius: 4px;
+}
+
+.point-count-container label {
+    font-size: 12px;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+}
+
+.point-count-container input {
+    width: 40px;
+    padding: 2px 4px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: center;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
 /* GPS逆三角形マーカーのスタイル */
 .gps-triangle-marker {
     background: transparent;

@@ -20,6 +20,7 @@ export class GPSData {
                     
                     const processedData = this.processGPSData(jsonData);
                     this.addGPSMarkersToMap(processedData);
+                    this.updatePointCountDisplay(processedData.length);
                     
                     resolve(processedData);
                 } catch (error) {
@@ -211,5 +212,12 @@ export class GPSData {
         //     const bounds = L.latLngBounds(gpsData.map(point => [point.lat, point.lng]));
         //     this.map.fitBounds(bounds.pad(0.1));
         // }
+    }
+
+    updatePointCountDisplay(count) {
+        const pointCountField = document.getElementById('pointCountField');
+        if (pointCountField) {
+            pointCountField.value = count;
+        }
     }
 }
