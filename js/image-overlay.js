@@ -196,46 +196,64 @@ export class ImageOverlay {
             oppositeCorner = currentBounds.getNorthEast();
         }
         
-        const aspectRatio = this.currentImage.width / this.currentImage.height;
+        // 画像の元のアスペクト比
+        const imageAspectRatio = this.currentImage.width / this.currentImage.height;
         
-        // 新しいコーナー位置と対角コーナー間の距離を計算
-        let deltaLat = Math.abs(newCornerPos.lat - oppositeCorner.lat);
-        let deltaLng = Math.abs(newCornerPos.lng - oppositeCorner.lng);
+        // 新しいコーナー位置と対角コーナー間の距離を計算（メートル単位）
+        const centerLat = (newCornerPos.lat + oppositeCorner.lat) / 2;
+        const latDistance = this.map.distance(
+            [newCornerPos.lat, centerLat],
+            [oppositeCorner.lat, centerLat]
+        );
+        const lngDistance = this.map.distance(
+            [centerLat, newCornerPos.lng],
+            [centerLat, oppositeCorner.lng]
+        );
         
         // アスペクト比を維持するために調整
-        const currentAspectRatio = deltaLng / deltaLat;
+        const currentAspectRatio = lngDistance / latDistance;
         
-        if (currentAspectRatio > aspectRatio) {
-            deltaLng = deltaLat * aspectRatio;
+        let adjustedLatDistance, adjustedLngDistance;
+        if (currentAspectRatio > imageAspectRatio) {
+            // 幅が広すぎる場合、幅を調整
+            adjustedLngDistance = latDistance * imageAspectRatio;
+            adjustedLatDistance = latDistance;
         } else {
-            deltaLat = deltaLng / aspectRatio;
+            // 高さが高すぎる場合、高さを調整
+            adjustedLatDistance = lngDistance / imageAspectRatio;
+            adjustedLngDistance = lngDistance;
         }
+        
+        // 距離を緯度・経度の差分に変換
+        const earthRadius = 6378137; // 地球の半径（メートル）
+        const latDelta = (adjustedLatDistance / earthRadius) * (180 / Math.PI);
+        const lngDelta = (adjustedLngDistance / (earthRadius * Math.cos(centerLat * Math.PI / 180))) * (180 / Math.PI);
         
         // 各コーナーに応じて新しい境界を計算
         let newBounds;
         if (cornerIndex === 0) { // 左上ハンドル
             const south = oppositeCorner.lat;
             const east = oppositeCorner.lng;
-            const north = south + deltaLat;
-            const west = east - deltaLng;
+            const north = south + latDelta;
+            const west = east - lngDelta;
             newBounds = L.latLngBounds([south, west], [north, east]);
         } else if (cornerIndex === 1) { // 右上ハンドル
             const south = oppositeCorner.lat;
             const west = oppositeCorner.lng;
-            const north = south + deltaLat;
-            const east = west + deltaLng;
+            const north = south + latDelta;
+            const east = west + lngDelta;
             newBounds = L.latLngBounds([south, west], [north, east]);
         } else if (cornerIndex === 2) { // 右下ハンドル
             const north = oppositeCorner.lat;
             const west = oppositeCorner.lng;
-            const south = north - deltaLat;
-            const east = west + deltaLng;
+            const south = north - latDelta;
+            const east = west + lngDelta;
             newBounds = L.latLngBounds([south, west], [north, east]);
         } else { // 左下ハンドル
             const north = oppositeCorner.lat;
             const east = oppositeCorner.lng;
-            const south = north - deltaLat;
-            const west = east - deltaLng;
+            const south = north - latDelta;
+            const west = east - lngDelta;
             newBounds = L.latLngBounds([south, west], [north, east]);
         }
         
