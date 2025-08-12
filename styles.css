@@ -1,7 +1,7 @@
 /* オーバーレイコントロールのスタイル */
 .overlay-controls {
     position: fixed;
-    top: 10px;
+    top: 20px;
     right: 10px;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.95);
@@ -18,8 +18,8 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -69,6 +69,7 @@
     display: block;
     width: 100%;
     text-align: center;
+    margin-bottom: 10px;
 }
 
 /* GPS逆三角形マーカーのスタイル */
@@ -89,7 +90,7 @@
 
 /* ポイント情報表示エリアのスタイル */
 .point-info-container {
-    margin: 25px 0;
+    margin: 15px 0;
     padding: 10px;
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
