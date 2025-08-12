@@ -176,11 +176,11 @@ export class GPSData {
                 icon: triangleIcon
             }).addTo(this.map);
             
-            // ポップアップ内容を作成（ポイントID名のみ、最小限サイズ）
-            let popupContent = `<div style="font-size:11px;padding:2px;text-align:center;min-width:25px;">${point.pointId}</div>`;
+            // ポップアップ内容を作成（X-nn形式に最適化された最小限サイズ）
+            let popupContent = `<div style="font-size:9px;padding:1px 2px;text-align:center;min-width:18px;line-height:1;">${point.pointId}</div>`;
             
             marker.bindPopup(popupContent, {
-                offset: [0, -12], // アイコンの上端より1px上に表示
+                offset: [0, -12], // アイコンの上端より1px(-16 → -12)上に表示
                 closeButton: false,
                 autoPan: false,
                 className: 'gps-popup-minimal'
