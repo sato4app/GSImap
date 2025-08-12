@@ -95,7 +95,7 @@ export class PointInfoManager {
         if (pointData) {
             // 登録済みポイントがクリックされた場合
             this.showPointInfo({
-                id: pointData.id || pointData.name || 'GPS-' + Date.now(),
+                id: pointData.id || '',
                 lat: lat,
                 lng: lng,
                 elevation: pointData.elevation || '',
