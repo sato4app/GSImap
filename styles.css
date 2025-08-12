@@ -95,7 +95,7 @@
 
 /* ポイント情報表示エリアのスタイル */
 .point-info-container {
-    margin: 25px 0;
+    margin: 15px 0;
     padding: 10px;
     border: 2px solid rgba(0, 0, 0, 0.2);
     border-radius: 8px;
