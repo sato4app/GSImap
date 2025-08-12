@@ -180,7 +180,7 @@ export class GPSData {
             let popupContent = `<div style="font-size:11px;padding:2px;text-align:center;min-width:35px;">${point.pointId}</div>`;
             
             marker.bindPopup(popupContent, {
-                offset: [0, -15], // アイコンの上部に表示
+                offset: [0, -20], // アイコンの上端より5px上に表示
                 closeButton: false,
                 autoPan: false,
                 className: 'gps-popup-minimal'
