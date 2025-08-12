@@ -175,10 +175,15 @@ export class GPSData {
                 icon: triangleIcon
             }).addTo(this.map);
             
-            // ポップアップ内容を作成（ポイントID名のみ）
-            let popupContent = `<div>${point.pointId}</div>`;
+            // ポップアップ内容を作成（ポイントID名のみ、最小限サイズ）
+            let popupContent = `<div style="font-size:11px;padding:2px;text-align:center;min-width:35px;">${point.pointId}</div>`;
             
-            marker.bindPopup(popupContent);
+            marker.bindPopup(popupContent, {
+                offset: [0, -15], // アイコンの上部に表示
+                closeButton: false,
+                autoPan: false,
+                className: 'gps-popup-minimal'
+            });
             
             // マーカーにクリックイベントを追加
             marker.on('click', (e) => {
