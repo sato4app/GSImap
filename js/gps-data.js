@@ -167,9 +167,9 @@ export class GPSData {
             // 逆三角形アイコンを作成（GPS座標の正確な位置に合わせる）
             const triangleIcon = L.divIcon({
                 className: 'gps-triangle-marker',
-                html: `<div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 11px solid ${markerColor}; position: relative;"></div>`,
-                iconSize: [10, 11],
-                iconAnchor: [5, 11] // 下の頂点（三角形の底辺中央）をGPS座標に正確に合わせる
+                html: `<div style="width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-top: 14px solid ${markerColor}; position: relative;"></div>`,
+                iconSize: [13, 14],
+                iconAnchor: [6.5, 14] // 下の頂点（三角形の底辺中央）をGPS座標に正確に合わせる
             });
 
             const marker = L.marker([point.lat, point.lng], {

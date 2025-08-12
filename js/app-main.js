@@ -2,7 +2,6 @@
 import { MapCore } from './map-core.js';
 import { ImageOverlay } from './image-overlay.js';
 import { GPSData } from './gps-data.js';
-import { GeoJSONLoader } from './geojson-loader.js';
 import { PointRouteEditor } from './point-route-editor.js';
 import { ModeSwitcher } from './mode-switcher.js';
 import { PointInfoManager } from './point-info-manager.js';
@@ -12,7 +11,6 @@ class GSIMapApp {
         this.mapCore = null;
         this.imageOverlay = null;
         this.gpsData = null;
-        this.geojsonLoader = null;
         this.pointRouteEditor = null;
         this.modeSwitcher = null;
         this.pointInfoManager = null;
@@ -28,7 +26,6 @@ class GSIMapApp {
         // 各機能モジュール初期化（PointInfoManager参照を渡す）
         this.imageOverlay = new ImageOverlay(this.mapCore);
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
-        this.geojsonLoader = new GeoJSONLoader(this.mapCore.getMap());
         this.pointRouteEditor = new PointRouteEditor(this.mapCore.getMap());
         this.modeSwitcher = new ModeSwitcher();
         
@@ -79,24 +76,6 @@ class GSIMapApp {
             });
         }
 
-        // GeoJSON読み込みボタンのイベントハンドラー
-        const loadGeojsonBtn = document.getElementById('loadGeojsonBtn');
-        const geojsonInput = document.getElementById('geojsonInput');
-        
-        if (loadGeojsonBtn && geojsonInput) {
-            loadGeojsonBtn.addEventListener('click', () => {
-                geojsonInput.click();
-            });
-            
-            geojsonInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    this.geojsonLoader.loadGeoJSON(file).catch(error => {
-                        this.showErrorMessage('GeoJSON 読み込みエラー', error.message);
-                    });
-                }
-            });
-        }
     }
 
     showErrorMessage(title, message) {
