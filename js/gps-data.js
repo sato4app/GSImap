@@ -76,8 +76,8 @@ export class GPSData {
                 const lat = this.parseCoordinate(latStr, 'lat');
                 const lng = this.parseCoordinate(lngStr, 'lng');
                 
-                // ポイントID名を "ポイントID 場所" の形式で作成
-                const displayId = pointIdStr + (locationStr ? ` ${locationStr}` : '');
+                // ポイントID名をID名のみにする
+                const displayId = pointIdStr;
                 
                 // 標高を数値に変換（オプション）
                 let altitude = null;
@@ -216,10 +216,11 @@ export class GPSData {
             });
         });
         
-        if (gpsData.length > 0) {
-            // すべてのGPSポイントを含む範囲を計算
-            const bounds = L.latLngBounds(gpsData.map(point => [point.lat, point.lng]));
-            this.map.fitBounds(bounds.pad(0.1));
-        }
+        // 自動ズームアウト機能を無効化
+        // if (gpsData.length > 0) {
+        //     // すべてのGPSポイントを含む範囲を計算
+        //     const bounds = L.latLngBounds(gpsData.map(point => [point.lat, point.lng]));
+        //     this.map.fitBounds(bounds.pad(0.1));
+        // }
     }
 }
