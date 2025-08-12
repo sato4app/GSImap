@@ -200,3 +200,35 @@
     margin-left: 2px;
 }
 
+/* GPSポップアップのスタイル */
+.gps-popup-minimal .leaflet-popup-content-wrapper {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.gps-popup-minimal .leaflet-popup-content {
+    font-size: 11pt !important;
+    margin: 4px 6px;
+    line-height: 1.2;
+    font-weight: bold;
+    color: #333;
+}
+
+.gps-popup-minimal .leaflet-popup-tip {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-top: none;
+    border-left: none;
+}
+
+/* 一般的なLeafletポップアップのフォントサイズ調整 */
+.leaflet-popup-content {
+    font-size: 11pt !important;
+}
+
+.leaflet-popup-content-wrapper {
+    font-size: 11pt !important;
+}
+

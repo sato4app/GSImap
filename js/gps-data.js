@@ -177,8 +177,7 @@ export class GPSData {
             }).addTo(this.map);
             
             // ポップアップ内容を作成（X-nn形式に最適化された最小限サイズ）
-            // 手動変更: font-size:9pxを11px、padding:1px 2pxを1px 1px
-            let popupContent = `<div style="font-size:11px;padding:1px 1px;text-align:center;min-width:18px;line-height:1;">${point.pointId}</div>`;
+            let popupContent = `<div style="padding:1px 1px;text-align:center;min-width:18px;line-height:1;">${point.pointId}</div>`;
             
             marker.bindPopup(popupContent, {
                 offset: [0, -12], // アイコンの上端より1px(-16 → -12)上に表示
