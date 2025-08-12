@@ -175,22 +175,8 @@ export class GPSData {
                 icon: triangleIcon
             }).addTo(this.map);
             
-            // ポップアップ内容を作成（指定された順序で表示）
-            let popupContent = `<div><strong>${point.pointId}</strong><br>`;
-            popupContent += `<strong>緯度:</strong> ${point.lat.toFixed(6)}<br>`;
-            popupContent += `<strong>経度:</strong> ${point.lng.toFixed(6)}<br>`;
-            
-            // 標高がある場合
-            if (point.altitude !== null && point.altitude !== undefined) {
-                popupContent += `<strong>標高:</strong> ${point.altitude}m<br>`;
-            }
-            
-            // 場所がある場合
-            if (point.location) {
-                popupContent += `<strong>場所:</strong> ${point.location}<br>`;
-            }
-            
-            popupContent += `</div>`;
+            // ポップアップ内容を作成（ポイントID名のみ）
+            let popupContent = `<div>${point.pointId}</div>`;
             
             marker.bindPopup(popupContent);
             
