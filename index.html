@@ -154,9 +154,9 @@
             <div id="pointInfoContainer" class="point-info-container">
                 <h3 class="point-info-title"><strong>ポイント(GPS)情報</strong></h3>
                 
-                <!-- ポイントID -->
+                <!-- ID名 -->
                 <div class="info-field-row">
-                    <label for="pointIdField">ポイントID</label>
+                    <label for="pointIdField">ID名</label>
                     <input type="text" id="pointIdField" readonly maxlength="5">
                 </div>
                 
@@ -164,14 +164,18 @@
                 <div class="info-field-row">
                     <label for="latDecimalField">緯度</label>
                     <input type="text" id="latDecimalField" placeholder="10進数形式" maxlength="12" size="10">
-                    <input type="text" id="latDmsField" readonly placeholder="DMS形式" maxlength="13" size="11">
                 </div>
                 
                 <!-- 経度 -->
                 <div class="info-field-row">
                     <label for="lngDecimalField">経度</label>
                     <input type="text" id="lngDecimalField" placeholder="10進数形式" maxlength="13" size="11">
-                    <input type="text" id="lngDmsField" readonly placeholder="DMS形式" maxlength="14" size="12">
+                </div>
+                
+                <!-- DMS -->
+                <div class="info-field-row">
+                    <label for="dmsField">DMS</label>
+                    <input type="text" id="dmsField" readonly placeholder="34°51'03.73\"N 135°27'08.38\"E" maxlength="35" size="30">
                 </div>
                 
                 <!-- 標高 -->

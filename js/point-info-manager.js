@@ -22,6 +22,24 @@ export class PointInfoManager {
         return `${degrees}°${minutes.toString().padStart(2, '0')}'${seconds.toFixed(2).padStart(5, '0')}"${direction}`;
     }
 
+    // 緯度経度をDMS統合形式に変換（例: 34°51'03.73"N 135°27'08.38"E）
+    coordinatesToDMS(lat, lng) {
+        if (lat === '' || lng === '' || lat === null || lng === null) {
+            return '';
+        }
+        const latDMS = this.decimalToDMS(parseFloat(lat), false);
+        const lngDMS = this.decimalToDMS(parseFloat(lng), true);
+        return `${latDMS} ${lngDMS}`;
+    }
+
+    // 10進数座標を小数点以下5桁に丸める
+    roundToFiveDecimals(decimal) {
+        if (decimal === '' || decimal === null || isNaN(decimal)) {
+            return '';
+        }
+        return parseFloat(decimal).toFixed(5);
+    }
+
     // DMS形式を10進数に変換
     dmsToDecimal(dmsString) {
         const match = dmsString.match(/(\d+)°(\d+)'([\d.]+)"([NSEW])/);
@@ -49,17 +67,12 @@ export class PointInfoManager {
         const latDecimal = pointData.lat || '';
         const lngDecimal = pointData.lng || '';
         
-        document.getElementById('latDecimalField').value = latDecimal;
-        document.getElementById('lngDecimalField').value = lngDecimal;
+        // 緯度・経度を小数点以下5桁で表示
+        document.getElementById('latDecimalField').value = this.roundToFiveDecimals(latDecimal);
+        document.getElementById('lngDecimalField').value = this.roundToFiveDecimals(lngDecimal);
         
-        // DMS形式に変換して表示
-        if (latDecimal && lngDecimal) {
-            document.getElementById('latDmsField').value = this.decimalToDMS(parseFloat(latDecimal), false);
-            document.getElementById('lngDmsField').value = this.decimalToDMS(parseFloat(lngDecimal), true);
-        } else {
-            document.getElementById('latDmsField').value = '';
-            document.getElementById('lngDmsField').value = '';
-        }
+        // DMS統合形式で表示
+        document.getElementById('dmsField').value = this.coordinatesToDMS(latDecimal, lngDecimal);
         
         document.getElementById('elevationField').value = pointData.elevation || '';
         document.getElementById('locationField').value = pointData.location || '';
@@ -71,8 +84,7 @@ export class PointInfoManager {
         document.getElementById('pointIdField').value = '';
         document.getElementById('latDecimalField').value = '';
         document.getElementById('lngDecimalField').value = '';
-        document.getElementById('latDmsField').value = '';
-        document.getElementById('lngDmsField').value = '';
+        document.getElementById('dmsField').value = '';
         document.getElementById('elevationField').value = '';
         document.getElementById('locationField').value = '';
         this.currentPoint = null;
@@ -108,12 +120,18 @@ export class PointInfoManager {
         latDecimalField.addEventListener('input', (e) => {
             const decimal = parseFloat(e.target.value);
             if (!isNaN(decimal)) {
-                document.getElementById('latDmsField').value = this.decimalToDMS(decimal, false);
+                // 小数点以下5桁で表示
+                e.target.value = this.roundToFiveDecimals(decimal);
+                
+                // DMS統合形式を更新
+                const lngValue = document.getElementById('lngDecimalField').value;
+                document.getElementById('dmsField').value = this.coordinatesToDMS(decimal, lngValue);
+                
                 if (this.currentPoint) {
                     this.currentPoint.lat = decimal;
                 }
             } else {
-                document.getElementById('latDmsField').value = '';
+                document.getElementById('dmsField').value = this.coordinatesToDMS('', document.getElementById('lngDecimalField').value);
             }
         });
 
@@ -122,12 +140,18 @@ export class PointInfoManager {
         lngDecimalField.addEventListener('input', (e) => {
             const decimal = parseFloat(e.target.value);
             if (!isNaN(decimal)) {
-                document.getElementById('lngDmsField').value = this.decimalToDMS(decimal, true);
+                // 小数点以下5桁で表示
+                e.target.value = this.roundToFiveDecimals(decimal);
+                
+                // DMS統合形式を更新
+                const latValue = document.getElementById('latDecimalField').value;
+                document.getElementById('dmsField').value = this.coordinatesToDMS(latValue, decimal);
+                
                 if (this.currentPoint) {
                     this.currentPoint.lng = decimal;
                 }
             } else {
-                document.getElementById('lngDmsField').value = '';
+                document.getElementById('dmsField').value = this.coordinatesToDMS(document.getElementById('latDecimalField').value, '');
             }
         });
 

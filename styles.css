@@ -168,6 +168,10 @@
     width: 140px;
 }
 
+#dmsField {
+    width: 250px;
+}
+
 .unit-label {
     font-size: 11px;
     color: #666;
