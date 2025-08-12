@@ -147,9 +147,6 @@
             <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
             <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
             
-            <input type="file" id="geojsonInput" accept=".geojson,.json" style="display: none;">
-            <button id="loadGeojsonBtn" title="GeoJSONファイルを読み込む" class="leaflet-bar leaflet-control">GeoJSON読込</button>
-            
             <!-- ポイント(GPS)情報枠 -->
             <div id="pointInfoContainer" class="point-info-container">
                 <h3 class="point-info-title"><strong>ポイント(GPS)情報</strong></h3>
@@ -187,6 +184,9 @@
                     <input type="text" id="locationField" placeholder="場所を入力" maxlength="16">
                 </div>
             </div>
+            
+            <input type="file" id="geojsonInput" accept=".geojson,.json" style="display: none;">
+            <button id="loadGeojsonBtn" title="GeoJSONファイルを読み込む" class="leaflet-bar leaflet-control">GeoJSON読込</button>
         </div>
 
         <!-- ポイント・ルート編集モード -->
