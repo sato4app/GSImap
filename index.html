@@ -144,11 +144,9 @@
 
         <!-- ポイント(GPS)編集モード -->
         <div id="imageGpsEditor" class="editor-panel">
-            <!-- GPS値(Excel)読込ボタン - 独立したコンテナ -->
-            <div class="gps-button-container">
-                <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
-                <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
-            </div>
+            <!-- GPS値(Excel)読込ボタン -->
+            <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
+            <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
             
             <!-- ポイント数表示フィールド -->
             <div class="point-count-container">
@@ -156,6 +154,10 @@
                 <input type="text" id="pointCountField" readonly value="0">
                 <span class="unit-label">個</span>
             </div>
+            
+            <!-- GeoJSON読込ボタン -->
+            <input type="file" id="geojsonInput" accept=".geojson,.json" style="display: none;">
+            <button id="loadGeojsonBtn" title="GeoJSONファイルを読み込む" class="leaflet-bar leaflet-control">GeoJSON読込</button>
             
             <!-- ポイント(GPS)情報枠 -->
             <div id="pointInfoContainer" class="point-info-container">
@@ -198,9 +200,6 @@
                     <input type="text" id="locationField" placeholder="場所を表示" maxlength="20">
                 </div>
             </div>
-            
-            <input type="file" id="geojsonInput" accept=".geojson,.json" style="display: none;">
-            <button id="loadGeojsonBtn" title="GeoJSONファイルを読み込む" class="leaflet-bar leaflet-control">GeoJSON読込</button>
         </div>
 
         <!-- ポイント・ルート編集モード -->

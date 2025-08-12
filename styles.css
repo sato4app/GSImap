@@ -72,10 +72,7 @@
     margin-bottom: 10px;
 }
 
-/* GPS値(Excel)読込ボタンの独立コンテナ */
-.gps-button-container {
-    margin-bottom: 15px;
-}
+
 
 /* ポイント数表示コンテナ */
 .point-count-container {
@@ -87,6 +84,8 @@
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(70, 130, 180, 0.3);
     border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .point-count-container label {
