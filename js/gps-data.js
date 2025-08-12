@@ -76,8 +76,6 @@ export class GPSData {
                 const lat = this.parseCoordinate(latStr, 'lat');
                 const lng = this.parseCoordinate(lngStr, 'lng');
                 
-                // ポイントID名をID名のみにする
-                const displayId = pointIdStr;
                 
                 // 標高を数値に変換（オプション）
                 let altitude = null;
@@ -90,7 +88,7 @@ export class GPSData {
                 
                 if (lat !== null && lng !== null) {
                     const pointData = {
-                        id: displayId || `ポイント${i}`,
+                        id: pointIdStr || `ポイント${i}`,
                         lat: lat,
                         lng: lng,
                         altitude: altitude,
