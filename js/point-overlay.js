@@ -116,10 +116,10 @@ export class PointOverlay {
                     const imageCoords = this.convertImageCoordsToMapCoords(point.x, point.y);
                     
                     if (imageCoords) {
-                        // オレンジ丸マーカーを作成（位置を丸の中心とする）
+                        // 赤丸マーカーを作成（位置を丸の中心とする）
                         const marker = L.circleMarker(imageCoords, {
                             radius: 6,
-                            fillColor: '#ff8c00',
+                            fillColor: '#ff0000',
                             color: '#ffffff',
                             weight: 2,
                             opacity: 1,
