@@ -13,6 +13,7 @@ export class ImageOverlay {
         this.isMovingImage = false;
         this.moveStartPoint = null;
         this.isCenteringMode = false;
+        this.imageUpdateCallbacks = [];
         
         this.initializeCenterMarker(mapCore.getInitialCenter());
         this.setupEventHandlers();
@@ -362,6 +363,9 @@ export class ImageOverlay {
         this.imageOverlay.setBounds(bounds);
         this.createDragHandles(bounds);
         this.updateCoordInputs(centerPos);
+        
+        // 画像更新をコールバックに通知
+        this.notifyImageUpdate();
     }
 
     updateOpacity() {
@@ -449,6 +453,22 @@ export class ImageOverlay {
             fileName: this.currentImageFileName,
             isLoaded: this.imageOverlay !== null
         };
+    }
+
+    // 画像更新時のコールバックを登録
+    addImageUpdateCallback(callback) {
+        this.imageUpdateCallbacks.push(callback);
+    }
+
+    // 画像更新時のコールバックを実行
+    notifyImageUpdate() {
+        this.imageUpdateCallbacks.forEach(callback => {
+            try {
+                callback();
+            } catch (error) {
+                console.error('画像更新コールバックでエラーが発生しました:', error);
+            }
+        });
     }
 
     getInitialBounds() {

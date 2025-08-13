@@ -6,7 +6,15 @@ export class PointRouteEditor {
         this.pointData = [];
         this.routeData = [];
         this.pointMarkers = [];
+        this.originalPointData = []; // 元の画像座標を保持
         this.setupEventHandlers();
+        
+        // 画像更新時のコールバックを登録
+        if (this.imageOverlay) {
+            this.imageOverlay.addImageUpdateCallback(() => {
+                this.updatePointPositions();
+            });
+        }
     }
 
     setupEventHandlers() {
@@ -112,10 +120,20 @@ export class PointRouteEditor {
         // 既存のポイントマーカーを削除
         this.clearPointMarkers();
         
+        // 元の画像座標データを保存
+        this.originalPointData = [];
+        
         // ポイントデータの処理と地図への追加
         if (pointData.points && Array.isArray(pointData.points)) {
             pointData.points.forEach((point) => {
                 if (point.x !== undefined && point.y !== undefined) {
+                    // 元の画像座標を保存
+                    this.originalPointData.push({
+                        x: point.x,
+                        y: point.y,
+                        id: point.id
+                    });
+                    
                     // 画像左上からの位置を地図座標に変換
                     const imageCoords = this.convertImageCoordsToMapCoords(point.x, point.y);
                     
@@ -175,6 +193,24 @@ export class PointRouteEditor {
             this.map.removeLayer(marker);
         });
         this.pointMarkers = [];
+        this.originalPointData = [];
+    }
+
+    // 画像の移動・拡大縮小時にポイント位置を更新
+    updatePointPositions() {
+        if (this.originalPointData.length === 0 || this.pointMarkers.length === 0) {
+            return;
+        }
+
+        // 元の画像座標から新しい地図座標を計算して、マーカー位置を更新
+        this.originalPointData.forEach((originalPoint, index) => {
+            if (index < this.pointMarkers.length) {
+                const newImageCoords = this.convertImageCoordsToMapCoords(originalPoint.x, originalPoint.y);
+                if (newImageCoords) {
+                    this.pointMarkers[index].setLatLng(newImageCoords);
+                }
+            }
+        });
     }
 
     addRouteToMap(routeData) {
