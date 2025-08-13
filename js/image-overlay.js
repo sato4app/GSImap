@@ -103,9 +103,6 @@ export class ImageOverlay {
     }
 
     removeDragHandles() {
-        console.log('removeDragHandles: ドラッグハンドルを削除中...', {
-            現在のハンドル数: this.dragHandles.length
-        });
         this.dragHandles.forEach(handle => {
             this.map.removeLayer(handle);
         });
@@ -113,10 +110,6 @@ export class ImageOverlay {
     }
 
     createDragHandles(bounds) {
-        console.log('createDragHandles: ドラッグハンドルを作成中...', {
-            bounds: bounds.toBBoxString()
-        });
-        
         this.removeDragHandles();
         
         const corners = [
@@ -184,10 +177,6 @@ export class ImageOverlay {
             });
             
             this.dragHandles.push(handle);
-        });
-        
-        console.log('createDragHandles: 作成完了', {
-            ハンドル数: this.dragHandles.length
         });
     }
 
@@ -348,10 +337,6 @@ export class ImageOverlay {
 
     updateImageDisplay() {
         if (!this.imageOverlay || !this.currentImage.src) {
-            console.log('updateImageDisplay: 画像オーバーレイまたは画像が存在しません', {
-                imageOverlay: !!this.imageOverlay,
-                currentImageSrc: !!this.currentImage.src
-            });
             return;
         }
         
@@ -359,11 +344,6 @@ export class ImageOverlay {
         const scale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
         
         const centerPos = this.centerMarker.getLatLng();
-        
-        console.log('updateImageDisplay: 実行開始', {
-            scale: scale,
-            center: { lat: centerPos.lat, lng: centerPos.lng }
-        });
         
         // naturalWidth/naturalHeightを使用して正確なピクセル数を取得
         const imageWidth = this.currentImage.naturalWidth || this.currentImage.width;
@@ -383,23 +363,11 @@ export class ImageOverlay {
             [centerPos.lat + latOffset, centerPos.lng + lngOffset]
         );
         
-        console.log('updateImageDisplay: 新しい境界を設定', {
-            center: { lat: centerPos.lat, lng: centerPos.lng },
-            scale: scale,
-            bounds: {
-                south: centerPos.lat - latOffset,
-                north: centerPos.lat + latOffset,
-                west: centerPos.lng - lngOffset,
-                east: centerPos.lng + lngOffset
-            }
-        });
-        
         // 画像レイヤーの境界を更新
         this.imageOverlay.setBounds(bounds);
         
         // 画像レイヤーが地図に追加されていない場合は再追加
         if (!this.map.hasLayer(this.imageOverlay)) {
-            console.log('画像レイヤーが地図に存在しないため再追加します');
             this.imageOverlay.addTo(this.map);
         }
         
@@ -553,12 +521,8 @@ export class ImageOverlay {
 
     // 画像更新時のコールバックを実行
     notifyImageUpdate() {
-        console.log('notifyImageUpdate: コールバックを実行中...', {
-            コールバック数: this.imageUpdateCallbacks.length
-        });
-        this.imageUpdateCallbacks.forEach((callback, index) => {
+        this.imageUpdateCallbacks.forEach(callback => {
             try {
-                console.log(`コールバック${index + 1}を実行中...`);
                 callback();
             } catch (error) {
                 console.error('画像更新コールバックでエラーが発生しました:', error);
