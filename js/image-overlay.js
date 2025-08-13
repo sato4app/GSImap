@@ -270,6 +270,9 @@ export class ImageOverlay {
             this.createDragHandles(newBounds);
             this.updateScaleFromBounds(newBounds);
             this.showResizeInfo(newBounds, newCenter);
+            
+            // 画像更新をコールバックに通知（JSONポイント位置更新のため）
+            this.notifyImageUpdate();
         }
     }
 
@@ -462,8 +465,8 @@ export class ImageOverlay {
             const validateAndUpdateScale = () => {
                 const inputValue = scaleInput.value.trim();
                 if (inputValue === '' || inputValue === null || inputValue === undefined) {
-                    // 空文字列の場合はデフォルト値をセット
-                    scaleInput.value = '0.3';
+                    // 空文字列の場合はクリア状態として保持（デフォルト値は適用しない）
+                    return;
                 } else {
                     const parsedValue = parseFloat(inputValue);
                     if (isNaN(parsedValue) || parsedValue <= 0) {
@@ -474,7 +477,7 @@ export class ImageOverlay {
                 this.updateImageDisplay();
             };
             
-            scaleInput.addEventListener('input', validateAndUpdateScale);
+            // フォーカス移動時のみ値チェックを実行
             scaleInput.addEventListener('blur', validateAndUpdateScale);
         }
         
