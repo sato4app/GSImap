@@ -1,9 +1,11 @@
 // ポイント・ルート編集機能を管理するモジュール
 export class PointRouteEditor {
-    constructor(map) {
+    constructor(map, imageOverlay = null) {
         this.map = map;
+        this.imageOverlay = imageOverlay;
         this.pointData = [];
         this.routeData = [];
+        this.pointMarkers = [];
         this.setupEventHandlers();
     }
 
@@ -46,15 +48,39 @@ export class PointRouteEditor {
 
     loadPointJSON(file) {
         return new Promise((resolve, reject) => {
+            // ファイル形式チェック
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                reject(new Error('JSON形式のファイルのみ受け付けます'));
+                return;
+            }
+
+            // 画像が読み込まれているかチェック
+            if (!this.imageOverlay || !this.imageOverlay.getCurrentImageInfo().isLoaded) {
+                reject(new Error('ポイントJSONを読み込む前に画像を読み込んでください'));
+                return;
+            }
+
             const reader = new FileReader();
             
             reader.onload = (e) => {
                 try {
                     const pointData = JSON.parse(e.target.result);
+                    
+                    // imageReferenceの一致チェック
+                    if (pointData.imageReference) {
+                        const currentImageInfo = this.imageOverlay.getCurrentImageInfo();
+                        if (pointData.imageReference !== currentImageInfo.fileName) {
+                            this.showWarningMessage(
+                                '画像参照の不一致',
+                                `JSONファイル内の画像参照: "${pointData.imageReference}"\n現在読み込まれている画像: "${currentImageInfo.fileName}"\n\n画像が一致しない可能性があります。`
+                            );
+                        }
+                    }
+                    
                     this.addPointsToMap(pointData);
                     resolve(pointData);
                 } catch (error) {
-                    reject(error);
+                    reject(new Error('JSONファイルの解析に失敗しました: ' + error.message));
                 }
             };
             
@@ -83,28 +109,72 @@ export class PointRouteEditor {
     }
 
     addPointsToMap(pointData) {
+        // 既存のポイントマーカーを削除
+        this.clearPointMarkers();
+        
         // ポイントデータの処理と地図への追加
         if (pointData.points && Array.isArray(pointData.points)) {
             pointData.points.forEach((point) => {
-                if (point.x && point.y && pointData.imageInfo) {
-                    // 座標変換が必要な場合はここで処理
-                    const marker = L.circleMarker([point.y, point.x], {
-                        radius: 4,
-                        fillColor: '#ff0000',
-                        color: '#ffffff',
-                        weight: 1.5,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(this.map);
+                if (point.x !== undefined && point.y !== undefined) {
+                    // 画像左上からの位置を地図座標に変換
+                    const imageCoords = this.convertImageCoordsToMapCoords(point.x, point.y);
                     
-                    if (point.id) {
-                        marker.bindPopup(`ポイント: ${point.id}`);
+                    if (imageCoords) {
+                        // 赤丸マーカーを作成（位置を赤丸の中心とする）
+                        const marker = L.circleMarker(imageCoords, {
+                            radius: 6,
+                            fillColor: '#ff0000',
+                            color: '#ffffff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.8
+                        }).addTo(this.map);
+                        
+                        if (point.id) {
+                            marker.bindPopup(`ポイント: ${point.id}`);
+                        }
+                        
+                        this.pointMarkers.push(marker);
                     }
                 }
             });
             
             console.log(`${pointData.points.length} 個のポイントを読み込みました`);
         }
+    }
+
+    // 画像座標から地図座標への変換
+    convertImageCoordsToMapCoords(imageX, imageY) {
+        if (!this.imageOverlay || !this.imageOverlay.imageOverlay) {
+            return null;
+        }
+
+        const bounds = this.imageOverlay.imageOverlay.getBounds();
+        const imageBounds = this.imageOverlay.imageOverlay._image;
+        
+        if (!imageBounds) return null;
+
+        // 画像の実際のサイズ
+        const imageWidth = this.imageOverlay.currentImage.naturalWidth;
+        const imageHeight = this.imageOverlay.currentImage.naturalHeight;
+
+        // 画像座標を正規化（0-1の範囲）
+        const normalizedX = imageX / imageWidth;
+        const normalizedY = imageY / imageHeight;
+
+        // 地図座標に変換
+        const lat = bounds.getNorth() - (bounds.getNorth() - bounds.getSouth()) * normalizedY;
+        const lng = bounds.getWest() + (bounds.getEast() - bounds.getWest()) * normalizedX;
+
+        return [lat, lng];
+    }
+
+    // ポイントマーカーをクリア
+    clearPointMarkers() {
+        this.pointMarkers.forEach(marker => {
+            this.map.removeLayer(marker);
+        });
+        this.pointMarkers = [];
     }
 
     addRouteToMap(routeData) {
@@ -141,6 +211,14 @@ export class PointRouteEditor {
     }
 
     showErrorMessage(title, message) {
+        this.showMessage(title, message, '#dc3545');
+    }
+
+    showWarningMessage(title, message) {
+        this.showMessage(title, message, '#ffc107');
+    }
+
+    showMessage(title, message, backgroundColor) {
         const messageBox = document.createElement('div');
         messageBox.style.cssText = `
             position: fixed;
@@ -149,21 +227,22 @@ export class PointRouteEditor {
             transform: translate(-50%, -50%);
             background-color: white;
             padding: 20px;
-            border: 1px solid #ccc;
+            border: 2px solid ${backgroundColor};
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             z-index: 10000;
             border-radius: 8px;
             font-family: sans-serif;
             text-align: center;
+            max-width: 400px;
         `;
         messageBox.innerHTML = `
-            <h3>${title}</h3>
-            <p>${message}</p>
+            <h3 style="color: ${backgroundColor}; margin-top: 0;">${title}</h3>
+            <p style="white-space: pre-line; color: #333;">${message}</p>
             <button onclick="this.parentNode.remove()" style="
                 padding: 8px 16px;
                 margin-top: 10px;
                 border: none;
-                background-color: #007bff;
+                background-color: ${backgroundColor};
                 color: white;
                 border-radius: 4px;
                 cursor: pointer;

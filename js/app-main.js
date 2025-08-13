@@ -26,7 +26,7 @@ class GSIMapApp {
         // 各機能モジュール初期化（PointInfoManager参照を渡す）
         this.imageOverlay = new ImageOverlay(this.mapCore);
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
-        this.pointRouteEditor = new PointRouteEditor(this.mapCore.getMap());
+        this.pointRouteEditor = new PointRouteEditor(this.mapCore.getMap(), this.imageOverlay);
         this.modeSwitcher = new ModeSwitcher();
         
         // イベントハンドラー設定

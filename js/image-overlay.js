@@ -4,6 +4,7 @@ export class ImageOverlay {
         this.map = mapCore.getMap();
         this.imageOverlay = null;
         this.currentImage = new Image();
+        this.currentImageFileName = null;
         this.centerMarker = null;
         this.dragHandles = [];
         this.isDragging = false;
@@ -426,6 +427,9 @@ export class ImageOverlay {
                         interactive: false
                     }).addTo(this.map);
                     
+                    // ファイル名を記録
+                    this.currentImageFileName = file.name;
+                    
                     this.updateImageDisplay();
                     resolve();
                 };
@@ -437,6 +441,14 @@ export class ImageOverlay {
             reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'));
             reader.readAsDataURL(file);
         });
+    }
+
+    // 現在読み込まれている画像の情報を取得
+    getCurrentImageInfo() {
+        return {
+            fileName: this.currentImageFileName,
+            isLoaded: this.imageOverlay !== null
+        };
     }
 
     getInitialBounds() {
