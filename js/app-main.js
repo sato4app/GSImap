@@ -2,7 +2,8 @@
 import { MapCore } from './map-core.js';
 import { ImageOverlay } from './image-overlay.js';
 import { GPSData } from './gps-data.js';
-import { PointRouteEditor } from './point-route-editor.js';
+import { PointOverlay } from './point-overlay.js';
+import { RouteEditor } from './route-editor.js';
 import { ModeSwitcher } from './mode-switcher.js';
 import { PointInfoManager } from './point-info-manager.js';
 
@@ -11,7 +12,8 @@ class GSIMapApp {
         this.mapCore = null;
         this.imageOverlay = null;
         this.gpsData = null;
-        this.pointRouteEditor = null;
+        this.pointOverlay = null;
+        this.routeEditor = null;
         this.modeSwitcher = null;
         this.pointInfoManager = null;
     }
@@ -26,7 +28,8 @@ class GSIMapApp {
         // 各機能モジュール初期化（PointInfoManager参照を渡す）
         this.imageOverlay = new ImageOverlay(this.mapCore);
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
-        this.pointRouteEditor = new PointRouteEditor(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
+        this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
+        this.routeEditor = new RouteEditor(this.mapCore.getMap());
         this.modeSwitcher = new ModeSwitcher();
         
         // イベントハンドラー設定
