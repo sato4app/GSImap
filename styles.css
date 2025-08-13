@@ -63,7 +63,8 @@
 }
 #loadImageBtn,
 #loadGpsBtn,
-#loadGeojsonBtn {
+#loadPointJsonBtn,
+#loadRouteJsonBtn {
     padding: 8px;
     cursor: pointer;
     display: block;
