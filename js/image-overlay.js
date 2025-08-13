@@ -405,7 +405,17 @@ export class ImageOverlay {
         
         // 強制的に画像レイヤーを再描画
         if (this.imageOverlay._image) {
-            this.imageOverlay.redraw();
+            // ImageOverlayにはredrawメソッドがないため、代替手段を使用
+            if (typeof this.imageOverlay._reset === 'function') {
+                this.imageOverlay._reset();
+            } else {
+                // _resetが存在しない場合は、画像の透明度を一時的に変更して強制更新
+                const currentOpacity = this.imageOverlay.options.opacity;
+                this.imageOverlay.setOpacity(currentOpacity === 1 ? 0.99 : 1);
+                setTimeout(() => {
+                    this.imageOverlay.setOpacity(currentOpacity);
+                }, 10);
+            }
         }
         
         // 短時間後に地図の強制更新（レンダリングの遅延対策）
