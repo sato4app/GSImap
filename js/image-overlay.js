@@ -343,13 +343,37 @@ export class ImageOverlay {
         const scaleInput = document.getElementById('scaleInput');
         const scale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
         
+        // スケール値の妥当性チェック
+        if (!isFinite(scale) || scale <= 0) {
+            console.error('無効なスケール値:', scale);
+            return;
+        }
+        
         const centerPos = this.centerMarker.getLatLng();
+        
+        // 中心座標の妥当性チェック
+        if (!centerPos || !isFinite(centerPos.lat) || !isFinite(centerPos.lng)) {
+            console.error('無効な中心座標:', centerPos);
+            return;
+        }
         
         // naturalWidth/naturalHeightを使用して正確なピクセル数を取得
         const imageWidth = this.currentImage.naturalWidth || this.currentImage.width;
         const imageHeight = this.currentImage.naturalHeight || this.currentImage.height;
         
+        // 画像サイズの妥当性チェック
+        if (!imageWidth || !imageHeight || imageWidth <= 0 || imageHeight <= 0) {
+            console.error('無効な画像サイズ:', { width: imageWidth, height: imageHeight });
+            return;
+        }
+        
         const metersPerPixel = 156543.03392 * Math.cos(centerPos.lat * Math.PI / 180) / Math.pow(2, this.map.getZoom());
+        
+        // metersPerPixelの妥当性チェック
+        if (!isFinite(metersPerPixel) || metersPerPixel <= 0) {
+            console.error('無効なmetersPerPixel値:', { metersPerPixel, zoom: this.map.getZoom(), lat: centerPos.lat });
+            return;
+        }
         
         const scaledImageWidthMeters = imageWidth * scale * metersPerPixel;
         const scaledImageHeightMeters = imageHeight * scale * metersPerPixel;
@@ -358,10 +382,22 @@ export class ImageOverlay {
         const latOffset = (scaledImageHeightMeters / 2) / earthRadius * (180 / Math.PI);
         const lngOffset = (scaledImageWidthMeters / 2) / (earthRadius * Math.cos(centerPos.lat * Math.PI / 180)) * (180 / Math.PI);
         
-        const bounds = L.latLngBounds(
-            [centerPos.lat - latOffset, centerPos.lng - lngOffset],
-            [centerPos.lat + latOffset, centerPos.lng + lngOffset]
-        );
+        // オフセット値の妥当性チェック
+        if (!isFinite(latOffset) || !isFinite(lngOffset)) {
+            console.error('無効なオフセット値:', { latOffset, lngOffset, metersPerPixel, scaledImageWidthMeters, scaledImageHeightMeters });
+            return;
+        }
+        
+        // 境界座標の計算と妥当性チェック
+        const southWest = [centerPos.lat - latOffset, centerPos.lng - lngOffset];
+        const northEast = [centerPos.lat + latOffset, centerPos.lng + lngOffset];
+        
+        if (!isFinite(southWest[0]) || !isFinite(southWest[1]) || !isFinite(northEast[0]) || !isFinite(northEast[1])) {
+            console.error('無効な境界座標:', { southWest, northEast });
+            return;
+        }
+        
+        const bounds = L.latLngBounds(southWest, northEast);
         
         // 画像レイヤーの境界を更新
         this.imageOverlay.setBounds(bounds);
