@@ -8,7 +8,6 @@ export class PointOverlay {
         this.pointMarkers = [];
         this.originalPointData = []; // 元の画像座標を保持
         this.setupEventHandlers();
-        this.setupMapClickHandler();
         
         // 画像更新時のコールバックを登録
         if (this.imageOverlay) {
@@ -18,37 +17,6 @@ export class PointOverlay {
         }
     }
 
-    setupMapClickHandler() {
-        this.map.on('click', (e) => {
-            // ポイント(GPS)編集モードかチェック
-            const pointGpsMode = document.querySelector('input[name="editingMode"][value="point-gps"]');
-            if (!pointGpsMode || !pointGpsMode.checked) {
-                return; // ポイント(GPS)編集モードでない場合は処理しない
-            }
-
-            // クリックした位置がJSONポイントマーカーかチェック（メッセージ表示用のみ）
-            let clickedJsonMarker = false;
-            this.pointMarkers.forEach((marker) => {
-                const markerLatLng = marker.getLatLng();
-                const distance = this.map.distance(e.latlng, markerLatLng);
-                
-                // 20メートル以内であればJSONマーカーをクリックしたとみなす
-                if (distance < 20) {
-                    clickedJsonMarker = true;
-                }
-            });
-
-            // メッセージ表示/非表示を制御
-            this.toggleGpsPointMismatchMessage(clickedJsonMarker);
-        });
-    }
-
-    toggleGpsPointMismatchMessage(show) {
-        const messageElement = document.getElementById('gpsPointMismatchMessage');
-        if (messageElement) {
-            messageElement.style.display = show ? 'block' : 'none';
-        }
-    }
 
     setupEventHandlers() {
         const loadPointJsonBtn = document.getElementById('loadPointJsonBtn');
@@ -160,7 +128,7 @@ export class PointOverlay {
                         }).addTo(this.map);
                         
                         if (point.id) {
-                            marker.bindPopup(`ポイント: ${point.id}`);
+                            marker.bindPopup(`ポイント(JSON): ${point.id}`);
                         }
                         
                         // JSONマーカーにクリックイベントを追加
@@ -220,9 +188,6 @@ export class PointOverlay {
         this.originalPointData = [];
         this.updatePointCountDisplay(0);
         this.updateMatchedPointCountDisplay(0);
-        
-        // メッセージも非表示にする
-        this.toggleGpsPointMismatchMessage(false);
     }
 
     // ポイント数表示を更新
