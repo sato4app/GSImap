@@ -341,12 +341,23 @@ export class ImageOverlay {
         }
         
         const scaleInput = document.getElementById('scaleInput');
-        const scale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
+        let scale = 0.3; // デフォルト値
         
-        // スケール値の妥当性チェック
-        if (!isFinite(scale) || scale <= 0) {
-            console.error('無効なスケール値:', scale);
-            return;
+        if (scaleInput) {
+            const inputValue = scaleInput.value.trim();
+            // 空文字列、null、undefined、NaNをチェック
+            if (inputValue && inputValue !== '') {
+                const parsedScale = parseFloat(inputValue);
+                if (isFinite(parsedScale) && parsedScale > 0) {
+                    scale = parsedScale;
+                } else {
+                    // 無効な値の場合、デフォルト値に戻してフィールドを修正
+                    scaleInput.value = scale.toString();
+                }
+            } else {
+                // 空文字列の場合、デフォルト値をセット
+                scaleInput.value = scale.toString();
+            }
         }
         
         const centerPos = this.centerMarker.getLatLng();
@@ -448,7 +459,23 @@ export class ImageOverlay {
         const lngInput = document.getElementById('lngInput');
         
         if (scaleInput) {
-            scaleInput.addEventListener('input', () => this.updateImageDisplay());
+            const validateAndUpdateScale = () => {
+                const inputValue = scaleInput.value.trim();
+                if (inputValue === '' || inputValue === null || inputValue === undefined) {
+                    // 空文字列の場合はデフォルト値をセット
+                    scaleInput.value = '0.3';
+                } else {
+                    const parsedValue = parseFloat(inputValue);
+                    if (isNaN(parsedValue) || parsedValue <= 0) {
+                        // 無効な値の場合はデフォルト値をセット
+                        scaleInput.value = '0.3';
+                    }
+                }
+                this.updateImageDisplay();
+            };
+            
+            scaleInput.addEventListener('input', validateAndUpdateScale);
+            scaleInput.addEventListener('blur', validateAndUpdateScale);
         }
         
         if (opacityInput) {
