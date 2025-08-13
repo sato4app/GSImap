@@ -15,27 +15,32 @@ export class ImageOverlay {
         this.isCenteringMode = false;
         this.imageUpdateCallbacks = [];
         
-        this.initializeCenterMarker(mapCore.getInitialCenter());
+        // 中心マーカーは画像読込後に表示するため、初期化のみ行う
+        this.initializeCenterMarker(mapCore.getInitialCenter(), false);
         this.setupEventHandlers();
     }
 
-    initializeCenterMarker(position) {
+    initializeCenterMarker(position, addToMap = true) {
         const centerIcon = L.divIcon({
             className: 'center-marker-icon',
-            html: '<div style="width: 12px; height: 12px; background-color: #ff8c00; border: 2px solid #ffffff; border-radius: 50%;"></div>',
+            html: '<div style="width: 12px; height: 12px; background-color: #ff8c00; border: 2px solid #ffffff;"></div>',
             iconSize: [16, 16],
             iconAnchor: [8, 8]
         });
         
-        this.centerMarker = this.createCenterMarker(position, centerIcon);
+        this.centerMarker = this.createCenterMarker(position, centerIcon, addToMap);
     }
 
-    createCenterMarker(position, icon) {
+    createCenterMarker(position, icon, addToMap = true) {
         const marker = L.marker(position, { 
             icon: icon,
             draggable: false,
             pane: 'centerMarker'
-        }).addTo(this.map);
+        });
+        
+        if (addToMap) {
+            marker.addTo(this.map);
+        }
         
         marker.bindTooltip('ドラッグして画像移動', {
             permanent: false,
@@ -99,7 +104,6 @@ export class ImageOverlay {
         
         this.centerMarker.setLatLng(newPosition);
         this.updateImageDisplay();
-        this.updateCoordInputs(this.centerMarker.getLatLng());
     }
 
     removeDragHandles() {
@@ -122,7 +126,7 @@ export class ImageOverlay {
         corners.forEach((corner, index) => {
             const handleIcon = L.divIcon({
                 className: 'drag-handle-icon',
-                html: '<div class="drag-handle-pulse" style="width: 8px; height: 8px; background-color: #ff8c00; border: 1.5px solid #ffffff; border-radius: 50%;"></div>',
+                html: '<div class="drag-handle-pulse" style="width: 8px; height: 8px; background-color: #ff8c00; border: 1.5px solid #ffffff;"></div>',
                 iconSize: [12, 12],
                 iconAnchor: [6, 6]
             });
@@ -265,7 +269,6 @@ export class ImageOverlay {
             
             const newCenter = newBounds.getCenter();
             this.centerMarker.setLatLng(newCenter);
-            this.updateCoordInputs(newCenter);
             
             this.createDragHandles(newBounds);
             this.updateScaleFromBounds(newBounds);
@@ -323,15 +326,6 @@ export class ImageOverlay {
         scaleInput.value = currentScale.toFixed(2);
     }
 
-    updateCoordInputs(latlng) {
-        const latInput = document.getElementById('latInput');
-        const lngInput = document.getElementById('lngInput');
-        
-        if (latInput && lngInput) {
-            latInput.value = latlng.lat.toFixed(6);
-            lngInput.value = latlng.lng.toFixed(6);
-        }
-    }
 
     getDisplayOpacity() {
         const opacityInput = document.getElementById('opacityInput');
@@ -442,7 +436,6 @@ export class ImageOverlay {
         }, 50);
         
         this.createDragHandles(bounds);
-        this.updateCoordInputs(centerPos);
         
         // 画像更新をコールバックに通知
         this.notifyImageUpdate();
@@ -457,9 +450,6 @@ export class ImageOverlay {
     setupEventHandlers() {
         const scaleInput = document.getElementById('scaleInput');
         const opacityInput = document.getElementById('opacityInput');
-        const centerCoordBtn = document.getElementById('centerCoordBtn');
-        const latInput = document.getElementById('latInput');
-        const lngInput = document.getElementById('lngInput');
         
         if (scaleInput) {
             const validateAndUpdateScale = () => {
@@ -484,57 +474,6 @@ export class ImageOverlay {
         if (opacityInput) {
             opacityInput.addEventListener('input', () => this.updateOpacity());
         }
-        
-        // 座標入力フィールドの変更時に画像位置を更新
-        if (latInput && lngInput) {
-            const updateCenterFromInputs = () => {
-                const lat = parseFloat(latInput.value);
-                const lng = parseFloat(lngInput.value);
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    const newLatLng = L.latLng(lat, lng);
-                    this.centerMarker.setLatLng(newLatLng);
-                    if (this.imageOverlay) {
-                        this.updateImageDisplay();
-                    }
-                }
-            };
-            
-            latInput.addEventListener('blur', updateCenterFromInputs);
-            lngInput.addEventListener('blur', updateCenterFromInputs);
-            latInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') updateCenterFromInputs();
-            });
-            lngInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') updateCenterFromInputs();
-            });
-        }
-        
-        if (centerCoordBtn) {
-            centerCoordBtn.addEventListener('click', () => {
-                this.isCenteringMode = !this.isCenteringMode;
-                centerCoordBtn.classList.toggle('active', this.isCenteringMode);
-                
-                if (this.isCenteringMode) {
-                    this.map.getContainer().style.cursor = 'crosshair';
-                } else {
-                    this.map.getContainer().style.cursor = '';
-                }
-            });
-        }
-
-        this.map.on('click', (e) => {
-            if (this.isCenteringMode) {
-                this.centerMarker.setLatLng(e.latlng);
-                this.updateCoordInputs(e.latlng);
-                if (this.imageOverlay) {
-                    this.updateImageDisplay();
-                }
-                
-                this.isCenteringMode = false;
-                centerCoordBtn.classList.remove('active');
-                this.map.getContainer().style.cursor = '';
-            }
-        });
     }
 
     loadImage(file) {
@@ -546,6 +485,15 @@ export class ImageOverlay {
                     if (this.imageOverlay) {
                         this.map.removeLayer(this.imageOverlay);
                         this.removeDragHandles();
+                    }
+                    
+                    // 画像をウインドウの中心に配置
+                    const mapCenter = this.map.getCenter();
+                    this.centerMarker.setLatLng(mapCenter);
+                    
+                    // 中心マーカーを地図に追加（初回のみ）
+                    if (!this.map.hasLayer(this.centerMarker)) {
+                        this.centerMarker.addTo(this.map);
                     }
                     
                     this.imageOverlay = L.imageOverlay(e.target.result, this.getInitialBounds(), {
@@ -600,7 +548,6 @@ export class ImageOverlay {
     setCenterPosition(latLng) {
         if (this.centerMarker) {
             this.centerMarker.setLatLng(latLng);
-            this.updateCoordInputs(latLng);
             // 画像表示を更新
             if (this.imageOverlay) {
                 this.updateImageDisplay();
