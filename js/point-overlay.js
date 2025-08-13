@@ -26,47 +26,17 @@ export class PointOverlay {
                 return; // ポイント(GPS)編集モードでない場合は処理しない
             }
 
-            // クリックした位置がJSONポイントマーカーかチェック
+            // クリックした位置がJSONポイントマーカーかチェック（メッセージ表示用のみ）
             let clickedJsonMarker = false;
-            let clickedJsonPointId = null;
-            this.pointMarkers.forEach((marker, index) => {
+            this.pointMarkers.forEach((marker) => {
                 const markerLatLng = marker.getLatLng();
                 const distance = this.map.distance(e.latlng, markerLatLng);
                 
                 // 20メートル以内であればJSONマーカーをクリックしたとみなす
                 if (distance < 20) {
                     clickedJsonMarker = true;
-                    // 元の画像座標データからIDを取得
-                    if (index < this.originalPointData.length) {
-                        clickedJsonPointId = this.originalPointData[index].id;
-                    }
                 }
             });
-
-            // クリックした位置がGPSポイントマーカーかチェック
-            let clickedGpsMarker = false;
-            let clickedGpsPointId = null;
-            if (this.gpsData) {
-                const gpsMarkers = this.gpsData.getGPSMarkers();
-                gpsMarkers.forEach(gpsMarker => {
-                    const markerLatLng = gpsMarker.marker.getLatLng();
-                    const distance = this.map.distance(e.latlng, markerLatLng);
-                    
-                    // 20メートル以内であればGPSマーカーをクリックしたとみなす
-                    if (distance < 20) {
-                        clickedGpsMarker = true;
-                        clickedGpsPointId = gpsMarker.id;
-                    }
-                });
-            }
-
-            // コンソール出力
-            if (clickedJsonMarker && clickedJsonPointId) {
-                console.log(`JSONポイント: ${clickedJsonPointId}`);
-            }
-            if (clickedGpsMarker && clickedGpsPointId) {
-                console.log(`GPSポイント: ${clickedGpsPointId}`);
-            }
 
             // メッセージ表示/非表示を制御
             this.toggleGpsPointMismatchMessage(clickedJsonMarker);
@@ -192,6 +162,18 @@ export class PointOverlay {
                         if (point.id) {
                             marker.bindPopup(`ポイント: ${point.id}`);
                         }
+                        
+                        // JSONマーカーにクリックイベントを追加
+                        marker.on('click', (e) => {
+                            // ポイント(GPS)編集モードの時のみコンソール出力
+                            const pointGpsMode = document.querySelector('input[name="editingMode"][value="point-gps"]');
+                            if (pointGpsMode && pointGpsMode.checked) {
+                                console.log(`JSONポイント: ${point.id}`);
+                            }
+                            
+                            // イベントの伝播を停止
+                            L.DomEvent.stopPropagation(e);
+                        });
                         
                         this.pointMarkers.push(marker);
                     }
