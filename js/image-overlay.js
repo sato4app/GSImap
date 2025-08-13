@@ -23,9 +23,9 @@ export class ImageOverlay {
     initializeCenterMarker(position, addToMap = true) {
         const centerIcon = L.divIcon({
             className: 'center-marker-icon',
-            html: '<div style="width: 12px; height: 12px; background-color: #ff8c00; border: 2px solid #ffffff;"></div>',
-            iconSize: [16, 16],
-            iconAnchor: [8, 8]
+            html: '<div style="width: 8px; height: 8px; background-color: #ff8c00; border: 1.5px solid #ffffff;"></div>',
+            iconSize: [12, 12],
+            iconAnchor: [6, 6]
         });
         
         this.centerMarker = this.createCenterMarker(position, centerIcon, addToMap);
