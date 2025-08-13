@@ -343,8 +343,9 @@ export class ImageOverlay {
         
         const centerPos = this.centerMarker.getLatLng();
         
-        const imageWidth = this.currentImage.width;
-        const imageHeight = this.currentImage.height;
+        // naturalWidth/naturalHeightを使用して正確なピクセル数を取得
+        const imageWidth = this.currentImage.naturalWidth || this.currentImage.width;
+        const imageHeight = this.currentImage.naturalHeight || this.currentImage.height;
         
         const metersPerPixel = 156543.03392 * Math.cos(centerPos.lat * Math.PI / 180) / Math.pow(2, this.map.getZoom());
         

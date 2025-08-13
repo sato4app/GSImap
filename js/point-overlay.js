@@ -404,25 +404,28 @@ export class PointOverlay {
             return null;
         }
 
-        const imageWidth = this.imageOverlay.currentImage.naturalWidth;
-        const imageHeight = this.imageOverlay.currentImage.naturalHeight;
+        // ImageOverlayと同じ方式でピクセル数を取得
+        const imageWidth = this.imageOverlay.currentImage.naturalWidth || this.imageOverlay.currentImage.width;
+        const imageHeight = this.imageOverlay.currentImage.naturalHeight || this.imageOverlay.currentImage.height;
 
-        // 画像中心からの相対位置
-        const relativeX = (imageX - imageWidth / 2) / imageWidth;
-        const relativeY = (imageY - imageHeight / 2) / imageHeight;
+        // 画像中心からの相対位置（ピクセル単位）
+        const offsetX = imageX - imageWidth / 2;
+        const offsetY = imageY - imageHeight / 2;
 
-        // スケールを適用
+        // ImageOverlayと同じ計算方式を使用
         const metersPerPixel = 156543.03392 * Math.cos(centerLat * Math.PI / 180) / Math.pow(2, this.map.getZoom());
-        const scaledOffsetX = relativeX * imageWidth * scale * metersPerPixel;
-        const scaledOffsetY = relativeY * imageHeight * scale * metersPerPixel;
+        
+        // スケールを適用してメートル単位に変換
+        const scaledOffsetXMeters = offsetX * scale * metersPerPixel;
+        const scaledOffsetYMeters = offsetY * scale * metersPerPixel;
 
-        // 地図座標に変換
+        // 地図座標に変換（ImageOverlayのupdateImageDisplayと同じ方式）
         const earthRadius = 6378137;
-        const latOffset = (scaledOffsetY / earthRadius) * (180 / Math.PI);
-        const lngOffset = (scaledOffsetX / (earthRadius * Math.cos(centerLat * Math.PI / 180))) * (180 / Math.PI);
+        const latOffset = (scaledOffsetYMeters / earthRadius) * (180 / Math.PI);
+        const lngOffset = (scaledOffsetXMeters / (earthRadius * Math.cos(centerLat * Math.PI / 180))) * (180 / Math.PI);
 
         return {
-            lat: centerLat - latOffset, // Y軸は反転
+            lat: centerLat - latOffset, // Y軸は反転（画像座標系は上が0、地図座標系は北が正）
             lng: centerLng + lngOffset
         };
     }
@@ -447,13 +450,17 @@ export class PointOverlay {
             return;
         }
 
-        // 新しいスケールを設定（中心位置変更前に設定）
+        // 新しいスケールを設定
         const scaleInput = document.getElementById('scaleInput');
         if (scaleInput && isFinite(newScale)) {
             scaleInput.value = newScale.toFixed(3);
+            
+            // スケール変更のinputイベントを手動でトリガー
+            const inputEvent = new Event('input', { bubbles: true });
+            scaleInput.dispatchEvent(inputEvent);
         }
         
-        // 新しい中心位置を設定（これにより自動的にupdateImageDisplayが呼ばれる）
+        // 新しい中心位置を設定
         this.imageOverlay.setCenterPosition([newCenterLat, newCenterLng]);
     }
 
