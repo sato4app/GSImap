@@ -450,18 +450,20 @@ export class PointOverlay {
             return;
         }
 
-        // 新しいスケールを設定
+        // 新しいスケールを設定（先に設定して、updateImageDisplayで読み取られるようにする）
         const scaleInput = document.getElementById('scaleInput');
         if (scaleInput && isFinite(newScale)) {
             scaleInput.value = newScale.toFixed(3);
-            
-            // スケール変更のinputイベントを手動でトリガー
-            const inputEvent = new Event('input', { bubbles: true });
-            scaleInput.dispatchEvent(inputEvent);
         }
         
-        // 新しい中心位置を設定
-        this.imageOverlay.setCenterPosition([newCenterLat, newCenterLng]);
+        // 中心位置を設定してから画像表示を更新
+        const newLatLng = L.latLng(newCenterLat, newCenterLng);
+        this.imageOverlay.centerMarker.setLatLng(newLatLng);
+        
+        // updateImageDisplayを呼び出す（内部でcenterPos = this.centerMarker.getLatLng()により新しい位置を取得）
+        if (this.imageOverlay) {
+            this.imageOverlay.updateImageDisplay();
+        }
     }
 
     showErrorMessage(title, message) {
