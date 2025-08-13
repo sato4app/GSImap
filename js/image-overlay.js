@@ -419,6 +419,8 @@ export class ImageOverlay {
         const scaleInput = document.getElementById('scaleInput');
         const opacityInput = document.getElementById('opacityInput');
         const centerCoordBtn = document.getElementById('centerCoordBtn');
+        const latInput = document.getElementById('latInput');
+        const lngInput = document.getElementById('lngInput');
         
         if (scaleInput) {
             scaleInput.addEventListener('input', () => this.updateImageDisplay());
@@ -426,6 +428,30 @@ export class ImageOverlay {
         
         if (opacityInput) {
             opacityInput.addEventListener('input', () => this.updateOpacity());
+        }
+        
+        // 座標入力フィールドの変更時に画像位置を更新
+        if (latInput && lngInput) {
+            const updateCenterFromInputs = () => {
+                const lat = parseFloat(latInput.value);
+                const lng = parseFloat(lngInput.value);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                    const newLatLng = L.latLng(lat, lng);
+                    this.centerMarker.setLatLng(newLatLng);
+                    if (this.imageOverlay) {
+                        this.updateImageDisplay();
+                    }
+                }
+            };
+            
+            latInput.addEventListener('blur', updateCenterFromInputs);
+            lngInput.addEventListener('blur', updateCenterFromInputs);
+            latInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') updateCenterFromInputs();
+            });
+            lngInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') updateCenterFromInputs();
+            });
         }
         
         if (centerCoordBtn) {
@@ -503,8 +529,12 @@ export class ImageOverlay {
 
     // 画像更新時のコールバックを実行
     notifyImageUpdate() {
-        this.imageUpdateCallbacks.forEach(callback => {
+        console.log('notifyImageUpdate: コールバックを実行中...', {
+            コールバック数: this.imageUpdateCallbacks.length
+        });
+        this.imageUpdateCallbacks.forEach((callback, index) => {
             try {
+                console.log(`コールバック${index + 1}を実行中...`);
                 callback();
             } catch (error) {
                 console.error('画像更新コールバックでエラーが発生しました:', error);

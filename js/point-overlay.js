@@ -196,15 +196,30 @@ export class PointOverlay {
     // 画像の移動・拡大縮小時にポイント位置を更新
     updatePointPositions() {
         if (this.originalPointData.length === 0 || this.pointMarkers.length === 0) {
+            console.log('updatePointPositions: ポイントデータまたはマーカーが存在しません', {
+                originalPointData: this.originalPointData.length,
+                pointMarkers: this.pointMarkers.length
+            });
             return;
         }
+
+        console.log('updatePointPositions: ポイント位置を更新中...', {
+            ポイント数: this.originalPointData.length
+        });
 
         // 元の画像座標から新しい地図座標を計算して、マーカー位置を更新
         this.originalPointData.forEach((originalPoint, index) => {
             if (index < this.pointMarkers.length) {
                 const newImageCoords = this.convertImageCoordsToMapCoords(originalPoint.x, originalPoint.y);
                 if (newImageCoords) {
+                    const oldLatLng = this.pointMarkers[index].getLatLng();
                     this.pointMarkers[index].setLatLng(newImageCoords);
+                    console.log(`ポイント${originalPoint.id}: 位置更新`, {
+                        古い位置: { lat: oldLatLng.lat.toFixed(6), lng: oldLatLng.lng.toFixed(6) },
+                        新しい位置: { lat: newImageCoords[0].toFixed(6), lng: newImageCoords[1].toFixed(6) }
+                    });
+                } else {
+                    console.warn(`ポイント${originalPoint.id}: 座標変換に失敗`);
                 }
             }
         });
