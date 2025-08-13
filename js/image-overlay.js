@@ -103,6 +103,9 @@ export class ImageOverlay {
     }
 
     removeDragHandles() {
+        console.log('removeDragHandles: ドラッグハンドルを削除中...', {
+            現在のハンドル数: this.dragHandles.length
+        });
         this.dragHandles.forEach(handle => {
             this.map.removeLayer(handle);
         });
@@ -110,6 +113,10 @@ export class ImageOverlay {
     }
 
     createDragHandles(bounds) {
+        console.log('createDragHandles: ドラッグハンドルを作成中...', {
+            bounds: bounds.toBBoxString()
+        });
+        
         this.removeDragHandles();
         
         const corners = [
@@ -177,6 +184,10 @@ export class ImageOverlay {
             });
             
             this.dragHandles.push(handle);
+        });
+        
+        console.log('createDragHandles: 作成完了', {
+            ハンドル数: this.dragHandles.length
         });
     }
 
@@ -501,8 +512,11 @@ export class ImageOverlay {
                     // ファイル名を記録
                     this.currentImageFileName = file.name;
                     
-                    this.updateImageDisplay();
-                    resolve();
+                    // 画像レイヤーが完全に読み込まれるまで少し待つ
+                    setTimeout(() => {
+                        this.updateImageDisplay();
+                        resolve();
+                    }, 100);
                 };
                 
                 this.currentImage.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
