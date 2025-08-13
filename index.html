@@ -224,12 +224,12 @@
                 <input type="text" id="lngInput" readonly>
             </div>
             <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">PNG画像読込</button>
+            <input type="file" id="pointJsonInput" accept=".json" style="display: none;">
+            <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読込</button>
         </div>
 
         <!-- ルート編集モード -->
         <div id="routeEditor" class="editor-panel" style="display: none;">
-            <input type="file" id="pointJsonInput" accept=".json" style="display: none;">
-            <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読込</button>
             <input type="file" id="routeJsonInput" accept=".json" style="display: none;">
             <button id="loadRouteJsonBtn" title="ルートJSONを読み込む" class="leaflet-bar leaflet-control">ルートJSON読込</button>
         </div>
