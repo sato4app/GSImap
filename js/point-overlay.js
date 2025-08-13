@@ -547,6 +547,12 @@ export class PointOverlay {
         if (this.imageOverlay) {
             this.imageOverlay.updateImageDisplay();
         }
+        
+        // 画像調整後にポイント位置を強制的に更新
+        setTimeout(() => {
+            this.updatePointPositions();
+            console.log('applyImageAdjustment: ポイント位置を更新しました');
+        }, 100);
     }
 
     showErrorMessage(title, message) {
