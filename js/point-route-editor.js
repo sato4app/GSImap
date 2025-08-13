@@ -317,8 +317,10 @@ export class PointRouteEditor {
         // ID 名が一致するマーカーペアを検索
         const matchedPairs = [];
         this.originalPointData.forEach((jsonPoint, index) => {
+            console.log(`検索中のポイント[${index}]:`, jsonPoint);
             const matchingGPS = gpsMarkers.find(gps => gps.id === jsonPoint.id);
             if (matchingGPS && index < this.pointMarkers.length) {
+                console.log(`一致したGPSマーカー:`, matchingGPS);
                 matchedPairs.push({
                     jsonPoint: jsonPoint,
                     gpsPoint: matchingGPS,
@@ -343,6 +345,26 @@ export class PointRouteEditor {
         // 2つ以上のペアから最適な位置とスケールを計算
         const pair1 = matchedPairs[0];
         const pair2 = matchedPairs[1];
+
+        // データの妥当性をチェック
+        if (!pair1.gpsPoint || !pair2.gpsPoint || !pair1.jsonPoint || !pair2.jsonPoint) {
+            console.log('マーカーペアのデータが不完全です');
+            return;
+        }
+
+        // GPS座標の妥当性をチェック
+        if (typeof pair1.gpsPoint.lat !== 'number' || typeof pair1.gpsPoint.lng !== 'number' ||
+            typeof pair2.gpsPoint.lat !== 'number' || typeof pair2.gpsPoint.lng !== 'number') {
+            console.log('GPS座標データが無効です');
+            return;
+        }
+
+        // 画像座標の妥当性をチェック
+        if (typeof pair1.jsonPoint.x !== 'number' || typeof pair1.jsonPoint.y !== 'number' ||
+            typeof pair2.jsonPoint.x !== 'number' || typeof pair2.jsonPoint.y !== 'number') {
+            console.log('画像座標データが無効です');
+            return;
+        }
 
         // GPS座標間の距離を計算
         const gpsDistance = this.calculateDistance(
@@ -381,6 +403,13 @@ export class PointRouteEditor {
         const currentScale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
         const newScale = currentScale * requiredScaleRatio;
 
+        // 計算結果の妥当性をチェック
+        if (!isFinite(gpsDistance) || !isFinite(imageDistance) || !isFinite(newScale) || 
+            !isFinite(newCenterLat) || !isFinite(newCenterLng)) {
+            console.log('計算結果が無効です');
+            return;
+        }
+
         console.log(`自動調整結果:`);
         console.log(`- 新しい中心位置: ${newCenterLat.toFixed(6)}, ${newCenterLng.toFixed(6)}`);
         console.log(`- 新しいスケール: ${newScale.toFixed(3)} (元: ${currentScale})`);
@@ -404,12 +433,18 @@ export class PointRouteEditor {
 
     // 画像調整を適用
     applyImageAdjustment(newCenterLat, newCenterLng, newScale) {
+        // 引数の妥当性をチェック
+        if (!isFinite(newCenterLat) || !isFinite(newCenterLng) || !isFinite(newScale)) {
+            console.log('画像調整のパラメータが無効です');
+            return;
+        }
+
         // 新しい中心位置を設定
         this.imageOverlay.setCenterPosition([newCenterLat, newCenterLng]);
         
         // 新しいスケールを設定
         const scaleInput = document.getElementById('scaleInput');
-        if (scaleInput) {
+        if (scaleInput && isFinite(newScale)) {
             scaleInput.value = newScale.toFixed(3);
         }
         
