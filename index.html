@@ -133,17 +133,21 @@
         <!-- 編集モード選択 -->
         <div class="editing-mode-selector">
             <label class="editing-option">
-                <input type="radio" name="editingMode" value="image-gps" checked>
+                <input type="radio" name="editingMode" value="point-gps" checked>
                 <span>ポイント(GPS)編集</span>
             </label>
             <label class="editing-option">
-                <input type="radio" name="editingMode" value="point-route">
-                <span>ポイント・ルート編集</span>
+                <input type="radio" name="editingMode" value="image-overlay">
+                <span>画像を地理院地図に重ね合せ</span>
+            </label>
+            <label class="editing-option">
+                <input type="radio" name="editingMode" value="route">
+                <span>ルート編集</span>
             </label>
         </div>
 
         <!-- ポイント(GPS)編集モード -->
-        <div id="imageGpsEditor" class="editor-panel">
+        <div id="pointGpsEditor" class="editor-panel">
             <!-- GPS値(Excel)読込ボタン -->
             <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
             <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
@@ -199,8 +203,8 @@
             </div>
         </div>
 
-        <!-- ポイント・ルート編集モード -->
-        <div id="pointRouteEditor" class="editor-panel" style="display: none;">
+        <!-- 画像を地理院地図に重ね合せモード -->
+        <div id="imageOverlayEditor" class="editor-panel" style="display: none;">
             <div id="scaleInputContainer" class="leaflet-bar leaflet-control">
                 <label for="scaleInput">表示倍率</label>
                 <input type="number" id="scaleInput" value="0.3" step="0.1" min="0.1">
@@ -219,7 +223,11 @@
                 <label for="lngInput">東経</label>
                 <input type="text" id="lngInput" readonly>
             </div>
-            <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">画像(png)読込</button>
+            <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">PNG画像読込</button>
+        </div>
+
+        <!-- ルート編集モード -->
+        <div id="routeEditor" class="editor-panel" style="display: none;">
             <input type="file" id="pointJsonInput" accept=".json" style="display: none;">
             <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読込</button>
             <input type="file" id="routeJsonInput" accept=".json" style="display: none;">

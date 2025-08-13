@@ -1,7 +1,7 @@
 // 編集モード切り替え機能を管理するモジュール
 export class ModeSwitcher {
     constructor() {
-        this.currentMode = 'image-gps';
+        this.currentMode = 'point-gps';
         this.setupEventHandlers();
         this.showCurrentModePanel();
     }
@@ -29,15 +29,22 @@ export class ModeSwitcher {
     }
 
     showCurrentModePanel() {
-        const imageGpsEditor = document.getElementById('imageGpsEditor');
-        const pointRouteEditor = document.getElementById('pointRouteEditor');
+        const pointGpsEditor = document.getElementById('pointGpsEditor');
+        const imageOverlayEditor = document.getElementById('imageOverlayEditor');
+        const routeEditor = document.getElementById('routeEditor');
         
-        if (this.currentMode === 'image-gps') {
-            if (imageGpsEditor) imageGpsEditor.style.display = 'block';
-            if (pointRouteEditor) pointRouteEditor.style.display = 'none';
-        } else if (this.currentMode === 'point-route') {
-            if (imageGpsEditor) imageGpsEditor.style.display = 'none';
-            if (pointRouteEditor) pointRouteEditor.style.display = 'block';
+        // すべてのパネルを非表示にする
+        if (pointGpsEditor) pointGpsEditor.style.display = 'none';
+        if (imageOverlayEditor) imageOverlayEditor.style.display = 'none';
+        if (routeEditor) routeEditor.style.display = 'none';
+        
+        // 選択されたモードのパネルを表示する
+        if (this.currentMode === 'point-gps') {
+            if (pointGpsEditor) pointGpsEditor.style.display = 'block';
+        } else if (this.currentMode === 'image-overlay') {
+            if (imageOverlayEditor) imageOverlayEditor.style.display = 'block';
+        } else if (this.currentMode === 'route') {
+            if (routeEditor) routeEditor.style.display = 'block';
         }
     }
 
