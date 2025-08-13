@@ -476,6 +476,10 @@ export class ImageOverlay {
         if (this.centerMarker) {
             this.centerMarker.setLatLng(latLng);
             this.updateCoordInputs(latLng);
+            // 画像表示を更新
+            if (this.imageOverlay) {
+                this.updateImageDisplay();
+            }
         }
     }
 

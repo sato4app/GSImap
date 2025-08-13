@@ -369,19 +369,14 @@ export class PointOverlay {
             return;
         }
 
-        // 新しい中心位置を設定
-        this.imageOverlay.setCenterPosition([newCenterLat, newCenterLng]);
-        
-        // 新しいスケールを設定
+        // 新しいスケールを設定（中心位置変更前に設定）
         const scaleInput = document.getElementById('scaleInput');
         if (scaleInput && isFinite(newScale)) {
             scaleInput.value = newScale.toFixed(3);
         }
         
-        // 画像表示を更新
-        if (this.imageOverlay) {
-            this.imageOverlay.updateImageDisplay();
-        }
+        // 新しい中心位置を設定（これにより自動的にupdateImageDisplayが呼ばれる）
+        this.imageOverlay.setCenterPosition([newCenterLat, newCenterLng]);
     }
 
     showErrorMessage(title, message) {
