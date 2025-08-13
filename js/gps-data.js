@@ -3,6 +3,7 @@ export class GPSData {
     constructor(map, pointInfoManager = null) {
         this.map = map;
         this.pointInfoManager = pointInfoManager;
+        this.gpsMarkers = []; // GPSマーカーとデータを保持
     }
 
     // GPS値（Excel）読み込み処理
@@ -163,6 +164,9 @@ export class GPSData {
     }
 
     addGPSMarkersToMap(gpsData, markerColor = '#006400') {
+        // 既存のGPSマーカーをクリア
+        this.clearGPSMarkers();
+        
         gpsData.forEach((point, index) => {
             // 逆三角形アイコンを作成（GPS座標の正確な位置に合わせる）
             const triangleIcon = L.divIcon({
@@ -175,6 +179,12 @@ export class GPSData {
             const marker = L.marker([point.lat, point.lng], {
                 icon: triangleIcon
             }).addTo(this.map);
+
+            // マーカーとデータを保存
+            this.gpsMarkers.push({
+                marker: marker,
+                data: point
+            });
             
             // ポップアップ内容を作成（X-nn形式に最適化された最小限サイズ）
             let popupContent = `<div style="padding:1px 1px;text-align:center;min-width:18px;line-height:1;">${point.pointId}</div>`;
@@ -212,6 +222,25 @@ export class GPSData {
         //     const bounds = L.latLngBounds(gpsData.map(point => [point.lat, point.lng]));
         //     this.map.fitBounds(bounds.pad(0.1));
         // }
+    }
+
+    // GPSマーカーをクリア
+    clearGPSMarkers() {
+        this.gpsMarkers.forEach(item => {
+            this.map.removeLayer(item.marker);
+        });
+        this.gpsMarkers = [];
+    }
+
+    // GPSマーカー情報を取得
+    getGPSMarkers() {
+        return this.gpsMarkers.map(item => ({
+            id: item.data.pointId,
+            lat: item.data.lat,
+            lng: item.data.lng,
+            marker: item.marker,
+            data: item.data
+        }));
     }
 
     updatePointCountDisplay(count) {

@@ -1,8 +1,9 @@
 // ポイント・ルート編集機能を管理するモジュール
 export class PointRouteEditor {
-    constructor(map, imageOverlay = null) {
+    constructor(map, imageOverlay = null, gpsData = null) {
         this.map = map;
         this.imageOverlay = imageOverlay;
+        this.gpsData = gpsData;
         this.pointData = [];
         this.routeData = [];
         this.pointMarkers = [];
@@ -160,6 +161,9 @@ export class PointRouteEditor {
             // ポイント数を表示フィールドに更新
             this.updatePointCountDisplay(pointData.points.length);
             console.log(`${pointData.points.length} 個のポイントを読み込みました`);
+            
+            // GPS マーカーとの自動調整を実行
+            this.autoAdjustImageToGPS();
         }
     }
 
@@ -296,5 +300,124 @@ export class PointRouteEditor {
             ">OK</button>
         `;
         document.body.appendChild(messageBox);
+    }
+
+    // GPS マーカーとポイント JSON マーカーの自動調整
+    autoAdjustImageToGPS() {
+        if (!this.gpsData || !this.imageOverlay || this.originalPointData.length === 0) {
+            return;
+        }
+
+        const gpsMarkers = this.gpsData.getGPSMarkers();
+        if (gpsMarkers.length === 0) {
+            console.log('GPS マーカーが見つかりませんでした');
+            return;
+        }
+
+        // ID 名が一致するマーカーペアを検索
+        const matchedPairs = [];
+        this.originalPointData.forEach((jsonPoint, index) => {
+            const matchingGPS = gpsMarkers.find(gps => gps.id === jsonPoint.id);
+            if (matchingGPS && index < this.pointMarkers.length) {
+                matchedPairs.push({
+                    jsonPoint: jsonPoint,
+                    gpsPoint: matchingGPS,
+                    jsonMarker: this.pointMarkers[index]
+                });
+            }
+        });
+
+        console.log(`ID が一致したマーカー数: ${matchedPairs.length} 個`);
+
+        if (matchedPairs.length < 2) {
+            console.log('自動調整には少なくとも2つの一致するマーカーが必要です');
+            return;
+        }
+
+        // 最適な画像調整を計算
+        this.calculateImageAdjustment(matchedPairs);
+    }
+
+    // 画像調整パラメータを計算
+    calculateImageAdjustment(matchedPairs) {
+        // 2つ以上のペアから最適な位置とスケールを計算
+        const pair1 = matchedPairs[0];
+        const pair2 = matchedPairs[1];
+
+        // GPS座標間の距離を計算
+        const gpsDistance = this.calculateDistance(
+            pair1.gpsPoint.lat, pair1.gpsPoint.lng,
+            pair2.gpsPoint.lat, pair2.gpsPoint.lng
+        );
+
+        // 画像座標間の距離を計算（ピクセル単位）
+        const imageDistance = Math.sqrt(
+            Math.pow(pair2.jsonPoint.x - pair1.jsonPoint.x, 2) + 
+            Math.pow(pair2.jsonPoint.y - pair1.jsonPoint.y, 2)
+        );
+
+        if (imageDistance === 0) {
+            console.log('画像上のポイント距離が0のため調整できません');
+            return;
+        }
+
+        // 新しい中心位置を計算（GPS座標の中心）
+        const newCenterLat = (pair1.gpsPoint.lat + pair2.gpsPoint.lat) / 2;
+        const newCenterLng = (pair1.gpsPoint.lng + pair2.gpsPoint.lng) / 2;
+
+        // 画像上の中心位置
+        const imageCenterX = (pair1.jsonPoint.x + pair2.jsonPoint.x) / 2;
+        const imageCenterY = (pair1.jsonPoint.y + pair2.jsonPoint.y) / 2;
+
+        // スケール計算のための緯度での距離変換
+        const lat = newCenterLat;
+        const metersPerPixel = 156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, this.map.getZoom());
+        
+        // 必要なスケールを計算
+        const requiredScaleRatio = (gpsDistance * 1000) / (imageDistance * metersPerPixel); // GPSはメートル、画像はピクセル
+        
+        // 現在のスケールを取得
+        const scaleInput = document.getElementById('scaleInput');
+        const currentScale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
+        const newScale = currentScale * requiredScaleRatio;
+
+        console.log(`自動調整結果:`);
+        console.log(`- 新しい中心位置: ${newCenterLat.toFixed(6)}, ${newCenterLng.toFixed(6)}`);
+        console.log(`- 新しいスケール: ${newScale.toFixed(3)} (元: ${currentScale})`);
+        console.log(`- GPS距離: ${gpsDistance.toFixed(3)}km, 画像距離: ${imageDistance.toFixed(1)}px`);
+
+        // 画像調整を適用
+        this.applyImageAdjustment(newCenterLat, newCenterLng, newScale);
+    }
+
+    // 2点間の距離を計算（km単位）
+    calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; // 地球の半径（km）
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // 画像調整を適用
+    applyImageAdjustment(newCenterLat, newCenterLng, newScale) {
+        // 新しい中心位置を設定
+        this.imageOverlay.setCenterPosition([newCenterLat, newCenterLng]);
+        
+        // 新しいスケールを設定
+        const scaleInput = document.getElementById('scaleInput');
+        if (scaleInput) {
+            scaleInput.value = newScale.toFixed(3);
+        }
+        
+        // 画像表示を更新
+        if (this.imageOverlay) {
+            this.imageOverlay.updateImageDisplay();
+        }
+        
+        console.log('画像の自動調整が完了しました');
     }
 }

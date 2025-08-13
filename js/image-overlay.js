@@ -471,6 +471,14 @@ export class ImageOverlay {
         });
     }
 
+    // 中心位置を設定（プログラマティック）
+    setCenterPosition(latLng) {
+        if (this.centerMarker) {
+            this.centerMarker.setLatLng(latLng);
+            this.updateCoordInputs(latLng);
+        }
+    }
+
     getInitialBounds() {
         const center = this.centerMarker.getLatLng();
         const offset = 0.001;
