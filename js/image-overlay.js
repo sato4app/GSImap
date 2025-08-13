@@ -336,7 +336,13 @@ export class ImageOverlay {
     }
 
     updateImageDisplay() {
-        if (!this.imageOverlay || !this.currentImage.src) return;
+        if (!this.imageOverlay || !this.currentImage.src) {
+            console.log('updateImageDisplay: 画像オーバーレイまたは画像が存在しません', {
+                imageOverlay: !!this.imageOverlay,
+                currentImageSrc: !!this.currentImage.src
+            });
+            return;
+        }
         
         const scaleInput = document.getElementById('scaleInput');
         const scale = scaleInput ? parseFloat(scaleInput.value) : 0.3;
@@ -361,7 +367,36 @@ export class ImageOverlay {
             [centerPos.lat + latOffset, centerPos.lng + lngOffset]
         );
         
+        console.log('updateImageDisplay: 新しい境界を設定', {
+            center: { lat: centerPos.lat, lng: centerPos.lng },
+            scale: scale,
+            bounds: {
+                south: centerPos.lat - latOffset,
+                north: centerPos.lat + latOffset,
+                west: centerPos.lng - lngOffset,
+                east: centerPos.lng + lngOffset
+            }
+        });
+        
+        // 画像レイヤーの境界を更新
         this.imageOverlay.setBounds(bounds);
+        
+        // 画像レイヤーが地図に追加されていない場合は再追加
+        if (!this.map.hasLayer(this.imageOverlay)) {
+            console.log('画像レイヤーが地図に存在しないため再追加します');
+            this.imageOverlay.addTo(this.map);
+        }
+        
+        // 強制的に画像レイヤーを再描画
+        if (this.imageOverlay._image) {
+            this.imageOverlay.redraw();
+        }
+        
+        // 短時間後に地図の強制更新（レンダリングの遅延対策）
+        setTimeout(() => {
+            this.map.invalidateSize();
+        }, 50);
+        
         this.createDragHandles(bounds);
         this.updateCoordInputs(centerPos);
         
