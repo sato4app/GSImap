@@ -226,6 +226,13 @@
             <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">PNG画像読込</button>
             <input type="file" id="pointJsonInput" accept=".json" style="display: none;">
             <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読込</button>
+            
+            <!-- ポイント数表示フィールド -->
+            <div class="point-count-container">
+                <label for="jsonPointCountField">読込ポイント数</label>
+                <input type="text" id="jsonPointCountField" readonly value="0">
+                <span class="unit-label">個</span>
+            </div>
         </div>
 
         <!-- ルート編集モード -->

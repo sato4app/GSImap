@@ -157,6 +157,8 @@ export class PointRouteEditor {
                 }
             });
             
+            // ポイント数を表示フィールドに更新
+            this.updatePointCountDisplay(pointData.points.length);
             console.log(`${pointData.points.length} 個のポイントを読み込みました`);
         }
     }
@@ -194,6 +196,15 @@ export class PointRouteEditor {
         });
         this.pointMarkers = [];
         this.originalPointData = [];
+        this.updatePointCountDisplay(0);
+    }
+
+    // ポイント数表示を更新
+    updatePointCountDisplay(count) {
+        const pointCountField = document.getElementById('jsonPointCountField');
+        if (pointCountField) {
+            pointCountField.value = count.toString();
+        }
     }
 
     // 画像の移動・拡大縮小時にポイント位置を更新
