@@ -304,7 +304,17 @@ export class PointOverlay {
         // 初期推定値を設定
         let bestCenterLat = matchedPairs.reduce((sum, pair) => sum + pair.gpsPoint.lat, 0) / matchedPairs.length;
         let bestCenterLng = matchedPairs.reduce((sum, pair) => sum + pair.gpsPoint.lng, 0) / matchedPairs.length;
-        let bestScale = document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.3;
+        
+        // 初期スケールをより適切に推定
+        const initialScale = this.estimateInitialScale(matchedPairs, bestCenterLat, bestCenterLng);
+        let bestScale = initialScale > 0 ? initialScale : (document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.3);
+
+        console.log('optimizeImageParameters: 初期値設定', {
+            初期中心緯度: bestCenterLat,
+            初期中心経度: bestCenterLng,
+            推定初期スケール: initialScale,
+            採用初期スケール: bestScale
+        });
 
         let bestError = this.calculateTotalError(matchedPairs, bestCenterLat, bestCenterLng, bestScale);
 
@@ -345,6 +355,13 @@ export class PointOverlay {
             return null;
         }
 
+        console.log('optimizeImageParameters: 最適化完了', {
+            最適中心緯度: bestCenterLat,
+            最適中心経度: bestCenterLng,
+            最適スケール: bestScale,
+            最小誤差: bestError
+        });
+
         return {
             centerLat: bestCenterLat,
             centerLng: bestCenterLng,
@@ -358,6 +375,12 @@ export class PointOverlay {
         let numerator = 0;
         let denominator = 0;
 
+        console.log('calculateOptimalScale: スケール計算開始', {
+            centerLat: centerLat,
+            centerLng: centerLng,
+            ペア数: matchedPairs.length
+        });
+
         for (const pair of matchedPairs) {
             // 画像座標を仮想的な地図座標に変換（現在のスケール = 1として）
             const imageMapCoords = this.convertImageToMapCoords(pair.jsonPoint.x, pair.jsonPoint.y, centerLat, centerLng, 1.0);
@@ -367,6 +390,13 @@ export class PointOverlay {
                 const gpsDistance = this.calculateDistance(centerLat, centerLng, pair.gpsPoint.lat, pair.gpsPoint.lng);
                 const imageDistance = this.calculateDistance(centerLat, centerLng, imageMapCoords.lat, imageMapCoords.lng);
                 
+                console.log(`ペア ${pair.jsonPoint.id}:`, {
+                    GPS距離: gpsDistance.toFixed(6),
+                    画像距離: imageDistance.toFixed(6),
+                    GPS座標: { lat: pair.gpsPoint.lat, lng: pair.gpsPoint.lng },
+                    変換後座標: imageMapCoords
+                });
+                
                 if (imageDistance > 0) {
                     numerator += gpsDistance * imageDistance;
                     denominator += imageDistance * imageDistance;
@@ -374,7 +404,52 @@ export class PointOverlay {
             }
         }
 
-        return denominator > 0 ? numerator / denominator : 0;
+        const optimalScale = denominator > 0 ? numerator / denominator : 0;
+        console.log('calculateOptimalScale: 計算結果', {
+            numerator: numerator,
+            denominator: denominator,
+            optimalScale: optimalScale
+        });
+
+        return optimalScale;
+    }
+
+    // 初期スケールを推定
+    estimateInitialScale(matchedPairs, centerLat, centerLng) {
+        if (matchedPairs.length < 2) return 0;
+
+        // 最初の2つのペアを使用して初期スケールを推定
+        const pair1 = matchedPairs[0];
+        const pair2 = matchedPairs[1];
+
+        // GPS距離を計算
+        const gpsDistance = this.calculateDistance(
+            pair1.gpsPoint.lat, pair1.gpsPoint.lng,
+            pair2.gpsPoint.lat, pair2.gpsPoint.lng
+        );
+
+        // 画像座標の距離を計算（ピクセル）
+        const imagePixelDistance = Math.sqrt(
+            Math.pow(pair2.jsonPoint.x - pair1.jsonPoint.x, 2) + 
+            Math.pow(pair2.jsonPoint.y - pair1.jsonPoint.y, 2)
+        );
+
+        if (imagePixelDistance === 0) return 0;
+
+        // 地図投影でのメートル/ピクセル比を取得
+        const metersPerPixel = 156543.03392 * Math.cos(centerLat * Math.PI / 180) / Math.pow(2, this.map.getZoom());
+
+        // 必要なスケールを推定
+        const estimatedScale = (gpsDistance * 1000) / (imagePixelDistance * metersPerPixel);
+
+        console.log('estimateInitialScale:', {
+            GPS距離: gpsDistance,
+            画像ピクセル距離: imagePixelDistance,
+            メートル毎ピクセル: metersPerPixel,
+            推定スケール: estimatedScale
+        });
+
+        return estimatedScale;
     }
 
     // 総誤差を計算
@@ -450,10 +525,18 @@ export class PointOverlay {
             return;
         }
 
+        console.log('applyImageAdjustment: 画像調整を適用', {
+            newCenterLat: newCenterLat,
+            newCenterLng: newCenterLng,
+            newScale: newScale
+        });
+
         // 新しいスケールを設定（先に設定して、updateImageDisplayで読み取られるようにする）
         const scaleInput = document.getElementById('scaleInput');
         if (scaleInput && isFinite(newScale)) {
+            const oldScale = scaleInput.value;
             scaleInput.value = newScale.toFixed(3);
+            console.log('スケール更新:', { 古い値: oldScale, 新しい値: newScale.toFixed(3) });
         }
         
         // 中心位置を設定してから画像表示を更新

@@ -349,6 +349,11 @@ export class ImageOverlay {
         
         const centerPos = this.centerMarker.getLatLng();
         
+        console.log('updateImageDisplay: 実行開始', {
+            scale: scale,
+            center: { lat: centerPos.lat, lng: centerPos.lng }
+        });
+        
         // naturalWidth/naturalHeightを使用して正確なピクセル数を取得
         const imageWidth = this.currentImage.naturalWidth || this.currentImage.width;
         const imageHeight = this.currentImage.naturalHeight || this.currentImage.height;
