@@ -99,11 +99,22 @@ export class RouteEditor {
             console.log('wayPoint配列の長さ:', wayPoint.length);
             wayPoint.forEach((point, index) => {
                 console.log(`wayPoint[${index}]:`, point);
-                if (point.imageX !== undefined && point.imageY !== undefined) {
-                    console.log(`画像座標: imageX=${point.imageX}, imageY=${point.imageY}`);
+                
+                // 座標プロパティを柔軟に検索
+                const imageX = point.imageX ?? point.ImageX ?? point.x ?? point.X ?? 
+                             (point.coordinates && point.coordinates.x) ?? 
+                             (point.image && point.image.x);
+                const imageY = point.imageY ?? point.ImageY ?? point.y ?? point.Y ?? 
+                             (point.coordinates && point.coordinates.y) ?? 
+                             (point.image && point.image.y);
+                
+                console.log(`検出された座標値: imageX=${imageX}, imageY=${imageY}`);
+                
+                if (imageX !== undefined && imageY !== undefined) {
+                    console.log(`画像座標: imageX=${imageX}, imageY=${imageY}`);
                     
                     // 画像座標から地図座標への変換
-                    const mapPosition = this.convertImageToMapCoordinates(point.imageX, point.imageY);
+                    const mapPosition = this.convertImageToMapCoordinates(imageX, imageY);
                     console.log(`地図座標変換結果:`, mapPosition);
                     
                     if (mapPosition) {
@@ -128,7 +139,8 @@ export class RouteEditor {
                         console.log(`座標変換失敗[${index}]: mapPosition is null`);
                     }
                 } else {
-                    console.log(`画像座標なし[${index}]: imageX=${point.imageX}, imageY=${point.imageY}`);
+                    console.log(`画像座標なし[${index}]: imageX=${imageX}, imageY=${imageY}`);
+                    console.log(`利用可能なプロパティ:`, Object.keys(point));
                 }
             });
         } else {
