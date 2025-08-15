@@ -50,10 +50,13 @@ export class RouteEditor {
                     console.log('JSONファイルの内容:', routeData);
                     console.log('PNG画像ファイル名:', this.imageOverlay ? this.imageOverlay.currentImageFileName : 'なし');
                     console.log('imageReference値:', routeData.imageReference);
-                    console.log('startPoint値:', routeData.startPoint);
-                    console.log('endPoint値:', routeData.endPoint);
-                    console.log('wayPoint値:', routeData.wayPoint);
-                    console.log('wayPointCount値:', routeData.wayPointCount);
+                    
+                    // より詳細な構造を確認
+                    console.log('JSONの全キー:', Object.keys(routeData));
+                    console.log('startPoint値:', routeData.startPoint || routeData.start || routeData.startPointId);
+                    console.log('endPoint値:', routeData.endPoint || routeData.end || routeData.endPointId);
+                    console.log('wayPoint値:', routeData.wayPoint || routeData.wayPoints || routeData.points);
+                    console.log('wayPointCount値:', routeData.wayPointCount || routeData.waypointCount);
                     console.log('GPSポイント情報:', this.gpsData ? this.gpsData.gpsPoints : 'なし');
                     console.log('=================================');
                     
@@ -88,8 +91,9 @@ export class RouteEditor {
         this.waypointMarkers = [];
         
         // waypointを画像上の位置でマーカー追加
-        if (routeData.wayPoint && Array.isArray(routeData.wayPoint)) {
-            routeData.wayPoint.forEach((point, index) => {
+        const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
+        if (wayPoint && Array.isArray(wayPoint)) {
+            wayPoint.forEach((point, index) => {
                 if (point.imageX !== undefined && point.imageY !== undefined) {
                     // 画像座標から地図座標への変換
                     const mapPosition = this.convertImageToMapCoordinates(point.imageX, point.imageY);
@@ -141,6 +145,12 @@ export class RouteEditor {
         const warnings = [];
         let isValid = true;
         
+        // 実際のプロパティ名を動的に取得
+        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId;
+        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId;
+        const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
+        const wayPointCount = routeData.wayPointCount || routeData.waypointCount;
+        
         // imageReferenceの値が読み込んでいるpng画像のファイル名と一致するかチェック
         if (routeData.imageReference && this.imageOverlay && this.imageOverlay.currentImageFileName) {
             if (routeData.imageReference !== this.imageOverlay.currentImageFileName) {
@@ -150,9 +160,9 @@ export class RouteEditor {
         }
         
         // wayPointCountの値がwayPointの件数と一致するかチェック
-        if (routeData.wayPointCount !== undefined && routeData.wayPoint) {
-            if (routeData.wayPointCount !== routeData.wayPoint.length) {
-                warnings.push(`wayPointCount "${routeData.wayPointCount}" がwayPointの実際の件数 "${routeData.wayPoint.length}" と一致しません。`);
+        if (wayPointCount !== undefined && wayPoint && Array.isArray(wayPoint)) {
+            if (wayPointCount !== wayPoint.length) {
+                warnings.push(`wayPointCount "${wayPointCount}" がwayPointの実際の件数 "${wayPoint.length}" と一致しません。`);
                 isValid = false;
             }
         }
@@ -161,13 +171,13 @@ export class RouteEditor {
         if (this.gpsData && this.gpsData.gpsPoints) {
             const gpsPointIds = this.gpsData.gpsPoints.map(point => point.id);
             
-            if (routeData.startPoint && !gpsPointIds.includes(routeData.startPoint)) {
-                warnings.push(`startPoint "${routeData.startPoint}" がGPSポイントに見つかりません。`);
+            if (startPoint && !gpsPointIds.includes(startPoint)) {
+                warnings.push(`startPoint "${startPoint}" がGPSポイントに見つかりません。`);
                 isValid = false;
             }
             
-            if (routeData.endPoint && !gpsPointIds.includes(routeData.endPoint)) {
-                warnings.push(`endPoint "${routeData.endPoint}" がGPSポイントに見つかりません。`);
+            if (endPoint && !gpsPointIds.includes(endPoint)) {
+                warnings.push(`endPoint "${endPoint}" がGPSポイントに見つかりません。`);
                 isValid = false;
             }
         }
@@ -183,7 +193,9 @@ export class RouteEditor {
         // 最後に読み込んだルートを選択
         const lastRoute = this.loadedRoutes[this.loadedRoutes.length - 1];
         if (lastRoute) {
-            const optionValue = `${lastRoute.startPoint} ～ ${lastRoute.endPoint}`;
+            const startPoint = lastRoute.startPoint || lastRoute.start || lastRoute.startPointId;
+            const endPoint = lastRoute.endPoint || lastRoute.end || lastRoute.endPointId;
+            const optionValue = `${startPoint} ～ ${endPoint}`;
             
             // 既存のオプションをチェック
             let optionExists = false;
@@ -214,9 +226,13 @@ export class RouteEditor {
         const endPointField = document.getElementById('endPointField');
         const waypointCountField = document.getElementById('waypointCountField');
         
-        if (startPointField) startPointField.value = routeData.startPoint || '';
-        if (endPointField) endPointField.value = routeData.endPoint || '';
-        if (waypointCountField) waypointCountField.value = routeData.wayPoint ? routeData.wayPoint.length : 0;
+        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId;
+        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId;
+        const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
+        
+        if (startPointField) startPointField.value = startPoint || '';
+        if (endPointField) endPointField.value = endPoint || '';
+        if (waypointCountField) waypointCountField.value = wayPoint ? wayPoint.length : 0;
     }
     
     // ルート選択変更時の処理
@@ -226,7 +242,9 @@ export class RouteEditor {
         
         const selectedValue = routeSelect.value;
         const selectedRoute = this.loadedRoutes.find(route => {
-            return `${route.startPoint} ～ ${route.endPoint}` === selectedValue;
+            const startPoint = route.startPoint || route.start || route.startPointId;
+            const endPoint = route.endPoint || route.end || route.endPointId;
+            return `${startPoint} ～ ${endPoint}` === selectedValue;
         });
         
         if (selectedRoute) {
