@@ -142,6 +142,25 @@
     padding-bottom: 8px;
 }
 
+/* ルート詳細情報枠 */
+.route-details-container {
+    margin: 15px 0;
+    padding: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* ルート詳細情報タイトル */
+.route-details-title {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 8px;
+}
+
 .info-field-row {
     display: flex;
     align-items: center;

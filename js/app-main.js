@@ -29,7 +29,7 @@ class GSIMapApp {
         this.imageOverlay = new ImageOverlay(this.mapCore);
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
         this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
-        this.routeEditor = new RouteEditor(this.mapCore.getMap());
+        this.routeEditor = new RouteEditor(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
         this.modeSwitcher = new ModeSwitcher();
         
         // イベントハンドラー設定

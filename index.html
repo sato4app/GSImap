@@ -243,6 +243,38 @@
         <div id="routeEditor" class="editor-panel" style="display: none;">
             <input type="file" id="routeJsonInput" accept=".json" style="display: none;">
             <button id="loadRouteJsonBtn" title="ルートJSONを読み込む" class="leaflet-bar leaflet-control">ルートJSON読込</button>
+            
+            <!-- ルート詳細表示ウィンドウ -->
+            <div class="route-details-container">
+                <h3 class="route-details-title"><strong>ルート詳細情報</strong></h3>
+                
+                <!-- ルート名ドロップダウンリスト -->
+                <div class="info-field-row">
+                    <label for="routeSelect">ルート名</label>
+                    <select id="routeSelect">
+                        <option value="" disabled selected>開始 ～ 終了</option>
+                    </select>
+                </div>
+                
+                <!-- 開始ポイント -->
+                <div class="info-field-row">
+                    <label for="startPointField">開始ポイント</label>
+                    <input type="text" id="startPointField" readonly maxlength="5">
+                </div>
+                
+                <!-- 終了ポイント -->
+                <div class="info-field-row">
+                    <label for="endPointField">終了ポイント</label>
+                    <input type="text" id="endPointField" readonly maxlength="5">
+                </div>
+                
+                <!-- 中間点の数 -->
+                <div class="info-field-row">
+                    <label for="waypointCountField">中間点の数</label>
+                    <input type="text" id="waypointCountField" readonly maxlength="3">
+                    <span class="unit-label">個</span>
+                </div>
+            </div>
         </div>
     </div>
 
