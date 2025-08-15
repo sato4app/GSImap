@@ -45,6 +45,18 @@ export class RouteEditor {
                 try {
                     const routeData = JSON.parse(e.target.result);
                     
+                    // デバッグ用コンソール出力
+                    console.log('=== ルートJSON読込デバッグ情報 ===');
+                    console.log('JSONファイルの内容:', routeData);
+                    console.log('PNG画像ファイル名:', this.imageOverlay ? this.imageOverlay.currentImageFileName : 'なし');
+                    console.log('imageReference値:', routeData.imageReference);
+                    console.log('startPoint値:', routeData.startPoint);
+                    console.log('endPoint値:', routeData.endPoint);
+                    console.log('wayPoint値:', routeData.wayPoint);
+                    console.log('wayPointCount値:', routeData.wayPointCount);
+                    console.log('GPSポイント情報:', this.gpsData ? this.gpsData.gpsPoints : 'なし');
+                    console.log('=================================');
+                    
                     // JSONファイル内容の検証
                     const validationResult = this.validateRouteJSON(routeData);
                     if (!validationResult.isValid) {
