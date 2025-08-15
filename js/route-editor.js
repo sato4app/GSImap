@@ -100,13 +100,9 @@ export class RouteEditor {
             wayPoint.forEach((point, index) => {
                 console.log(`wayPoint[${index}]:`, point);
                 
-                // 座標プロパティを柔軟に検索
-                const imageX = point.imageX ?? point.ImageX ?? point.x ?? point.X ?? 
-                             (point.coordinates && point.coordinates.x) ?? 
-                             (point.image && point.image.x);
-                const imageY = point.imageY ?? point.ImageY ?? point.y ?? point.Y ?? 
-                             (point.coordinates && point.coordinates.y) ?? 
-                             (point.image && point.image.y);
+                // imageX, imageYプロパティを読み込み
+                const imageX = point.imageX;
+                const imageY = point.imageY;
                 
                 console.log(`検出された座標値: imageX=${imageX}, imageY=${imageY}`);
                 

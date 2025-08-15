@@ -105,16 +105,16 @@ export class PointOverlay {
         // ポイントデータの処理と地図への追加
         if (pointData.points && Array.isArray(pointData.points)) {
             pointData.points.forEach((point) => {
-                if (point.x !== undefined && point.y !== undefined) {
+                if (point.imageX !== undefined && point.imageY !== undefined) {
                     // 元の画像座標を保存
                     this.originalPointData.push({
-                        x: point.x,
-                        y: point.y,
+                        imageX: point.imageX,
+                        imageY: point.imageY,
                         id: point.id
                     });
                     
                     // 画像左上からの位置を地図座標に変換
-                    const imageCoords = this.convertImageCoordsToMapCoords(point.x, point.y);
+                    const imageCoords = this.convertImageCoordsToMapCoords(point.imageX, point.imageY);
                     
                     if (imageCoords) {
                         // 赤丸マーカーを作成（位置を丸の中心とする）
@@ -215,7 +215,7 @@ export class PointOverlay {
         // 元の画像座標から新しい地図座標を計算して、マーカー位置を更新
         this.originalPointData.forEach((originalPoint, index) => {
             if (index < this.pointMarkers.length) {
-                const newImageCoords = this.convertImageCoordsToMapCoords(originalPoint.x, originalPoint.y);
+                const newImageCoords = this.convertImageCoordsToMapCoords(originalPoint.imageX, originalPoint.imageY);
                 if (newImageCoords) {
                     this.pointMarkers[index].setLatLng(newImageCoords);
                 }
