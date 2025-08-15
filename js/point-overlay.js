@@ -290,49 +290,12 @@ export class PointOverlay {
 
     // 最適化された画像調整パラメータを計算（全ポイントを使用した最小二乗法）
     calculateOptimalImageAdjustment(matchedPairs) {
-        console.log('マーカーペア検証開始:', matchedPairs);
-        
         // 全ペアのデータ妥当性をチェック
-        for (let i = 0; i < matchedPairs.length; i++) {
-            const pair = matchedPairs[i];
-            console.log(`ペア ${i}:`, pair);
-            
-            if (!pair.gpsPoint) {
-                console.log(`ペア ${i} - gpsPointが存在しません`);
-                this.showErrorMessage('調整エラー', `マーカーペア ${i}: gpsPointが存在しません`);
-                return;
-            }
-            
-            if (!pair.jsonPoint) {
-                console.log(`ペア ${i} - jsonPointが存在しません`);
-                this.showErrorMessage('調整エラー', `マーカーペア ${i}: jsonPointが存在しません`);
-                return;
-            }
-            
-            console.log(`ペア ${i} - gpsPoint:`, pair.gpsPoint);
-            console.log(`ペア ${i} - jsonPoint:`, pair.jsonPoint);
-            
-            if (typeof pair.gpsPoint.lat !== 'number') {
-                console.log(`ペア ${i} - gpsPoint.latが数値ではありません:`, pair.gpsPoint.lat);
-                this.showErrorMessage('調整エラー', `マーカーペア ${i}: GPS緯度が無効です`);
-                return;
-            }
-            
-            if (typeof pair.gpsPoint.lng !== 'number') {
-                console.log(`ペア ${i} - gpsPoint.lngが数値ではありません:`, pair.gpsPoint.lng);
-                this.showErrorMessage('調整エラー', `マーカーペア ${i}: GPS経度が無効です`);
-                return;
-            }
-            
-            if (typeof pair.jsonPoint.imageX !== 'number') {
-                console.log(`ペア ${i} - jsonPoint.imageXが数値ではありません:`, pair.jsonPoint.imageX);
-                this.showErrorMessage('調整エラー', `マーカーペア ${i}: JSON画像X座標が無効です`);
-                return;
-            }
-            
-            if (typeof pair.jsonPoint.imageY !== 'number') {
-                console.log(`ペア ${i} - jsonPoint.imageYが数値ではありません:`, pair.jsonPoint.imageY);
-                this.showErrorMessage('調整エラー', `マーカーペア ${i}: JSON画像Y座標が無効です`);
+        for (const pair of matchedPairs) {
+            if (!pair.gpsPoint || !pair.jsonPoint ||
+                typeof pair.gpsPoint.lat !== 'number' || typeof pair.gpsPoint.lng !== 'number' ||
+                typeof pair.jsonPoint.imageX !== 'number' || typeof pair.jsonPoint.imageY !== 'number') {
+                this.showErrorMessage('調整エラー', 'マーカーペアのデータが不完全または無効です');
                 return;
             }
         }
