@@ -53,10 +53,11 @@ export class RouteEditor {
                     
                     // より詳細な構造を確認
                     console.log('JSONの全キー:', Object.keys(routeData));
-                    console.log('startPoint値:', routeData.startPoint || routeData.start || routeData.startPointId);
-                    console.log('endPoint値:', routeData.endPoint || routeData.end || routeData.endPointId);
+                    console.log('routeInfo:', routeData.routeInfo);
+                    console.log('startPoint値:', routeData.startPoint || routeData.start || routeData.startPointId || (routeData.routeInfo && routeData.routeInfo.startPoint));
+                    console.log('endPoint値:', routeData.endPoint || routeData.end || routeData.endPointId || (routeData.routeInfo && routeData.routeInfo.endPoint));
                     console.log('wayPoint値:', routeData.wayPoint || routeData.wayPoints || routeData.points);
-                    console.log('wayPointCount値:', routeData.wayPointCount || routeData.waypointCount);
+                    console.log('wayPointCount値:', routeData.wayPointCount || routeData.waypointCount || (routeData.routeInfo && routeData.routeInfo.waypointCount));
                     console.log('GPSポイント情報:', this.gpsData ? this.gpsData.gpsPoints : 'なし');
                     console.log('=================================');
                     
@@ -145,11 +146,11 @@ export class RouteEditor {
         const warnings = [];
         let isValid = true;
         
-        // 実際のプロパティ名を動的に取得
-        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId;
-        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId;
+        // 実際のプロパティ名を動的に取得（routeInfo内も確認）
+        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId || (routeData.routeInfo && routeData.routeInfo.startPoint);
+        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId || (routeData.routeInfo && routeData.routeInfo.endPoint);
         const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
-        const wayPointCount = routeData.wayPointCount || routeData.waypointCount;
+        const wayPointCount = routeData.wayPointCount || routeData.waypointCount || (routeData.routeInfo && routeData.routeInfo.waypointCount);
         
         // imageReferenceの値が読み込んでいるpng画像のファイル名と一致するかチェック
         if (routeData.imageReference && this.imageOverlay && this.imageOverlay.currentImageFileName) {
@@ -193,8 +194,8 @@ export class RouteEditor {
         // 最後に読み込んだルートを選択
         const lastRoute = this.loadedRoutes[this.loadedRoutes.length - 1];
         if (lastRoute) {
-            const startPoint = lastRoute.startPoint || lastRoute.start || lastRoute.startPointId;
-            const endPoint = lastRoute.endPoint || lastRoute.end || lastRoute.endPointId;
+            const startPoint = lastRoute.startPoint || lastRoute.start || lastRoute.startPointId || (lastRoute.routeInfo && lastRoute.routeInfo.startPoint);
+            const endPoint = lastRoute.endPoint || lastRoute.end || lastRoute.endPointId || (lastRoute.routeInfo && lastRoute.routeInfo.endPoint);
             const optionValue = `${startPoint} ～ ${endPoint}`;
             
             // 既存のオプションをチェック
@@ -226,12 +227,13 @@ export class RouteEditor {
         const endPointField = document.getElementById('endPointField');
         const waypointCountField = document.getElementById('waypointCountField');
         
-        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId;
-        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId;
+        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId || (routeData.routeInfo && routeData.routeInfo.startPoint);
+        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId || (routeData.routeInfo && routeData.routeInfo.endPoint);
         const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
         
         if (startPointField) startPointField.value = startPoint || '';
         if (endPointField) endPointField.value = endPoint || '';
+        // 中間点の数はJSON中の実際のポイント数を表示
         if (waypointCountField) waypointCountField.value = wayPoint ? wayPoint.length : 0;
     }
     
@@ -242,8 +244,8 @@ export class RouteEditor {
         
         const selectedValue = routeSelect.value;
         const selectedRoute = this.loadedRoutes.find(route => {
-            const startPoint = route.startPoint || route.start || route.startPointId;
-            const endPoint = route.endPoint || route.end || route.endPointId;
+            const startPoint = route.startPoint || route.start || route.startPointId || (route.routeInfo && route.routeInfo.startPoint);
+            const endPoint = route.endPoint || route.end || route.endPointId || (route.routeInfo && route.routeInfo.endPoint);
             return `${startPoint} ～ ${endPoint}` === selectedValue;
         });
         
