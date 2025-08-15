@@ -102,19 +102,10 @@ export class PointOverlay {
         // 元の画像座標データを保存
         this.originalPointData = [];
         
-        // 画像の状態をチェック
-        const imageInfo = this.imageOverlay.getCurrentImageInfo();
-        console.log('画像の状態:', imageInfo);
-        
         // ポイントデータの処理と地図への追加
         if (pointData.points && Array.isArray(pointData.points)) {
-            console.log('ポイントデータ全体:', pointData);
-            console.log('ポイント配列:', pointData.points);
             pointData.points.forEach((point, index) => {
-                console.log(`ポイント ${index}:`, point);
-                console.log(`imageX: ${point.imageX}, imageY: ${point.imageY}`);
                 if (point.imageX !== undefined && point.imageY !== undefined) {
-                    console.log(`ポイント ${index} - 座標チェック通過`);
                     // 元の画像座標を保存
                     this.originalPointData.push({
                         imageX: point.imageX,
@@ -124,10 +115,8 @@ export class PointOverlay {
                     
                     // 画像左上からの位置を地図座標に変換
                     const imageCoords = this.convertImageCoordsToMapCoords(point.imageX, point.imageY);
-                    console.log(`ポイント ${index} - 画像座標: (${point.imageX}, ${point.imageY}) -> 地図座標:`, imageCoords);
                     
                     if (imageCoords) {
-                        console.log(`ポイント ${index} - マーカー作成中...`);
                         // 赤丸マーカーを作成（位置を丸の中心とする）
                         const marker = L.circleMarker(imageCoords, {
                             radius: 6,
@@ -155,11 +144,7 @@ export class PointOverlay {
                         });
                         
                         this.pointMarkers.push(marker);
-                    } else {
-                        console.log(`ポイント ${index} - 座標変換失敗`);
                     }
-                } else {
-                    console.log(`ポイント ${index} - 座標チェック失敗: imageX=${point.imageX}, imageY=${point.imageY}`);
                 }
             });
             
@@ -305,12 +290,49 @@ export class PointOverlay {
 
     // 最適化された画像調整パラメータを計算（全ポイントを使用した最小二乗法）
     calculateOptimalImageAdjustment(matchedPairs) {
+        console.log('マーカーペア検証開始:', matchedPairs);
+        
         // 全ペアのデータ妥当性をチェック
-        for (const pair of matchedPairs) {
-            if (!pair.gpsPoint || !pair.jsonPoint ||
-                typeof pair.gpsPoint.lat !== 'number' || typeof pair.gpsPoint.lng !== 'number' ||
-                typeof pair.jsonPoint.x !== 'number' || typeof pair.jsonPoint.y !== 'number') {
-                this.showErrorMessage('調整エラー', 'マーカーペアのデータが不完全または無効です');
+        for (let i = 0; i < matchedPairs.length; i++) {
+            const pair = matchedPairs[i];
+            console.log(`ペア ${i}:`, pair);
+            
+            if (!pair.gpsPoint) {
+                console.log(`ペア ${i} - gpsPointが存在しません`);
+                this.showErrorMessage('調整エラー', `マーカーペア ${i}: gpsPointが存在しません`);
+                return;
+            }
+            
+            if (!pair.jsonPoint) {
+                console.log(`ペア ${i} - jsonPointが存在しません`);
+                this.showErrorMessage('調整エラー', `マーカーペア ${i}: jsonPointが存在しません`);
+                return;
+            }
+            
+            console.log(`ペア ${i} - gpsPoint:`, pair.gpsPoint);
+            console.log(`ペア ${i} - jsonPoint:`, pair.jsonPoint);
+            
+            if (typeof pair.gpsPoint.lat !== 'number') {
+                console.log(`ペア ${i} - gpsPoint.latが数値ではありません:`, pair.gpsPoint.lat);
+                this.showErrorMessage('調整エラー', `マーカーペア ${i}: GPS緯度が無効です`);
+                return;
+            }
+            
+            if (typeof pair.gpsPoint.lng !== 'number') {
+                console.log(`ペア ${i} - gpsPoint.lngが数値ではありません:`, pair.gpsPoint.lng);
+                this.showErrorMessage('調整エラー', `マーカーペア ${i}: GPS経度が無効です`);
+                return;
+            }
+            
+            if (typeof pair.jsonPoint.imageX !== 'number') {
+                console.log(`ペア ${i} - jsonPoint.imageXが数値ではありません:`, pair.jsonPoint.imageX);
+                this.showErrorMessage('調整エラー', `マーカーペア ${i}: JSON画像X座標が無効です`);
+                return;
+            }
+            
+            if (typeof pair.jsonPoint.imageY !== 'number') {
+                console.log(`ペア ${i} - jsonPoint.imageYが数値ではありません:`, pair.jsonPoint.imageY);
+                this.showErrorMessage('調整エラー', `マーカーペア ${i}: JSON画像Y座標が無効です`);
                 return;
             }
         }
@@ -403,8 +425,8 @@ export class PointOverlay {
             // 画像中心からの相対位置（ピクセル単位）
             const centerX = imageWidth / 2;
             const centerY = imageHeight / 2;
-            const offsetX = pair.jsonPoint.x - centerX;
-            const offsetY = pair.jsonPoint.y - centerY;
+            const offsetX = pair.jsonPoint.imageX - centerX;
+            const offsetY = pair.jsonPoint.imageY - centerY;
             const imagePixelDistance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
             
             
@@ -445,8 +467,8 @@ export class PointOverlay {
 
         // 画像座標の距離を計算（ピクセル単位）
         const imagePixelDistance = Math.sqrt(
-            Math.pow(pair2.jsonPoint.x - pair1.jsonPoint.x, 2) + 
-            Math.pow(pair2.jsonPoint.y - pair1.jsonPoint.y, 2)
+            Math.pow(pair2.jsonPoint.imageX - pair1.jsonPoint.imageX, 2) + 
+            Math.pow(pair2.jsonPoint.imageY - pair1.jsonPoint.imageY, 2)
         );
 
         if (imagePixelDistance === 0) return 0;
@@ -470,7 +492,7 @@ export class PointOverlay {
 
         for (const pair of matchedPairs) {
             // 画像座標を地図座標に変換
-            const predictedCoords = this.convertImageToMapCoords(pair.jsonPoint.x, pair.jsonPoint.y, centerLat, centerLng, scale);
+            const predictedCoords = this.convertImageToMapCoords(pair.jsonPoint.imageX, pair.jsonPoint.imageY, centerLat, centerLng, scale);
             
             if (predictedCoords) {
                 // GPS座標との距離誤差を計算
