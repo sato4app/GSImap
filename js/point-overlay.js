@@ -102,10 +102,19 @@ export class PointOverlay {
         // 元の画像座標データを保存
         this.originalPointData = [];
         
+        // 画像の状態をチェック
+        const imageInfo = this.imageOverlay.getCurrentImageInfo();
+        console.log('画像の状態:', imageInfo);
+        
         // ポイントデータの処理と地図への追加
         if (pointData.points && Array.isArray(pointData.points)) {
-            pointData.points.forEach((point) => {
+            console.log('ポイントデータ全体:', pointData);
+            console.log('ポイント配列:', pointData.points);
+            pointData.points.forEach((point, index) => {
+                console.log(`ポイント ${index}:`, point);
+                console.log(`imageX: ${point.imageX}, imageY: ${point.imageY}`);
                 if (point.imageX !== undefined && point.imageY !== undefined) {
+                    console.log(`ポイント ${index} - 座標チェック通過`);
                     // 元の画像座標を保存
                     this.originalPointData.push({
                         imageX: point.imageX,
@@ -115,8 +124,10 @@ export class PointOverlay {
                     
                     // 画像左上からの位置を地図座標に変換
                     const imageCoords = this.convertImageCoordsToMapCoords(point.imageX, point.imageY);
+                    console.log(`ポイント ${index} - 画像座標: (${point.imageX}, ${point.imageY}) -> 地図座標:`, imageCoords);
                     
                     if (imageCoords) {
+                        console.log(`ポイント ${index} - マーカー作成中...`);
                         // 赤丸マーカーを作成（位置を丸の中心とする）
                         const marker = L.circleMarker(imageCoords, {
                             radius: 6,
@@ -144,7 +155,11 @@ export class PointOverlay {
                         });
                         
                         this.pointMarkers.push(marker);
+                    } else {
+                        console.log(`ポイント ${index} - 座標変換失敗`);
                     }
+                } else {
+                    console.log(`ポイント ${index} - 座標チェック失敗: imageX=${point.imageX}, imageY=${point.imageY}`);
                 }
             });
             
