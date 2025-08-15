@@ -25,6 +25,10 @@ export class MapCore {
         // 中心マーカー用の専用ペインを作成
         this.map.createPane('centerMarker');
         this.map.getPane('centerMarker').style.zIndex = 700;
+
+        // wayPointマーカー用の専用ペインを作成
+        this.map.createPane('waypointMarkers');
+        this.map.getPane('waypointMarkers').style.zIndex = 750;
     }
 
     getMap() {

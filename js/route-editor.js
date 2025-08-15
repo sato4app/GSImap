@@ -117,7 +117,9 @@ export class RouteEditor {
                         
                         const marker = L.marker(mapPosition, {
                             icon: diamondIcon,
-                            draggable: false
+                            draggable: false,
+                            zIndexOffset: 1000,
+                            pane: 'waypointMarkers'
                         }).addTo(this.map);
                         
                         console.log(`wayPointマーカー追加完了[${index}]:`, mapPosition);
