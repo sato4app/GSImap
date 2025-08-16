@@ -15,7 +15,8 @@ export class MapCore {
 
         // 国土地理院タイルレイヤー
         L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
-            attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>"
+            attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>地理院タイル</a>",
+            minZoom: 2, maxZoom: 18
         }).addTo(this.map);
 
         // ドラッグハンドル用の専用ペインを作成
