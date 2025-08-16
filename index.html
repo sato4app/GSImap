@@ -138,7 +138,7 @@
             </label>
             <label class="editing-option">
                 <input type="radio" name="editingMode" value="image-overlay">
-                <span>画像を地理院地図に重ね合せ</span>
+                <span>画像を地理院地図に重ね合わせ</span>
             </label>
             <label class="editing-option">
                 <input type="radio" name="editingMode" value="route">
@@ -148,9 +148,9 @@
 
         <!-- ポイント(GPS)編集モード -->
         <div id="pointGpsEditor" class="editor-panel">
-            <!-- GPS値(Excel)読込ボタン -->
+            <!-- GPS値(Excel)読み込みボタン -->
             <input type="file" id="gpsCsvInput" accept=".xlsx" style="display: none;">
-            <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読込</button>
+            <button id="loadGpsBtn" title="GPS値を読み込む" class="leaflet-bar leaflet-control">GPS値(Excel)読み込み</button>
             
             <!-- ポイント数表示フィールド -->
             <div class="point-count-container">
@@ -206,7 +206,7 @@
         <!-- 画像を地理院地図に重ね合せモード -->
         <div id="imageOverlayEditor" class="editor-panel" style="display: none;">
             <input type="file" id="imageInput" accept="image/png" style="display: none;">
-            <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">PNG画像読込</button>
+            <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">PNG画像読み込み</button>
             <div id="scaleInputContainer" class="leaflet-bar leaflet-control">
                 <label for="scaleInput">表示倍率</label>
                 <input type="number" id="scaleInput" value="0.8" step="0.1" min="0.1">
@@ -216,11 +216,11 @@
                 <input type="number" id="opacityInput" value="50" min="0" max="100">
             </div>
             <input type="file" id="pointJsonInput" accept=".json" style="display: none;">
-            <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読込</button>
+            <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読み込み</button>
             
             <!-- ポイント数表示フィールド -->
             <div class="point-count-container">
-                <label for="jsonPointCountField">読込ポイント数</label>
+                <label for="jsonPointCountField">読み込みポイント数</label>
                 <input type="text" id="jsonPointCountField" readonly value="0">
                 <span class="unit-label">個</span>
             </div>
@@ -238,7 +238,7 @@
             <!-- 不一致ポイント表示フィールド -->
             <div class="point-count-container">
                 <label for="unmatchedPointsField">不一致ポイント</label>
-                <textarea id="unmatchedPointsField" readonly placeholder="マッチングしなかったポイントJSON" style="resize: vertical; width: 100%; font-size: 12px;"></textarea>
+                <textarea id="unmatchedPointsField" readonly placeholder="マッチングしなかったポイント" style="width: 100%; font-size: 12px;"></textarea>
             </div>
             
         </div>
@@ -246,7 +246,7 @@
         <!-- ルート編集モード -->
         <div id="routeEditor" class="editor-panel" style="display: none;">
             <input type="file" id="routeJsonInput" accept=".json" style="display: none;">
-            <button id="loadRouteJsonBtn" title="ルートJSONを読み込む" class="leaflet-bar leaflet-control">ルートJSON読込</button>
+            <button id="loadRouteJsonBtn" title="ルートJSONを読み込む" class="leaflet-bar leaflet-control">ルートJSON読み込み</button>
             
             <!-- ルート詳細表示ウィンドウ -->
             <div class="route-details-container">

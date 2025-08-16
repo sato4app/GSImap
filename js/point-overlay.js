@@ -130,11 +130,6 @@ export class PointOverlay {
                         
                         // JSONマーカーにクリックイベントを追加
                         marker.on('click', (e) => {
-                            // ポイント(GPS)編集モードの時のみコンソール出力
-                            const pointGpsMode = document.querySelector('input[name="editingMode"][value="point-gps"]');
-                            if (pointGpsMode && pointGpsMode.checked) {
-                                console.log(`JSONポイント: ${point.id}`);
-                            }
                             
                             // イベントの伝播を停止
                             L.DomEvent.stopPropagation(e);
@@ -353,7 +348,9 @@ export class PointOverlay {
         
         // 初期スケールをより適切に推定
         const initialScale = this.estimateInitialScale(matchedPairs, bestCenterLat, bestCenterLng);
-        let bestScale = initialScale > 0 ? initialScale : (document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.8);
+        const currentScaleValue = document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.8;
+        let bestScale = initialScale > 0 ? initialScale : currentScaleValue;
+        console.log(`Scale最適化開始: 現在値=${currentScaleValue}, 推定初期値=${initialScale}, 使用初期値=${bestScale}`);
 
 
         let bestError = this.calculateTotalError(matchedPairs, bestCenterLat, bestCenterLng, bestScale);
@@ -395,6 +392,7 @@ export class PointOverlay {
             return null;
         }
 
+        console.log(`Scale最適化完了: 初期値=${currentScaleValue} → 最適値=${bestScale.toFixed(3)} (誤差=${bestError.toFixed(6)})`);
 
         return {
             centerLat: bestCenterLat,
@@ -559,7 +557,9 @@ export class PointOverlay {
         // 新しいスケールを設定（先に設定して、updateImageDisplayで読み取られるようにする）
         const scaleInput = document.getElementById('scaleInput');
         if (scaleInput && isFinite(newScale)) {
+            const previousScale = scaleInput.value;
             scaleInput.value = newScale.toFixed(3);
+            console.log(`Scaleジオリファレンス調整: ${previousScale} → ${newScale.toFixed(3)}`);
         }
         
         // 中心位置を設定してから画像表示を更新

@@ -35,7 +35,6 @@ class GSIMapApp {
         // イベントハンドラー設定
         this.setupEventHandlers();
         
-        console.log('GSIMap アプリケーションが初期化されました');
     }
 
     setupEventHandlers() {

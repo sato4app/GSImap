@@ -198,11 +198,6 @@ export class GPSData {
             
             // マーカーにクリックイベントを追加
             marker.on('click', (e) => {
-                // ポイント(GPS)編集モードの時のみコンソール出力
-                const pointGpsMode = document.querySelector('input[name="editingMode"][value="point-gps"]');
-                if (pointGpsMode && pointGpsMode.checked) {
-                    console.log(`GPSポイント: ${point.pointId}`);
-                }
                 
                 // PointInfoManagerと連携してポイント情報を表示
                 if (this.pointInfoManager) {

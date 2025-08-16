@@ -15,7 +15,7 @@ export class ImageOverlay {
         this.isCenteringMode = false;
         this.imageUpdateCallbacks = [];
         
-        // 中心マーカーは画像読込後に表示するため、初期化のみ行う
+        // 中心マーカーは画像読み込み後に表示するため、初期化のみ行う
         this.initializeCenterMarker(mapCore.getInitialCenter(), false);
         this.setupEventHandlers();
     }
@@ -323,7 +323,9 @@ export class ImageOverlay {
                                      this.currentImage.height * this.currentImage.height);
         
         const currentScale = pixelBounds / imagePixels;
+        const previousScale = scaleInput.value;
         scaleInput.value = currentScale.toFixed(2);
+        console.log(`Scale更新: ${previousScale} → ${currentScale.toFixed(2)}`);
     }
 
 
@@ -346,13 +348,16 @@ export class ImageOverlay {
             if (inputValue && inputValue !== '') {
                 const parsedScale = parseFloat(inputValue);
                 if (isFinite(parsedScale) && parsedScale > 0) {
+                    console.log(`Scale参照: ${parsedScale}`);
                     scale = parsedScale;
                 } else {
                     // 無効な値の場合、デフォルト値に戻してフィールドを修正
+                    console.log(`Scale修正: ${inputValue} → ${scale} (無効値のためデフォルト値に変更)`);
                     scaleInput.value = scale.toString();
                 }
             } else {
                 // 空文字列の場合、デフォルト値をセット
+                console.log(`Scale設定: 空文字列のためデフォルト値 ${scale} を設定`);
                 scaleInput.value = scale.toString();
             }
         }
@@ -461,7 +466,10 @@ export class ImageOverlay {
                     const parsedValue = parseFloat(inputValue);
                     if (isNaN(parsedValue) || parsedValue <= 0) {
                         // 無効な値の場合はデフォルト値をセット
+                        console.log(`Scale入力検証: ${inputValue} → 0.8 (無効値のためデフォルト値に修正)`);
                         scaleInput.value = '0.8';
+                    } else {
+                        console.log(`Scale入力検証: ${inputValue} (有効値)`);
                     }
                 }
                 this.updateImageDisplay();

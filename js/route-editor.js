@@ -45,21 +45,6 @@ export class RouteEditor {
                 try {
                     const routeData = JSON.parse(e.target.result);
                     
-                    // デバッグ用コンソール出力
-                    console.log('=== ルートJSON読込デバッグ情報 ===');
-                    console.log('JSONファイルの内容:', routeData);
-                    console.log('PNG画像ファイル名:', this.imageOverlay ? this.imageOverlay.currentImageFileName : 'なし');
-                    console.log('imageReference値:', routeData.imageReference);
-                    
-                    // より詳細な構造を確認
-                    console.log('JSONの全キー:', Object.keys(routeData));
-                    console.log('routeInfo:', routeData.routeInfo);
-                    console.log('startPoint値:', routeData.startPoint || routeData.start || routeData.startPointId || (routeData.routeInfo && routeData.routeInfo.startPoint));
-                    console.log('endPoint値:', routeData.endPoint || routeData.end || routeData.endPointId || (routeData.routeInfo && routeData.routeInfo.endPoint));
-                    console.log('wayPoint値:', routeData.wayPoint || routeData.wayPoints || routeData.points);
-                    console.log('wayPointCount値:', routeData.wayPointCount || routeData.waypointCount || (routeData.routeInfo && routeData.routeInfo.waypointCount));
-                    console.log('GPSポイント情報:', this.gpsData ? this.gpsData.gpsPoints : 'なし');
-                    console.log('=================================');
                     
                     // JSONファイル内容の検証
                     const validationResult = this.validateRouteJSON(routeData);
@@ -93,25 +78,19 @@ export class RouteEditor {
         
         // waypointを画像上の位置でマーカー追加
         const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
-        console.log('waypointマーカー追加開始:', wayPoint);
         
         if (wayPoint && Array.isArray(wayPoint)) {
-            console.log('wayPoint配列の長さ:', wayPoint.length);
             wayPoint.forEach((point, index) => {
-                console.log(`wayPoint[${index}]:`, point);
                 
                 // imageX, imageYプロパティを読み込み
                 const imageX = point.imageX;
                 const imageY = point.imageY;
                 
-                console.log(`検出された座標値: imageX=${imageX}, imageY=${imageY}`);
                 
                 if (imageX !== undefined && imageY !== undefined) {
-                    console.log(`画像座標: imageX=${imageX}, imageY=${imageY}`);
                     
                     // 画像座標から地図座標への変換
                     const mapPosition = this.convertImageToMapCoordinates(imageX, imageY);
-                    console.log(`地図座標変換結果:`, mapPosition);
                     
                     if (mapPosition) {
                         // オレンジ菱形マーカーを作成
@@ -129,27 +108,20 @@ export class RouteEditor {
                             pane: 'waypointMarkers'
                         }).addTo(this.map);
                         
-                        console.log(`wayPointマーカー追加完了[${index}]:`, mapPosition);
                         this.waypointMarkers.push(marker);
                     } else {
-                        console.log(`座標変換失敗[${index}]: mapPosition is null`);
                     }
                 } else {
-                    console.log(`画像座標なし[${index}]: imageX=${imageX}, imageY=${imageY}`);
-                    console.log(`利用可能なプロパティ:`, Object.keys(point));
                 }
             });
         } else {
-            console.log('wayPoint配列が存在しないか配列ではありません');
         }
     }
 
     // 画像座標から地図座標への変換
     convertImageToMapCoordinates(imageX, imageY) {
-        console.log('座標変換開始:', { imageX, imageY });
         
         if (!this.imageOverlay || !this.imageOverlay.imageOverlay) {
-            console.log('画像オーバーレイが存在しません');
             return null;
         }
         
@@ -157,13 +129,8 @@ export class RouteEditor {
         const bounds = overlay.getBounds();
         const imageElement = overlay.getElement();
         
-        console.log('画像オーバーレイ情報:', {
-            bounds: bounds,
-            element: imageElement
-        });
         
         if (!imageElement) {
-            console.log('画像要素が取得できません');
             return null;
         }
         
@@ -171,13 +138,8 @@ export class RouteEditor {
         const imageNaturalWidth = imageElement.naturalWidth;
         const imageNaturalHeight = imageElement.naturalHeight;
         
-        console.log('画像情報:', {
-            naturalWidth: imageNaturalWidth,
-            naturalHeight: imageNaturalHeight
-        });
         
         if (imageNaturalWidth === 0 || imageNaturalHeight === 0) {
-            console.log('画像のサイズが取得できません');
             return null;
         }
         
@@ -185,14 +147,12 @@ export class RouteEditor {
         const relativeX = imageX / imageNaturalWidth;
         const relativeY = imageY / imageNaturalHeight;
         
-        console.log('相対位置:', { relativeX, relativeY });
         
         // 地図座標に変換
         const lat = bounds.getNorth() - (bounds.getNorth() - bounds.getSouth()) * relativeY;
         const lng = bounds.getWest() + (bounds.getEast() - bounds.getWest()) * relativeX;
         
         const result = [lat, lng];
-        console.log('変換結果:', result);
         
         return result;
     }

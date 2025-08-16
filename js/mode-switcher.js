@@ -24,8 +24,6 @@ export class ModeSwitcher {
         this.currentMode = newMode;
         this.showCurrentModePanel();
         
-        // モード切り替え時の処理を追加できる
-        console.log(`編集モードを ${newMode} に切り替えました`);
     }
 
     showCurrentModePanel() {
