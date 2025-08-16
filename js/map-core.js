@@ -7,7 +7,7 @@ export class MapCore {
     }
 
     init() {
-        // 地図の初期化
+        // 地図の初期化: ズームレベル=15
         this.map = L.map('map').setView(this.initialCenter, 15);
 
         // スケールバーを右下に追加

@@ -338,7 +338,7 @@ export class ImageOverlay {
         }
         
         const scaleInput = document.getElementById('scaleInput');
-        let scale = 0.3; // デフォルト値
+        let scale = 0.8; // デフォルト値
         
         if (scaleInput) {
             const inputValue = scaleInput.value.trim();
