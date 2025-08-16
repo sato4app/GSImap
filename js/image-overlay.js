@@ -461,7 +461,7 @@ export class ImageOverlay {
                     const parsedValue = parseFloat(inputValue);
                     if (isNaN(parsedValue) || parsedValue <= 0) {
                         // 無効な値の場合はデフォルト値をセット
-                        scaleInput.value = '0.3';
+                        scaleInput.value = '0.8';
                     }
                 }
                 this.updateImageDisplay();

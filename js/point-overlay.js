@@ -320,7 +320,7 @@ export class PointOverlay {
         
         // 初期スケールをより適切に推定
         const initialScale = this.estimateInitialScale(matchedPairs, bestCenterLat, bestCenterLng);
-        let bestScale = initialScale > 0 ? initialScale : (document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.3);
+        let bestScale = initialScale > 0 ? initialScale : (document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.8);
 
 
         let bestError = this.calculateTotalError(matchedPairs, bestCenterLat, bestCenterLng, bestScale);
