@@ -223,7 +223,6 @@ export class PointOverlay {
             return;
         }
 
-        const gpsMarkers = this.gpsData.getGPSMarkers();
         const matchedIds = new Set(matchedPairs.map(pair => pair.jsonPoint.id));
         
         // JSONポイントから不一致のものを抽出
@@ -231,33 +230,12 @@ export class PointOverlay {
             point.id && !matchedIds.has(point.id)
         );
 
-        // GPSマーカーから不一致のものを抽出  
-        const unmatchedGpsPoints = gpsMarkers.filter(gps => 
-            gps.id && !matchedIds.has(gps.id)
-        );
-
-        // 不一致ポイントの一覧を作成
-        const unmatchedList = [];
-        
-        if (unmatchedJsonPoints.length > 0) {
-            unmatchedList.push('[JSONポイント]');
-            unmatchedJsonPoints.forEach(point => {
-                unmatchedList.push(`  ${point.id}`);
-            });
-        }
-        
-        if (unmatchedGpsPoints.length > 0) {
-            if (unmatchedList.length > 0) unmatchedList.push('');
-            unmatchedList.push('[GPSポイント]');
-            unmatchedGpsPoints.forEach(gps => {
-                unmatchedList.push(`  ${gps.id}`);
-            });
-        }
-
-        if (unmatchedList.length === 0) {
-            unmatchedPointsField.value = '全てのポイントが一致しています';
+        if (unmatchedJsonPoints.length === 0) {
+            unmatchedPointsField.value = '';
         } else {
-            unmatchedPointsField.value = unmatchedList.join('\n');
+            // スペース区切りで不一致JSONポイントのIDを表示
+            const unmatchedIds = unmatchedJsonPoints.map(point => point.id);
+            unmatchedPointsField.value = unmatchedIds.join(' ');
         }
     }
 
