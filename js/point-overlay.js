@@ -22,7 +22,6 @@ export class PointOverlay {
         const loadPointJsonBtn = document.getElementById('loadPointJsonBtn');
         const pointJsonInput = document.getElementById('pointJsonInput');
         const matchPointsBtn = document.getElementById('matchPointsBtn');
-        const overlayImageBtn = document.getElementById('overlayImageBtn');
 
         if (loadPointJsonBtn && pointJsonInput) {
             loadPointJsonBtn.addEventListener('click', () => {
@@ -41,12 +40,10 @@ export class PointOverlay {
 
         if (matchPointsBtn) {
             matchPointsBtn.addEventListener('click', () => {
+                // ポイントマッチングを実行
                 this.matchPointsWithGPS();
-            });
-        }
-
-        if (overlayImageBtn) {
-            overlayImageBtn.addEventListener('click', () => {
+                
+                // 画像の重ね合わせ（ジオリファレンス）を実行
                 this.autoAdjustImageToGPS();
             });
         }

@@ -65,8 +65,7 @@
 #loadGpsBtn,
 #loadPointJsonBtn,
 #loadRouteJsonBtn,
-#matchPointsBtn,
-#overlayImageBtn {
+#matchPointsBtn {
     padding: 8px;
     cursor: pointer;
     display: block;
