@@ -22,6 +22,9 @@ export class ImageOverlay {
         // config.jsonから初期スケール値を取得してUIに設定
         this.initializeScaleInput();
         
+        // config.jsonから初期透過度を取得してUIに設定
+        this.initializeOpacityInput();
+        
         // 中心マーカーは画像読み込み後に表示するため、初期化のみ行う
         this.initializeCenterMarker(mapCore.getInitialCenter(), false);
         this.setupEventHandlers();
@@ -33,6 +36,15 @@ export class ImageOverlay {
         this.currentScale = this.getDefaultScale();
     }
 
+    // config.jsonから初期透過度を取得してUIに設定
+    initializeOpacityInput() {
+        const opacityInput = document.getElementById('opacityInput');
+        if (opacityInput) {
+            const defaultOpacity = this.getDefaultOpacity();
+            opacityInput.value = defaultOpacity.toString();
+        }
+    }
+
     // config.jsonからデフォルトスケール値を取得
     getDefaultScale() {
         const config = this.mapCore.getConfig();
@@ -40,6 +52,15 @@ export class ImageOverlay {
             return config.imageOverlay.defaultScale;
         }
         return 0.8; // フォールバック値
+    }
+
+    // config.jsonからデフォルト透過度を取得
+    getDefaultOpacity() {
+        const config = this.mapCore.getConfig();
+        if (config && config.imageOverlay && config.imageOverlay.defaultOpacity) {
+            return config.imageOverlay.defaultOpacity;
+        }
+        return 50; // フォールバック値
     }
 
     // 現在のscale値を取得

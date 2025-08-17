@@ -9,6 +9,7 @@
     }
   },
   "imageOverlay": {
-    "defaultScale": 0.8
+    "defaultScale": 0.8,
+    "defaultOpacity": 50
   }
 }
