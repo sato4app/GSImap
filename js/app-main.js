@@ -28,6 +28,9 @@ class GSIMapApp {
         // PointInfoManagerを常に初期化（mapはnullでも可）
         this.pointInfoManager = new PointInfoManager(null);
         
+        // イベントハンドラー設定（地図の初期化に関係なく実行）
+        this.setupEventHandlers();
+        
         // 地図が初期化されていない場合は、地図関連モジュールの初期化をスキップ
         if (!this.mapCore.getMap()) {
             return;
@@ -41,9 +44,6 @@ class GSIMapApp {
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
         this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
         this.routeEditor = new RouteEditor(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
-        
-        // イベントハンドラー設定
-        this.setupEventHandlers();
         
     }
 
@@ -60,6 +60,16 @@ class GSIMapApp {
             imageInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file && file.type === 'image/png') {
+                    // ImageOverlayモジュールが初期化されていない場合は初期化
+                    if (!this.imageOverlay) {
+                        if (this.mapCore) {
+                            this.imageOverlay = new ImageOverlay(this.mapCore);
+                        } else {
+                            this.showErrorMessage('画像読み込みエラー', '地図が初期化されていません。');
+                            return;
+                        }
+                    }
+                    
                     this.imageOverlay.loadImage(file).catch(error => {
                         this.showErrorMessage('画像読み込みエラー', error.message);
                     });
@@ -81,6 +91,16 @@ class GSIMapApp {
             gpsCsvInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
+                    // GPSDataモジュールが初期化されていない場合は初期化
+                    if (!this.gpsData) {
+                        if (this.mapCore && this.mapCore.getMap()) {
+                            this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
+                        } else {
+                            this.showErrorMessage('GPS データ読み込みエラー', '地図が初期化されていません。');
+                            return;
+                        }
+                    }
+                    
                     this.gpsData.loadGPSData(file).catch(error => {
                         this.showErrorMessage('GPS データ読み込みエラー', error.message);
                     });
