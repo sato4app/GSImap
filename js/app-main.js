@@ -45,7 +45,12 @@ class GSIMapApp {
         // 各機能モジュール初期化（PointInfoManager参照を渡す）
         this.imageOverlay = new ImageOverlay(this.mapCore);
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
-        this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
+        
+        // ImageOverlayの初期化完了を少し待ってからPointOverlayを初期化
+        setTimeout(() => {
+            this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
+        }, 100);
+        
         this.routeEditor = new RouteEditor(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
         
     }

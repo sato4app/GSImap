@@ -23,18 +23,31 @@ export class PointOverlay {
         const pointJsonInput = document.getElementById('pointJsonInput');
         const matchPointsBtn = document.getElementById('matchPointsBtn');
 
+        console.log('PointOverlay setupEventHandlers:', {
+            loadPointJsonBtn: !!loadPointJsonBtn,
+            pointJsonInput: !!pointJsonInput,
+            matchPointsBtn: !!matchPointsBtn
+        });
+
         if (loadPointJsonBtn && pointJsonInput) {
             loadPointJsonBtn.addEventListener('click', () => {
+                console.log('ポイントJSON読み込みボタンがクリックされました');
                 pointJsonInput.click();
             });
 
             pointJsonInput.addEventListener('change', (e) => {
+                console.log('ファイル選択が変更されました:', e.target.files[0]);
                 const file = e.target.files[0];
                 if (file) {
                     this.loadPointJSON(file).catch(error => {
                         this.showErrorMessage('ポイントJSONファイルの読み込みに失敗しました', error.message);
                     });
                 }
+            });
+        } else {
+            console.warn('PointOverlay: 必要なDOM要素が見つかりません', {
+                loadPointJsonBtn,
+                pointJsonInput
             });
         }
 
