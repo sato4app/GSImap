@@ -67,6 +67,10 @@ export class MapCore {
         return this.initialCenter;
     }
 
+    getConfig() {
+        return this.config;
+    }
+
     showErrorMessage(title, message) {
         const messageBox = document.createElement('div');
         messageBox.style.cssText = `

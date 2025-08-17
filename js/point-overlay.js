@@ -348,7 +348,8 @@ export class PointOverlay {
         
         // 初期スケールをより適切に推定
         const initialScale = this.estimateInitialScale(matchedPairs, bestCenterLat, bestCenterLng);
-        const currentScaleValue = document.getElementById('scaleInput') ? parseFloat(document.getElementById('scaleInput').value) : 0.8;
+        const scaleInput = document.getElementById('scaleInput');
+        const currentScaleValue = scaleInput ? parseFloat(scaleInput.value) : (this.imageOverlay ? this.imageOverlay.getDefaultScale() : 0.8);
         let bestScale = initialScale > 0 ? initialScale : currentScaleValue;
         console.log(`Scale最適化開始: 現在値=${currentScaleValue}, 推定初期値=${initialScale}, 使用初期値=${bestScale}`);
 

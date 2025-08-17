@@ -2,6 +2,7 @@
 export class ImageOverlay {
     constructor(mapCore) {
         this.map = mapCore.getMap();
+        this.mapCore = mapCore;
         this.imageOverlay = null;
         this.currentImage = new Image();
         this.currentImageFileName = null;
@@ -15,9 +16,30 @@ export class ImageOverlay {
         this.isCenteringMode = false;
         this.imageUpdateCallbacks = [];
         
+        // config.jsonから初期スケール値を取得してUIに設定
+        this.initializeScaleInput();
+        
         // 中心マーカーは画像読み込み後に表示するため、初期化のみ行う
         this.initializeCenterMarker(mapCore.getInitialCenter(), false);
         this.setupEventHandlers();
+    }
+
+    // config.jsonから初期スケール値を取得してUIに設定
+    initializeScaleInput() {
+        const scaleInput = document.getElementById('scaleInput');
+        if (scaleInput) {
+            const defaultScale = this.getDefaultScale();
+            scaleInput.value = defaultScale.toString();
+        }
+    }
+
+    // config.jsonからデフォルトスケール値を取得
+    getDefaultScale() {
+        const config = this.mapCore.getConfig();
+        if (config && config.imageOverlay && config.imageOverlay.defaultScale) {
+            return config.imageOverlay.defaultScale;
+        }
+        return 0.8; // フォールバック値
     }
 
     initializeCenterMarker(position, addToMap = true) {
@@ -340,7 +362,7 @@ export class ImageOverlay {
         }
         
         const scaleInput = document.getElementById('scaleInput');
-        let scale = 0.8; // デフォルト値
+        let scale = this.getDefaultScale(); // デフォルト値
         
         if (scaleInput) {
             const inputValue = scaleInput.value.trim();
@@ -466,8 +488,8 @@ export class ImageOverlay {
                     const parsedValue = parseFloat(inputValue);
                     if (isNaN(parsedValue) || parsedValue <= 0) {
                         // 無効な値の場合はデフォルト値をセット
-                        console.log(`Scale入力検証: ${inputValue} → 0.8 (無効値のためデフォルト値に修正)`);
-                        scaleInput.value = '0.8';
+                        console.log(`Scale入力検証: ${inputValue} → ${this.getDefaultScale()} (無効値のためデフォルト値に修正)`);
+                        scaleInput.value = this.getDefaultScale().toString();
                     } else {
                         console.log(`Scale入力検証: ${inputValue} (有効値)`);
                     }
