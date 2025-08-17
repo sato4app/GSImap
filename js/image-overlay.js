@@ -16,6 +16,9 @@ export class ImageOverlay {
         this.isCenteringMode = false;
         this.imageUpdateCallbacks = [];
         
+        // 内部scale管理（初期値はconfig.jsonから取得）
+        this.currentScale = this.getDefaultScale();
+        
         // config.jsonから初期スケール値を取得してUIに設定
         this.initializeScaleInput();
         
@@ -40,6 +43,20 @@ export class ImageOverlay {
             return config.imageOverlay.defaultScale;
         }
         return 0.8; // フォールバック値
+    }
+
+    // 現在のscale値を取得
+    getCurrentScale() {
+        return this.currentScale || this.getDefaultScale();
+    }
+
+    // scale値を設定（UIも更新）
+    setCurrentScale(scale) {
+        this.currentScale = scale;
+        const scaleInput = document.getElementById('scaleInput');
+        if (scaleInput) {
+            scaleInput.value = scale.toFixed(3);
+        }
     }
 
     initializeCenterMarker(position, addToMap = true) {
@@ -334,8 +351,7 @@ export class ImageOverlay {
     }
 
     updateScaleFromBounds(bounds) {
-        const scaleInput = document.getElementById('scaleInput');
-        if (!scaleInput || !this.currentImage.width) return;
+        if (!this.currentImage.width) return;
         
         const latLngBounds = bounds;
         const pixelBounds = this.map.latLngToLayerPoint(latLngBounds.getNorthEast())
@@ -344,10 +360,10 @@ export class ImageOverlay {
         const imagePixels = Math.sqrt(this.currentImage.width * this.currentImage.width + 
                                      this.currentImage.height * this.currentImage.height);
         
-        const currentScale = pixelBounds / imagePixels;
-        const previousScale = scaleInput.value;
-        scaleInput.value = currentScale.toFixed(2);
-        console.log(`Scale更新: ${previousScale} → ${currentScale.toFixed(2)}`);
+        const newScale = pixelBounds / imagePixels;
+        const previousScale = this.getCurrentScale();
+        this.setCurrentScale(newScale);
+        console.log(`Scale更新: ${previousScale.toFixed(2)} → ${newScale.toFixed(2)}`);
     }
 
 
@@ -361,28 +377,8 @@ export class ImageOverlay {
             return;
         }
         
-        const scaleInput = document.getElementById('scaleInput');
-        let scale = this.getDefaultScale(); // デフォルト値
-        
-        if (scaleInput) {
-            const inputValue = scaleInput.value.trim();
-            // 空文字列、null、undefined、NaNをチェック
-            if (inputValue && inputValue !== '') {
-                const parsedScale = parseFloat(inputValue);
-                if (isFinite(parsedScale) && parsedScale > 0) {
-                    console.log(`Scale参照: ${parsedScale}`);
-                    scale = parsedScale;
-                } else {
-                    // 無効な値の場合、デフォルト値に戻してフィールドを修正
-                    console.log(`Scale修正: ${inputValue} → ${scale} (無効値のためデフォルト値に変更)`);
-                    scaleInput.value = scale.toString();
-                }
-            } else {
-                // 空文字列の場合、デフォルト値をセット
-                console.log(`Scale設定: 空文字列のためデフォルト値 ${scale} を設定`);
-                scaleInput.value = scale.toString();
-            }
-        }
+        // 内部管理のscale値を使用
+        const scale = this.getCurrentScale();
         
         const centerPos = this.centerMarker.getLatLng();
         
@@ -475,31 +471,9 @@ export class ImageOverlay {
     }
 
     setupEventHandlers() {
-        const scaleInput = document.getElementById('scaleInput');
         const opacityInput = document.getElementById('opacityInput');
         
-        if (scaleInput) {
-            const validateAndUpdateScale = () => {
-                const inputValue = scaleInput.value.trim();
-                if (inputValue === '' || inputValue === null || inputValue === undefined) {
-                    // 空文字列の場合はクリア状態として保持（デフォルト値は適用しない）
-                    return;
-                } else {
-                    const parsedValue = parseFloat(inputValue);
-                    if (isNaN(parsedValue) || parsedValue <= 0) {
-                        // 無効な値の場合はデフォルト値をセット
-                        console.log(`Scale入力検証: ${inputValue} → ${this.getDefaultScale()} (無効値のためデフォルト値に修正)`);
-                        scaleInput.value = this.getDefaultScale().toString();
-                    } else {
-                        console.log(`Scale入力検証: ${inputValue} (有効値)`);
-                    }
-                }
-                this.updateImageDisplay();
-            };
-            
-            // フォーカス移動時のみ値チェックを実行
-            scaleInput.addEventListener('blur', validateAndUpdateScale);
-        }
+        // scaleInputは表示専用のため、イベントハンドラーは設定しない
         
         if (opacityInput) {
             opacityInput.addEventListener('input', () => this.updateOpacity());
