@@ -47,12 +47,13 @@
     display: flex;
     align-items: center;
     padding: 5px 8px;
+    margin-bottom: 10px;
 }
 
 #opacityInputContainer label {
     margin-right: 8px;
     white-space: nowrap;
-    font-weight: bold;
+    font-weight: normal;
 }
 
 #opacityInput {
@@ -85,6 +86,11 @@
     border-radius: 4px;
     width: 100%;
     box-sizing: border-box;
+}
+
+/* 不一致ポイント表示フィールド専用スタイル */
+.point-count-container.unmatched-points {
+    align-items: flex-start;
 }
 
 .point-count-container label {
