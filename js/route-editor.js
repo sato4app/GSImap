@@ -212,7 +212,9 @@ export class RouteEditor {
         if (lastRoute) {
             const startPoint = lastRoute.startPoint || lastRoute.start || lastRoute.startPointId || (lastRoute.routeInfo && lastRoute.routeInfo.startPoint);
             const endPoint = lastRoute.endPoint || lastRoute.end || lastRoute.endPointId || (lastRoute.routeInfo && lastRoute.routeInfo.endPoint);
-            const optionValue = `${startPoint} ～ ${endPoint}`;
+            const wayPoint = lastRoute.wayPoint || lastRoute.wayPoints || lastRoute.points;
+            const waypointCount = wayPoint ? wayPoint.length : 0;
+            const optionValue = `${startPoint} ～ ${endPoint}（${waypointCount}）`;
             
             // 既存のオプションをチェック
             let optionExists = false;
@@ -262,7 +264,9 @@ export class RouteEditor {
         const selectedRoute = this.loadedRoutes.find(route => {
             const startPoint = route.startPoint || route.start || route.startPointId || (route.routeInfo && route.routeInfo.startPoint);
             const endPoint = route.endPoint || route.end || route.endPointId || (route.routeInfo && route.routeInfo.endPoint);
-            return `${startPoint} ～ ${endPoint}` === selectedValue;
+            const wayPoint = route.wayPoint || route.wayPoints || route.points;
+            const waypointCount = wayPoint ? wayPoint.length : 0;
+            return `${startPoint} ～ ${endPoint}（${waypointCount}）` === selectedValue;
         });
         
         if (selectedRoute) {
