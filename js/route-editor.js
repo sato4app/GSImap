@@ -45,18 +45,18 @@ export class RouteEditor {
                 try {
                     const routeData = JSON.parse(e.target.result);
                     
-                    
                     // JSONファイル内容の検証
                     const validationResult = this.validateRouteJSON(routeData);
                     if (!validationResult.isValid) {
                         this.showWarningMessage('ルートJSONファイル検証警告', validationResult.warnings.join('\n'));
                     }
                     
-                    this.addRouteToMap(routeData);
-                    
                     // ルートデータを保存
                     this.loadedRoutes.push(routeData);
                     this.updateRouteSelector();
+                    
+                    // 全てのルートを表示（新しく読み込んだルートを選択状態で）
+                    this.displayAllRoutes(routeData);
                     
                     resolve(routeData);
                 } catch (error) {
@@ -69,12 +69,14 @@ export class RouteEditor {
         });
     }
 
-    addRouteToMap(routeData) {
-        // 既存のwaypointマーカーをクリア
-        this.waypointMarkers.forEach(marker => {
-            this.map.removeLayer(marker);
-        });
-        this.waypointMarkers = [];
+    addRouteToMap(routeData, isSelected = false) {
+        // 選択されたルートの場合は既存のマーカーをクリア
+        if (isSelected) {
+            this.waypointMarkers.forEach(marker => {
+                this.map.removeLayer(marker);
+            });
+            this.waypointMarkers = [];
+        }
         
         // waypointを画像上の位置でマーカー追加
         const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
@@ -93,18 +95,23 @@ export class RouteEditor {
                     const mapPosition = this.convertImageToMapCoordinates(imageX, imageY);
                     
                     if (mapPosition) {
+                        // 選択状態に応じてアイコンサイズを決定
+                        const iconClass = isSelected ? 'waypoint-marker-icon' : 'waypoint-marker-icon waypoint-marker-icon-small';
+                        const iconSize = isSelected ? [12, 12] : [8, 8];
+                        const iconAnchor = isSelected ? [6, 6] : [4, 4];
+                        
                         // オレンジ菱形マーカーを作成
                         const diamondIcon = L.divIcon({
-                            className: 'waypoint-marker-icon',
-                            html: '<div style="width: 8px; height: 8px; background-color: #ff8c00; border: 1.5px solid #ffffff; transform: rotate(45deg);"></div>',
-                            iconSize: [12, 12],
-                            iconAnchor: [6, 6]
+                            className: iconClass,
+                            html: '<div class="diamond"></div>',
+                            iconSize: iconSize,
+                            iconAnchor: iconAnchor
                         });
                         
                         const marker = L.marker(mapPosition, {
                             icon: diamondIcon,
                             draggable: false,
-                            zIndexOffset: 1000,
+                            zIndexOffset: isSelected ? 1000 : 500,
                             pane: 'waypointMarkers'
                         }).addTo(this.map);
                         
@@ -271,8 +278,23 @@ export class RouteEditor {
         
         if (selectedRoute) {
             this.updateRouteDetails(selectedRoute);
-            this.addRouteToMap(selectedRoute);
+            this.displayAllRoutes(selectedRoute);
         }
+    }
+
+    // 全てのルートを表示（選択されたルートは大きいアイコン、その他は小さいアイコン）
+    displayAllRoutes(selectedRoute) {
+        // 既存のマーカーをクリア
+        this.waypointMarkers.forEach(marker => {
+            this.map.removeLayer(marker);
+        });
+        this.waypointMarkers = [];
+        
+        // 全てのルートを表示
+        this.loadedRoutes.forEach(route => {
+            const isSelected = route === selectedRoute;
+            this.addRouteToMap(route, isSelected);
+        });
     }
     
     showErrorMessage(title, message) {

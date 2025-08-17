@@ -248,3 +248,41 @@
     font-size: 11pt !important;
 }
 
+/* ルート中間点マーカーのスタイル */
+.waypoint-marker-icon {
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.waypoint-marker-icon .diamond {
+    width: 8px;
+    height: 8px;
+    background-color: #ff8c00;
+    border: 1.5px solid #ffffff;
+    transform: rotate(45deg);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -4px;
+    margin-left: -4px;
+}
+
+/* 小さいサイズのルート中間点マーカー */
+.waypoint-marker-icon-small {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+.waypoint-marker-icon-small .diamond {
+    width: 5px;
+    height: 5px;
+    background-color: #ff8c00;
+    border: 1.5px solid #ffffff;
+    transform: rotate(45deg);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -2.5px;
+    margin-left: -2.5px;
+}
+
