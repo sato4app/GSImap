@@ -18,7 +18,7 @@ class GSIMapApp {
         this.pointInfoManager = null;
     }
 
-    init() {
+    async init() {
         // コアモジュール初期化
         this.mapCore = new MapCore();
         
@@ -114,7 +114,7 @@ class GSIMapApp {
 }
 
 // アプリケーション開始
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const app = new GSIMapApp();
-    app.init();
+    await app.init();
 });
