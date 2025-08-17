@@ -5,7 +5,13 @@ export class PointInfoManager {
         this.container = document.getElementById('pointInfoContainer');
         this.currentPoint = null;
         this.setupEventHandlers();
-        this.setupMapClickHandler();
+        
+        // mapがnullでない場合のみMapClickHandlerを設定
+        if (this.map) {
+            this.setupMapClickHandler();
+        } else {
+            console.warn('PointInfoManager: mapがnullのため、マップクリックハンドラーを設定できません。');
+        }
     }
 
     // 10進数緯度経度をDMS形式に変換
@@ -166,6 +172,11 @@ export class PointInfoManager {
 
     // 地図クリックハンドラーの設定
     setupMapClickHandler() {
+        if (!this.map) {
+            console.warn('PointInfoManager: mapがnullのため、クリックハンドラーを設定できません。');
+            return;
+        }
+        
         this.map.on('click', (e) => {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
@@ -174,6 +185,14 @@ export class PointInfoManager {
             // 現在はシンプルに未登録として処理
             this.onMapClick(lat, lng, null);
         });
+    }
+
+    // マップオブジェクトを後から設定する
+    setMap(map) {
+        this.map = map;
+        if (this.map) {
+            this.setupMapClickHandler();
+        }
     }
 
     // 現在のポイント情報を取得

@@ -25,14 +25,17 @@ class GSIMapApp {
         // コアモジュール初期化
         this.mapCore = new MapCore();
         
+        // PointInfoManagerを常に初期化（mapはnullでも可）
+        this.pointInfoManager = new PointInfoManager(null);
+        
         // 地図が初期化されていない場合は、地図関連モジュールの初期化をスキップ
         if (!this.mapCore.getMap()) {
             console.warn('地図が初期化されていないため、地図関連機能は利用できません。');
             return;
         }
         
-        // PointInfoManagerを先に初期化
-        this.pointInfoManager = new PointInfoManager(this.mapCore.getMap());
+        // 地図が初期化された後でPointInfoManagerにマップを設定
+        this.pointInfoManager.setMap(this.mapCore.getMap());
         
         // 各機能モジュール初期化（PointInfoManager参照を渡す）
         this.imageOverlay = new ImageOverlay(this.mapCore);
