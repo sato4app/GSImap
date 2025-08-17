@@ -207,9 +207,10 @@
         <div id="imageOverlayEditor" class="editor-panel" style="display: none;">
             <input type="file" id="imageInput" accept="image/png" style="display: none;">
             <button id="loadImageBtn" title="画像を読み込む" class="leaflet-bar leaflet-control">PNG画像読み込み</button>
-            <div id="opacityInputContainer" class="leaflet-bar leaflet-control">
-                <label for="opacityInput">透過度(%)</label>
+            <div class="point-count-container">
+                <label for="opacityInput">透過度</label>
                 <input type="number" id="opacityInput" min="0" max="100">
+                <span class="unit-label">%</span>
             </div>
             <input type="file" id="pointJsonInput" accept=".json" style="display: none;">
             <button id="loadPointJsonBtn" title="ポイントJSONを読み込む" class="leaflet-bar leaflet-control">ポイントJSON読み込み</button>

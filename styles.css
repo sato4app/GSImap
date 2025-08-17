@@ -43,22 +43,6 @@
     gap: 8px;
 }
 
-#opacityInputContainer {
-    display: flex;
-    align-items: center;
-    padding: 5px 8px;
-    margin-bottom: 10px;
-}
-
-#opacityInputContainer label {
-    margin-right: 8px;
-    white-space: nowrap;
-    font-weight: normal;
-}
-
-#opacityInput {
-    width: 4em;
-}
 #loadImageBtn,
 #loadGpsBtn,
 #loadPointJsonBtn,
