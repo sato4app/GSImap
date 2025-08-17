@@ -19,8 +19,17 @@ class GSIMapApp {
     }
 
     async init() {
+        // ModeSwitcherは常に初期化（地図に依存しない）
+        this.modeSwitcher = new ModeSwitcher();
+        
         // コアモジュール初期化
         this.mapCore = new MapCore();
+        
+        // 地図が初期化されていない場合は、地図関連モジュールの初期化をスキップ
+        if (!this.mapCore.getMap()) {
+            console.warn('地図が初期化されていないため、地図関連機能は利用できません。');
+            return;
+        }
         
         // PointInfoManagerを先に初期化
         this.pointInfoManager = new PointInfoManager(this.mapCore.getMap());
@@ -30,7 +39,6 @@ class GSIMapApp {
         this.gpsData = new GPSData(this.mapCore.getMap(), this.pointInfoManager);
         this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
         this.routeEditor = new RouteEditor(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
-        this.modeSwitcher = new ModeSwitcher();
         
         // イベントハンドラー設定
         this.setupEventHandlers();
