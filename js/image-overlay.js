@@ -27,13 +27,10 @@ export class ImageOverlay {
         this.setupEventHandlers();
     }
 
-    // config.jsonから初期スケール値を取得してUIに設定
+    // config.jsonから初期スケール値を設定（UIフィールドは削除済み）
     initializeScaleInput() {
-        const scaleInput = document.getElementById('scaleInput');
-        if (scaleInput) {
-            const defaultScale = this.getDefaultScale();
-            scaleInput.value = defaultScale.toString();
-        }
+        // scaleInputフィールドは削除されたため、内部scaleのみ初期化
+        this.currentScale = this.getDefaultScale();
     }
 
     // config.jsonからデフォルトスケール値を取得
@@ -50,13 +47,10 @@ export class ImageOverlay {
         return this.currentScale || this.getDefaultScale();
     }
 
-    // scale値を設定（UIも更新）
+    // scale値を設定
     setCurrentScale(scale) {
         this.currentScale = scale;
-        const scaleInput = document.getElementById('scaleInput');
-        if (scaleInput) {
-            scaleInput.value = scale.toFixed(3);
-        }
+        // scaleInputフィールドは削除されたため、内部scaleのみ更新
     }
 
     initializeCenterMarker(position, addToMap = true) {
@@ -473,7 +467,7 @@ export class ImageOverlay {
     setupEventHandlers() {
         const opacityInput = document.getElementById('opacityInput');
         
-        // scaleInputは表示専用のため、イベントハンドラーは設定しない
+        // scaleInputフィールドは削除済み
         
         if (opacityInput) {
             opacityInput.addEventListener('input', () => this.updateOpacity());

@@ -43,21 +43,18 @@
     gap: 8px;
 }
 
-#scaleInputContainer,
 #opacityInputContainer {
     display: flex;
     align-items: center;
     padding: 5px 8px;
 }
 
-#scaleInputContainer label,
 #opacityInputContainer label {
     margin-right: 8px;
     white-space: nowrap;
     font-weight: bold;
 }
 
-#scaleInput,
 #opacityInput {
     width: 4em;
 }
