@@ -56,13 +56,6 @@
     margin-bottom: 10px;
 }
 
-/* ルートJSON読込ボタン専用のマージン調整 */
-#loadRouteJsonBtn {
-    margin-bottom: 25px;
-}
-
-
-
 /* ポイント数表示コンテナ */
 .point-count-container {
     display: flex;
