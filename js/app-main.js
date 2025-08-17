@@ -25,6 +25,9 @@ class GSIMapApp {
         // コアモジュール初期化
         this.mapCore = new MapCore();
         
+        // MapCoreの初期化完了を待つ
+        await this.waitForMapInitialization();
+        
         // PointInfoManagerを常に初期化（mapはnullでも可）
         this.pointInfoManager = new PointInfoManager(null);
         
@@ -45,6 +48,17 @@ class GSIMapApp {
         this.pointOverlay = new PointOverlay(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
         this.routeEditor = new RouteEditor(this.mapCore.getMap(), this.imageOverlay, this.gpsData);
         
+    }
+
+    // MapCoreの初期化完了を待つヘルパーメソッド
+    async waitForMapInitialization() {
+        let attempts = 0;
+        const maxAttempts = 50; // 最大5秒待機
+        
+        while (!this.mapCore.getMap() && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
     }
 
     setupEventHandlers() {
