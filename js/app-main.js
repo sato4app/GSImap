@@ -30,7 +30,6 @@ class GSIMapApp {
         
         // 地図が初期化されていない場合は、地図関連モジュールの初期化をスキップ
         if (!this.mapCore.getMap()) {
-            console.warn('地図が初期化されていないため、地図関連機能は利用できません。');
             return;
         }
         

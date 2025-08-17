@@ -9,8 +9,6 @@ export class PointInfoManager {
         // mapがnullでない場合のみMapClickHandlerを設定
         if (this.map) {
             this.setupMapClickHandler();
-        } else {
-            console.warn('PointInfoManager: mapがnullのため、マップクリックハンドラーを設定できません。');
         }
     }
 
@@ -173,7 +171,6 @@ export class PointInfoManager {
     // 地図クリックハンドラーの設定
     setupMapClickHandler() {
         if (!this.map) {
-            console.warn('PointInfoManager: mapがnullのため、クリックハンドラーを設定できません。');
             return;
         }
         
