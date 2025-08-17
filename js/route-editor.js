@@ -70,13 +70,8 @@ export class RouteEditor {
     }
 
     addRouteToMap(routeData, isSelected = false) {
-        // 選択されたルートの場合は既存のマーカーをクリア
-        if (isSelected) {
-            this.waypointMarkers.forEach(marker => {
-                this.map.removeLayer(marker);
-            });
-            this.waypointMarkers = [];
-        }
+        // マーカーのクリアは呼び出し元で行うため、ここでは行わない
+        console.log('addRouteToMap called with isSelected:', isSelected);
         
         // waypointを画像上の位置でマーカー追加
         const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
@@ -284,6 +279,9 @@ export class RouteEditor {
 
     // 全てのルートを表示（選択されたルートは大きいアイコン、その他は小さいアイコン）
     displayAllRoutes(selectedRoute) {
+        console.log('displayAllRoutes called with selectedRoute:', selectedRoute);
+        console.log('loadedRoutes count:', this.loadedRoutes.length);
+        
         // 既存のマーカーをクリア
         this.waypointMarkers.forEach(marker => {
             this.map.removeLayer(marker);
@@ -291,8 +289,9 @@ export class RouteEditor {
         this.waypointMarkers = [];
         
         // 全てのルートを表示
-        this.loadedRoutes.forEach(route => {
+        this.loadedRoutes.forEach((route, index) => {
             const isSelected = route === selectedRoute;
+            console.log(`Route ${index}: isSelected = ${isSelected}`);
             this.addRouteToMap(route, isSelected);
         });
     }
