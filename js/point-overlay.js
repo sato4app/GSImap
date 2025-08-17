@@ -350,7 +350,6 @@ export class PointOverlay {
         const initialScale = this.estimateInitialScale(matchedPairs, bestCenterLat, bestCenterLng);
         const currentScaleValue = this.imageOverlay ? this.imageOverlay.getCurrentScale() : 0.8;
         let bestScale = initialScale > 0 ? initialScale : currentScaleValue;
-        console.log(`Scale最適化開始: 現在値=${currentScaleValue}, 推定初期値=${initialScale}, 使用初期値=${bestScale}`);
 
 
         let bestError = this.calculateTotalError(matchedPairs, bestCenterLat, bestCenterLng, bestScale);
@@ -391,8 +390,6 @@ export class PointOverlay {
         if (!isFinite(bestCenterLat) || !isFinite(bestCenterLng) || !isFinite(bestScale) || bestScale <= 0) {
             return null;
         }
-
-        console.log(`Scale最適化完了: 初期値=${currentScaleValue} → 最適値=${bestScale.toFixed(3)} (誤差=${bestError.toFixed(6)})`);
 
         return {
             centerLat: bestCenterLat,
@@ -556,9 +553,7 @@ export class PointOverlay {
 
         // 新しいスケールを設定
         if (this.imageOverlay && isFinite(newScale)) {
-            const previousScale = this.imageOverlay.getCurrentScale();
             this.imageOverlay.setCurrentScale(newScale);
-            console.log(`Scaleジオリファレンス調整: ${previousScale.toFixed(3)} → ${newScale.toFixed(3)}`);
         }
         
         // 中心位置を設定してから画像表示を更新

@@ -355,9 +355,7 @@ export class ImageOverlay {
                                      this.currentImage.height * this.currentImage.height);
         
         const newScale = pixelBounds / imagePixels;
-        const previousScale = this.getCurrentScale();
         this.setCurrentScale(newScale);
-        console.log(`Scale更新: ${previousScale.toFixed(2)} → ${newScale.toFixed(2)}`);
     }
 
 
