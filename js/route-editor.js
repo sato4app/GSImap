@@ -21,9 +21,9 @@ export class RouteEditor {
             });
 
             routeJsonInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    this.loadRouteJSON(file).catch(error => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    this.loadMultipleRouteJSONs(files).catch(error => {
                         this.showErrorMessage('ルートJSONファイルの読み込みに失敗しました', error.message);
                     });
                 }
@@ -34,6 +34,23 @@ export class RouteEditor {
             routeSelect.addEventListener('change', () => {
                 this.onRouteSelectionChange();
             });
+        }
+    }
+
+    // 複数のルートJSONファイルを一度に読み込む
+    async loadMultipleRouteJSONs(files) {
+        const loadPromises = [];
+        
+        for (let i = 0; i < files.length; i++) {
+            loadPromises.push(this.loadRouteJSON(files[i]));
+        }
+        
+        try {
+            const results = await Promise.all(loadPromises);
+            console.log(`${results.length}個のルートJSONファイルを読み込みました`);
+            return results;
+        } catch (error) {
+            throw new Error(`複数ファイル読み込み中にエラーが発生しました: ${error.message}`);
         }
     }
 
