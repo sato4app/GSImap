@@ -33,6 +33,7 @@ export class RouteEditor {
         
         if (routeSelect) {
             routeSelect.addEventListener('change', () => {
+                this.clearActionButtonSelection();
                 this.onRouteSelectionChange();
             });
         }
@@ -107,6 +108,13 @@ export class RouteEditor {
             reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'));
             reader.readAsText(file);
         });
+    }
+
+    // ルート操作ボタンの選択状態をクリアする
+    clearActionButtonSelection() {
+        const allButtons = document.querySelectorAll('.route-action-btn');
+        allButtons.forEach(btn => btn.classList.remove('selected'));
+        this.selectedActionButton = null;
     }
 
     // ルート操作ボタンの選択・未選択状態を切り替える

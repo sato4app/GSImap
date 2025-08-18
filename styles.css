@@ -289,7 +289,7 @@
 .route-action-buttons {
     display: flex;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 20px;
     justify-content: space-between;
 }
 
