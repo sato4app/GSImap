@@ -47,7 +47,6 @@ export class RouteEditor {
         
         try {
             const results = await Promise.all(loadPromises);
-            console.log(`${results.length}個のルートJSONファイルを読み込みました`);
             return results;
         } catch (error) {
             throw new Error(`複数ファイル読み込み中にエラーが発生しました: ${error.message}`);
@@ -88,7 +87,6 @@ export class RouteEditor {
 
     addRouteToMap(routeData, isSelected = false) {
         // マーカーのクリアは呼び出し元で行うため、ここでは行わない
-        console.log('addRouteToMap called with isSelected:', isSelected);
         
         // waypointを画像上の位置でマーカー追加
         const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
@@ -296,8 +294,6 @@ export class RouteEditor {
 
     // 全てのルートを表示（選択されたルートは大きいアイコン、その他は小さいアイコン）
     displayAllRoutes(selectedRoute) {
-        console.log('displayAllRoutes called with selectedRoute:', selectedRoute);
-        console.log('loadedRoutes count:', this.loadedRoutes.length);
         
         // 既存のマーカーをクリア
         this.waypointMarkers.forEach(marker => {
@@ -308,7 +304,6 @@ export class RouteEditor {
         // 全てのルートを表示
         this.loadedRoutes.forEach((route, index) => {
             const isSelected = route === selectedRoute;
-            console.log(`Route ${index}: isSelected = ${isSelected}`);
             this.addRouteToMap(route, isSelected);
         });
     }
