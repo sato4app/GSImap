@@ -7,6 +7,7 @@ export class RouteEditor {
         this.routeData = [];
         this.loadedRoutes = [];
         this.waypointMarkers = [];
+        this.selectedActionButton = null;
         this.setupEventHandlers();
     }
 
@@ -33,6 +34,29 @@ export class RouteEditor {
         if (routeSelect) {
             routeSelect.addEventListener('change', () => {
                 this.onRouteSelectionChange();
+            });
+        }
+
+        // ルート操作ボタンのイベントハンドラー
+        const addRouteBtn = document.getElementById('addRouteBtn');
+        const moveRouteBtn = document.getElementById('moveRouteBtn');
+        const deleteRouteBtn = document.getElementById('deleteRouteBtn');
+
+        if (addRouteBtn) {
+            addRouteBtn.addEventListener('click', () => {
+                this.toggleActionButton('add', addRouteBtn);
+            });
+        }
+
+        if (moveRouteBtn) {
+            moveRouteBtn.addEventListener('click', () => {
+                this.toggleActionButton('move', moveRouteBtn);
+            });
+        }
+
+        if (deleteRouteBtn) {
+            deleteRouteBtn.addEventListener('click', () => {
+                this.toggleActionButton('delete', deleteRouteBtn);
             });
         }
     }
@@ -83,6 +107,22 @@ export class RouteEditor {
             reader.onerror = () => reject(new Error('ファイルの読み込みに失敗しました'));
             reader.readAsText(file);
         });
+    }
+
+    // ルート操作ボタンの選択・未選択状態を切り替える
+    toggleActionButton(action, buttonElement) {
+        // 全てのボタンから選択状態を削除
+        const allButtons = document.querySelectorAll('.route-action-btn');
+        allButtons.forEach(btn => btn.classList.remove('selected'));
+
+        // クリックしたボタンが現在選択されているボタンと同じ場合は未選択状態にする
+        if (this.selectedActionButton === action) {
+            this.selectedActionButton = null;
+        } else {
+            // 新しいボタンを選択状態にする
+            this.selectedActionButton = action;
+            buttonElement.classList.add('selected');
+        }
     }
 
     addRouteToMap(routeData, isSelected = false) {
@@ -256,20 +296,10 @@ export class RouteEditor {
         }
     }
     
-    // ルート詳細情報の更新
+    // ルート詳細情報の更新（削除されたフィールドに対応）
     updateRouteDetails(routeData) {
-        const startPointField = document.getElementById('startPointField');
-        const endPointField = document.getElementById('endPointField');
-        const waypointCountField = document.getElementById('waypointCountField');
-        
-        const startPoint = routeData.startPoint || routeData.start || routeData.startPointId || (routeData.routeInfo && routeData.routeInfo.startPoint);
-        const endPoint = routeData.endPoint || routeData.end || routeData.endPointId || (routeData.routeInfo && routeData.routeInfo.endPoint);
-        const wayPoint = routeData.wayPoint || routeData.wayPoints || routeData.points;
-        
-        if (startPointField) startPointField.value = startPoint || '';
-        if (endPointField) endPointField.value = endPoint || '';
-        // 中間点の数はJSON中の実際のポイント数を表示
-        if (waypointCountField) waypointCountField.value = wayPoint ? wayPoint.length : 0;
+        // 詳細フィールドは削除されたため、この関数は現在何も行わない
+        // 将来的に必要な場合のために関数は残しておく
     }
     
     // ルート選択変更時の処理

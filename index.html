@@ -257,23 +257,11 @@
                     </select>
                 </div>
                 
-                <!-- 開始ポイント -->
-                <div class="info-field-row">
-                    <label for="startPointField">開始ポイント</label>
-                    <input type="text" id="startPointField" readonly maxlength="5">
-                </div>
-                
-                <!-- 終了ポイント -->
-                <div class="info-field-row">
-                    <label for="endPointField">終了ポイント</label>
-                    <input type="text" id="endPointField" readonly maxlength="5">
-                </div>
-                
-                <!-- 中間点の数 -->
-                <div class="info-field-row">
-                    <label for="waypointCountField">中間点の数</label>
-                    <input type="text" id="waypointCountField" readonly maxlength="3">
-                    <span class="unit-label">個</span>
+                <!-- ルート操作ボタン -->
+                <div class="route-action-buttons">
+                    <button id="addRouteBtn" class="route-action-btn" type="button">追加</button>
+                    <button id="moveRouteBtn" class="route-action-btn" type="button">移動</button>
+                    <button id="deleteRouteBtn" class="route-action-btn" type="button">削除</button>
                 </div>
             </div>
         </div>

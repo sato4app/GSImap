@@ -285,3 +285,40 @@
     margin-left: -2.5px;
 }
 
+/* ルート操作ボタンのスタイル */
+.route-action-buttons {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: space-between;
+}
+
+.route-action-btn {
+    flex: 1;
+    padding: 6px 12px;
+    border: 2px solid #007bff;
+    background-color: #ffffff;
+    color: #007bff;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.route-action-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #0056b3;
+}
+
+.route-action-btn.selected {
+    background-color: #007bff;
+    color: #ffffff;
+    border-color: #0056b3;
+}
+
+.route-action-btn.selected:hover {
+    background-color: #0056b3;
+}
+
